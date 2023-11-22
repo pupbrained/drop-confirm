@@ -12,6 +12,10 @@
   "option.drop_confirm.enabled.description": "Whether DropConfirm should be enabled.",
   "option.drop_confirm.play_sounds": "Play Sounds",
   "option.drop_confirm.play_sounds.description": "Whether DropConfirm should play sounds for various events.",
+  "option.drop_confirm.treat_as_whitelist": "Treat as white list",
+  "option.drop_confirm.treat_as_whitelist.description": "Whether the blacklist should be used as a whitelist.\n\nNOTE: This change takes effect instantly, but will only show visually upon re-entering the config screen.",
   "option.drop_confirm.blacklisted_items": "Blacklisted Items",
-  "option.drop_confirm.blacklisted_items.description": "Items that should be ignored by DropConfirm."
+  "option.drop_confirm.blacklisted_items.description": "Items that should be ignored by DropConfirm.",
+  "option.drop_confirm.whitelisted_items": "Whitelisted Items",
+  "option.drop_confirm.whitelisted_items.description": "Items that should not be ignored by DropConfirm."
 }
