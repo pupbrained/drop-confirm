@@ -16,16 +16,7 @@ public abstract class HotbarSwitchMixin {
   @Unique
   private static int lastSlot = 0;
 
-  @Inject(
-    method = "handleInputEvents",
-    at = @At(
-      value = "FIELD",
-      target = "Lnet/minecraft/entity/player/PlayerInventory;selectedSlot:I",
-      opcode = Opcodes.PUTFIELD,
-      shift = At.Shift.BEFORE
-    ),
-    locals = LocalCapture.CAPTURE_FAILHARD
-  )
+  @Inject(method = "handleInputEvents", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerInventory;selectedSlot:I", opcode = Opcodes.PUTFIELD, shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
   private void onHotbarSwitch(CallbackInfo ci, int i) {
     if (!DropConfirmConfig.GSON.instance().enabled)
       return;

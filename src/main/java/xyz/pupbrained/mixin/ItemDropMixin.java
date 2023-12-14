@@ -29,28 +29,29 @@ public abstract class ItemDropMixin {
       return;
 
     final var action = entireStack
-      ? PlayerActionC2SPacket.Action.DROP_ALL_ITEMS
-      : PlayerActionC2SPacket.Action.DROP_ITEM;
+        ? PlayerActionC2SPacket.Action.DROP_ALL_ITEMS
+        : PlayerActionC2SPacket.Action.DROP_ITEM;
     final var inventory = player.getInventory();
     var itemStack = inventory.getMainHandStack();
 
-    if (config.blacklistedItems.contains(itemStack.getItem()))
+    if (config.blacklistedItems.contains(itemStack.getItem())) {
+      if (!config.treatAsWhitelist)
+        return;
+    } else if (config.treatAsWhitelist) {
       return;
+    }
 
     if (!Util.confirmed) {
       mc.inGameHud.setOverlayMessage(
-        Text.of(
-          String.format(
-            Text
-              .translatable("drop_confirm.confirmation")
-              .getString(),
-            mc
-              .options
-              .dropKey
-              .getBoundKeyLocalizedText()
-              .getString()
-          )
-        ), false);
+          Text.of(
+              String.format(
+                  Text
+                      .translatable("drop_confirm.confirmation")
+                      .getString(),
+                  mc.options.dropKey
+                      .getBoundKeyLocalizedText()
+                      .getString())),
+          false);
       Util.confirmed = true;
       new Thread(() -> {
         try {

@@ -23,10 +23,9 @@ public class DropConfirm implements ClientModInitializer {
     DropConfirmConfig.GSON.load();
 
     var toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-      "key.drop_confirm.toggle",
-      GLFW.GLFW_KEY_UNKNOWN,
-      "category.drop_confirm.keybinds"
-    ));
+        "key.drop_confirm.toggle",
+        GLFW.GLFW_KEY_UNKNOWN,
+        "category.drop_confirm.keybinds"));
 
     ClientTickEvents.END_CLIENT_TICK.register(client -> {
       while (toggleKey.wasPressed()) {
@@ -42,15 +41,13 @@ public class DropConfirm implements ClientModInitializer {
           player.playSound(SoundEvents.ENTITY_ITEM_PICKUP, 1.0f, config.enabled ? 1.0f : 0.5f);
 
         mc.inGameHud.setOverlayMessage(
-          Text
-            .literal("DropConfirm: ")
-            .append(
-              Text
-                .translatable(config.enabled ? "drop_confirm.toggle.on" : "drop_confirm.toggle.off")
-                .formatted(config.enabled ? Formatting.GREEN : Formatting.RED)
-            ),
-          false
-        );
+            Text
+                .literal("DropConfirm: ")
+                .append(
+                    Text
+                        .translatable(config.enabled ? "drop_confirm.toggle.on" : "drop_confirm.toggle.off")
+                        .formatted(config.enabled ? Formatting.GREEN : Formatting.RED)),
+            false);
       }
     });
   }
