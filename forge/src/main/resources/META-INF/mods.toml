@@ -1,0 +1,45 @@
+modLoader = "javafml"
+loaderVersion = "[49,)"
+#issueTrackerURL = ""
+license = "Unlicense"
+
+[[mods]]
+modId = "drop_confirm"
+version = "${version}"
+displayName = "DropConfirm"
+authors = "pupbrained"
+description = '''
+Think twice before you drop.
+'''
+logoFile = "icon.png"
+
+[[dependencies.drop_confirm]]
+modId = "forge"
+mandatory = true
+versionRange = "[49,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.drop_confirm]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.4,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.drop_confirm]]
+modId = "architectury"
+mandatory = true
+versionRange = "[11.0.9,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.drop_confirm]]
+modId = "the_config_lib"
+mandatory = true
+versionRange = "[4.0.0-SNAPSHOT,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "drop_confirm-common.mixins.json"

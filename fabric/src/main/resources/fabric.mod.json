@@ -25,7 +25,6 @@
     ]
   },
   "mixins": [
-    "drop_confirm.mixins.json",
     "drop_confirm-common.mixins.json"
   ],
   "depends": {
