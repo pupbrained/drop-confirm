@@ -1,5 +1,5 @@
 plugins {
-    val modstitchVersion = "0.1.2"
+    val modstitchVersion = "0.1.1"
     // You can append `.<platform>` to the plugin ID to apply a specific platform without relying on the gradle property
     // like: `id("dev.isxander.modstitch.base.loom") version modstitchVersion`
     id("dev.isxander.modstitch.base") version modstitchVersion

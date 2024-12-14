@@ -2,7 +2,6 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
-        mavenLocal()
         maven("https://maven.isxander.dev/releases/")
         maven("https://maven.fabricmc.net/")
         maven("https://maven.neoforged.net/releases/")
