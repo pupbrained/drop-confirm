@@ -1,5 +1,5 @@
 plugins {
-    val modstitchVersion = "0.2.0"
+    val modstitchVersion = "0.2.1"
     id("dev.isxander.modstitch.base") version modstitchVersion
     id("dev.isxander.modstitch.publishing") version modstitchVersion
 }
@@ -72,9 +72,11 @@ dependencies {
         modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.112.0+1.21.4")
     }
 
-    modstitchImplementation("org.commonmark:commonmark:0.21.0")
+    "org.commonmark:commonmark:0.21.0".let {
+        modstitchImplementation(it)
+        modstitchJiJ(it)
+    }
 
-    // Modstitch does not currently support jar-in-jar (or jarJar) dependencies
 }
 
 // Stands for 'modstitch publishing'
