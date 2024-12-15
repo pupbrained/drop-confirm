@@ -1,9 +1,12 @@
 plugins {
-    val modstitchVersion = "0.1.1"
-    // You can append `.<platform>` to the plugin ID to apply a specific platform without relying on the gradle property
-    // like: `id("dev.isxander.modstitch.base.loom") version modstitchVersion`
+    val modstitchVersion = "0.2.0"
     id("dev.isxander.modstitch.base") version modstitchVersion
     id("dev.isxander.modstitch.publishing") version modstitchVersion
+}
+
+fun prop(name: String, consumer: (prop: String) -> Unit) {
+    (findProperty(name) as? String?)
+        ?.let(consumer)
 }
 
 modstitch {
@@ -27,26 +30,27 @@ modstitch {
     }
 
     // This block configures loom-specific settings
-    msLoom {
+    loom {
         fabricLoaderVersion = "0.16.9"
 
         // This block configures the `loom` extension that fabric-loom exposes by default,
         // you can configure loom like normal from here
-        loom {
+        configureLoom {
 
         }
     }
 
     // This block configures moddevgradle-specific settings
-    msModdevgradle {
-        neoForgeVersion = property("deps.neoforge") as String
+    moddevgradle {
+        prop("deps.forge") { forgeVersion = it }
+        prop("deps.neoform") { neoformVersion = it }
 
         // Configures client and server runs for MDG, it is not done by default
         defaultRuns()
 
         // This block configures the `neoforge` extension that MDG exposes by default,
         // you can configure MDG like normal from here
-        modDevGradle {
+        configureNeoforge {
 
         }
     }
@@ -64,7 +68,7 @@ stonecutter {
 // modstitch ensures dependencies are configured correctly for the target platform
 // to create these configurations for more source sets, use `modstitch.createProxyConfigurations(sourceSets["client"])` for example
 dependencies {
-    if (modstitch.isLoom) {
+    modstitch.loom {
         modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.112.0+1.21.4")
     }
 
