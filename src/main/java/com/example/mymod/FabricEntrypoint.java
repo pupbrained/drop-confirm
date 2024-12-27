@@ -1,5 +1,5 @@
 //? if fabric {
-package com.example.mymod;
+/*package com.example.mymod;
 
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ModInitializer;
@@ -14,4 +14,4 @@ public class FabricEntrypoint implements ModInitializer {
         MyModEntrypoint.start();
     }
 }
-//?}
+*///?}

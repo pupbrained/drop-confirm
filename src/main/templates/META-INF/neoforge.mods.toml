@@ -18,3 +18,4 @@ description = '''${mod_description}'''
     modId = "minecraft"
     type = "required"
 
+${mod_mixins}

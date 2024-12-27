@@ -9,5 +9,6 @@
     "main": [
       "com.example.mymod.FabricEntrypoint"
     ]
-  }
+  },
+  "mixins": ${mod_mixins}
 }

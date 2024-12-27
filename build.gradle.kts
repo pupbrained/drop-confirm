@@ -1,5 +1,5 @@
 plugins {
-    val modstitchVersion = "0.2.1"
+    val modstitchVersion = "0.3.0"
     id("dev.isxander.modstitch.base") version modstitchVersion
     id("dev.isxander.modstitch.publishing") version modstitchVersion
 }
@@ -11,9 +11,9 @@ fun prop(name: String, consumer: (prop: String) -> Unit) {
 
 modstitch {
     minecraftVersion = stonecutter.current.version
-    javaTarget = 21
+    javaTarget = 17
 
-    /* Modstitch supports parchment, but due to a fabric-loom bug, it is unsupported on loom. A PR is pending.
+    /* Modstitch supports parchment, but due to a fabric-loom bug, it is unsupported on loom. A PR is targetting 1.10
     parchment {
         mappingsVersion = "2024.12.07"
     }
@@ -54,13 +54,23 @@ modstitch {
 
         }
     }
+
+    mixin {
+        configs.register("stonecuttertemplate")
+
+        if (isLoom) configs.register("stonecuttertemplate-fabric")
+        if (isModDevGradleRegular) configs.register("stonecuttertemplate-neoforge")
+        if (isModDevGradleLegacy) configs.register("stonecuttertemplate-forge")
+    }
 }
 
 stonecutter {
     // Allows you to do `if fabric { ... }` or `if neoforge { ... }` in stonecutter comments
     consts(
         "fabric" to modstitch.isLoom,
-        "neoforge" to modstitch.isModDevGradle,
+        "neoforge" to modstitch.isModDevGradleRegular,
+        "forge" to modstitch.isModDevGradleLegacy,
+        "forgelike" to modstitch.isModDevGradle,
     )
 }
 
