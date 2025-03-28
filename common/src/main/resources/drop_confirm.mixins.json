@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "xyz.pupbrained.drop_confirm.mixin",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "JAVA_18",
+  "client": [
+    "InventorySlotChangeMixin",
+    "ItemDropMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
+
