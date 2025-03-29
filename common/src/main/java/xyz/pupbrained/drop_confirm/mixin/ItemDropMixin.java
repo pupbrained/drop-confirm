@@ -44,14 +44,14 @@ public class ItemDropMixin {
     final var config = DropConfirmConfig.Companion.getGSON().instance();
     final var player = mc.player;
 
-    if (!config.getEnabled() || player.getInventory().getSelectedItem().isEmpty())
+    if (!config.getEnabled() || player.getInventory().getSelected().isEmpty())
       return;
 
     final var action = entireStack
       ? ServerboundPlayerActionPacket.Action.DROP_ALL_ITEMS
       : ServerboundPlayerActionPacket.Action.DROP_ITEM;
     final var inventory = player.getInventory();
-    var itemStack = inventory.getSelectedItem();
+    var itemStack = inventory.getSelected();
 
     if (config.getBlacklistedItems().contains(itemStack.getItem())) {
       if (!config.getTreatAsWhitelist()) return;
@@ -61,19 +61,15 @@ public class ItemDropMixin {
 
     if (!DropConfirm.INSTANCE.isConfirmed()) {
       mc.gui.setOverlayMessage(
-        Component.literal(
-          String.format(
-            Component
-              .translatable("drop_confirm.confirmation")
-              .getString(),
-            mc
-              .options
-              .keyDrop
-              .getTranslatedKeyMessage()
-              .getString()
-          )
-        ), false);
+        Component.translatable(
+          "drop_confirm.confirmation",
+          mc.options.keyDrop.getTranslatedKeyMessage().getString()
+        ),
+        false
+      );
+
       DropConfirm.INSTANCE.setConfirmed(true);
+
       drop_confirm$scheduler.schedule(() -> {
         synchronized (DropConfirm.class) {
           DropConfirm.INSTANCE.setConfirmed(false);

@@ -26,20 +26,18 @@ object DropConfirm {
   fun handleKeyPresses(mc: Minecraft) {
     while (TOGGLE_KEY.consumeClick()) {
       DropConfirmConfig.GSON.instance().apply {
-        mc.player?.let { player ->
+        mc.player?.let {
           enabled = !enabled
 
           DropConfirmConfig.GSON.save()
 
-          if (playSounds) player.playSound(SoundEvents.ITEM_PICKUP, 1.0f, if (enabled) 1.0f else 0.5f)
+          if (playSounds) it.playSound(SoundEvents.ITEM_PICKUP, 1.0f, if (enabled) 1.0f else 0.5f)
 
           mc.gui.setOverlayMessage(
             Component.literal("DropConfirm: ").append(
-              Component.translatable(
-                if (enabled) "drop_confirm.toggle.on" else "drop_confirm.toggle.off"
-              ).withStyle(
-                if (enabled) ChatFormatting.GREEN else ChatFormatting.RED
-              )
+              Component
+                .translatable(if (enabled) "drop_confirm.toggle.on" else "drop_confirm.toggle.off")
+                .withStyle(if (enabled) ChatFormatting.GREEN else ChatFormatting.RED)
             ),
             false
           )

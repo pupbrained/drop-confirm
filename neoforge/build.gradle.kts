@@ -55,7 +55,7 @@ sourceSets.main.get().resources {
 
 dependencies {
   implementation(project(":common"))
-  implementation("dev.isxander:yet-another-config-lib:${project.property("yacl_version")}-neoforge")
+  implementation("dev.isxander:yet-another-config-lib:${property("yacl_version")}-neoforge")
 }
 
 tasks.compileKotlin {

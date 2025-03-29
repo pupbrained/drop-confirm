@@ -15,7 +15,7 @@ public class InventorySlotChangeMixin {
   private static int drop_confirm$lastSlot = 0;
 
   @Inject(
-    method = "setSelectedSlot",
+    method = "setSelectedHotbarSlot",
     at = @At("TAIL")
   )
   private void onSlotSet(int slot, CallbackInfo ci) {
