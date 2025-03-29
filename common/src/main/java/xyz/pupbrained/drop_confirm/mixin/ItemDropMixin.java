@@ -61,19 +61,15 @@ public class ItemDropMixin {
 
     if (!DropConfirm.INSTANCE.isConfirmed()) {
       mc.gui.setOverlayMessage(
-        Component.literal(
-          String.format(
-            Component
-              .translatable("drop_confirm.confirmation")
-              .getString(),
-            mc
-              .options
-              .keyDrop
-              .getTranslatedKeyMessage()
-              .getString()
-          )
-        ), false);
+        Component.translatable(
+          "drop_confirm.confirmation",
+          mc.options.keyDrop.getTranslatedKeyMessage().getString()
+        ),
+        false
+      );
+
       DropConfirm.INSTANCE.setConfirmed(true);
+
       drop_confirm$scheduler.schedule(() -> {
         synchronized (DropConfirm.class) {
           DropConfirm.INSTANCE.setConfirmed(false);

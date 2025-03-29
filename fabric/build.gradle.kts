@@ -60,6 +60,10 @@ loom {
   }
 }
 
+tasks.compileKotlin {
+  source(project(":common").sourceSets.main.get().allSource)
+}
+
 kotlin {
   jvmToolchain(21)
   compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
