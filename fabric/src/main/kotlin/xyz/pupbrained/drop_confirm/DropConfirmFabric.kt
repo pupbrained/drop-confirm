@@ -8,10 +8,8 @@ import xyz.pupbrained.drop_confirm.DropConfirm.handleKeyPresses
 
 class DropConfirmFabric : ClientModInitializer {
   override fun onInitializeClient() {
-    DropConfirm.init()
-
+    DropConfirmConfig.GSON.load()
     KeyBindingHelper.registerKeyBinding(TOGGLE_KEY)
-
     ClientTickEvents.END_CLIENT_TICK.register { handleKeyPresses(it) }
   }
 }

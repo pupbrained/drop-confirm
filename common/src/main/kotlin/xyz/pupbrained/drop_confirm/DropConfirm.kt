@@ -9,6 +9,11 @@ import net.minecraft.sounds.SoundEvents
 import org.lwjgl.glfw.GLFW
 
 object DropConfirm {
+  const val MOD_ID = "drop_confirm"
+
+//  @JvmField
+//  val LOG: Logger = LoggerFactory.getLogger("DropConfirm")
+
   var isConfirmed = false
 
   val TOGGLE_KEY = KeyMapping(
@@ -20,33 +25,26 @@ object DropConfirm {
 
   fun handleKeyPresses(mc: Minecraft) {
     while (TOGGLE_KEY.consumeClick()) {
-      val config = DropConfirmConfig.GSON.instance()
-      val player = mc.player ?: return
+      DropConfirmConfig.GSON.instance().apply {
+        mc.player?.let { player ->
+          enabled = !enabled
 
-      (!config.enabled).also { config.enabled = it }
-      DropConfirmConfig.GSON.save()
+          DropConfirmConfig.GSON.save()
 
-      if (config.playSounds)
-        player.playSound(
-          SoundEvents.ITEM_PICKUP,
-          1.0f,
-          if (config.enabled) 1.0f else 0.5f
-        )
+          if (playSounds) player.playSound(SoundEvents.ITEM_PICKUP, 1.0f, if (enabled) 1.0f else 0.5f)
 
-      mc.gui.setOverlayMessage(
-        Component.literal("DropConfirm: ").append(
-          Component.translatable(
-            if (config.enabled) "drop_confirm.toggle.on" else "drop_confirm.toggle.off"
-          ).withStyle(
-            if (config.enabled) ChatFormatting.GREEN else ChatFormatting.RED
+          mc.gui.setOverlayMessage(
+            Component.literal("DropConfirm: ").append(
+              Component.translatable(
+                if (enabled) "drop_confirm.toggle.on" else "drop_confirm.toggle.off"
+              ).withStyle(
+                if (enabled) ChatFormatting.GREEN else ChatFormatting.RED
+              )
+            ),
+            false
           )
-        ),
-        false
-      )
+        } ?: return
+      }
     }
-  }
-
-  fun init() {
-    DropConfirmConfig.GSON.load()
   }
 }
