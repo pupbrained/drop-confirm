@@ -8,8 +8,9 @@
     "${mod_author}"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://modrinth.com/mod/drop-confirm",
+    "issues": "https://github.com/pupbrained/drop-confirm/issues",
+    "sources": "https://github.com/pupbrained/drop-confirm"
   },
   "license": "${license}",
   "icon": "assets/drop_confirm/drop_confirm.png",
@@ -35,7 +36,11 @@
     "fabricloader": ">=${fabric_loader_version}",
     "fabric-api": "*",
     "minecraft": "~${minecraft_version}",
-    "java": ">=${java_version}"
+    "java": ">=${java_version}",
+    "yet_another_config_lib_v3": ">=${yacl_version}-fabric"
+  },
+  "suggests": {
+    "modmenu": ">=${modmenu_version}"
   }
 }
   

@@ -42,7 +42,7 @@ neoForge {
       } (${project.path})"
     }
     register("client") { client() }
-    register("data") { clientData() }
+    register("data") { data() }
     register("server") { server() }
   }
 

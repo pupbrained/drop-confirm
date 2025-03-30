@@ -29,7 +29,7 @@ dependencies {
 
   // Other mod dependencies
   modImplementation("com.terraformersmc:modmenu:${property("modmenu_version")}")
-  modImplementation("dev.isxander:yet-another-config-lib:3.6.6+1.21.5-fabric")
+  modImplementation("dev.isxander:yet-another-config-lib:${property("yacl_version")}-fabric")
 
   // Project dependencies
   implementation(project(":common"))
