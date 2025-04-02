@@ -1,6 +1,7 @@
 //? if neoforge {
-package com.example.mymod;
+/*package com.example.mymod.loaders.neoforge;
 
+import com.example.mymod.ExampleMod;
 import com.mojang.logging.LogUtils;
 import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
@@ -11,7 +12,7 @@ public class NeoforgeEntrypoint {
 
     public NeoforgeEntrypoint() {
         LOGGER.info("Hello from NeoforgeEntrypoint!");
-        MyModEntrypoint.start();
+        ExampleMod.initialize();
     }
 }
-//?}
+*///?}

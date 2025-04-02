@@ -30,13 +30,19 @@ stonecutter {
     centralScript = "build.gradle.kts"
 
     create(rootProject) {
+        /**
+         * @param mcVersion The base minecraft version.
+         * @param loaders A list of loaders to target, supports "fabric" (1.14+), "neoforge"(1.20.6+), "vanilla"(any) or "forge"(<=1.20.1)
+         */
         fun mc(mcVersion: String, name: String = mcVersion, loaders: Iterable<String>) =
             loaders.forEach { vers("$name-$it", mcVersion) }
 
-        // "vanilla"
+        // Configure your targets here!
         mc("1.21.4", loaders = listOf("fabric", "neoforge"))
-//        mc("1.20.1", loaders = listOf("forge"))
+        mc("1.20.1", loaders = listOf("forge"))
 
+        // This is the default target.
+        // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts
         vcsVersion = "1.21.4-fabric"
     }
 }

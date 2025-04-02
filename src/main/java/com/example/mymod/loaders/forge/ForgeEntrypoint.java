@@ -1,6 +1,7 @@
 //? if forge {
-/*package com.example.mymod;
+/*package com.example.mymod.loaders.forge;
 
+import com.example.mymod.ExampleMod;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
@@ -11,7 +12,7 @@ public class ForgeEntrypoint {
 
     public ForgeEntrypoint() {
         LOGGER.info("Hello from ForgeEntrypoint!");
-        MyModEntrypoint.start();
+        ExampleMod.initialize();
     }
 }
 *///?}

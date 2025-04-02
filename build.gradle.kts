@@ -7,9 +7,18 @@ fun prop(name: String, consumer: (prop: String) -> Unit) {
         ?.let(consumer)
 }
 
+val minecraft = property("deps.minecraft") as String;
+
 modstitch {
-    minecraftVersion = stonecutter.current.version
-    javaTarget = 17
+    minecraftVersion = minecraft
+
+    // Alternatively use stonecutter.eval if you have a lot of versions to target.
+    // https://stonecutter.kikugie.dev/stonecutter/guide/setup#checking-versions
+    javaTarget = when (minecraft) {
+        "1.20.1" -> 17
+        "1.21.4" -> 21
+        else -> throw IllegalArgumentException("Please store the java version for ${property("deps.minecraft")} in build.gradle.kts!")
+    }
 
     // If parchment doesnt exist for a version yet you can safely
     // omit the "deps.parchment" property from your versioned gradle.properties
@@ -57,7 +66,10 @@ modstitch {
     // ModDevGradle (NeoForge, Forge, Forgelike)
     moddevgradle {
         enable {
+            prop("deps.forge") { forgeVersion = it }
+            prop("deps.neoform") { neoFormVersion = it }
             prop("deps.neoforge") { neoForgeVersion = it }
+            prop("deps.mcp") { mcpVersion = it }
         }
 
         // Configures client and server runs for MDG, it is not done by default
@@ -89,22 +101,14 @@ modstitch {
 
 // Stonecutter constants for mod loaders.
 // See https://stonecutter.kikugie.dev/stonecutter/guide/comments#condition-constants
+var constraint: String = name.split("-")[1]
 stonecutter {
     consts(
-        "fabric" to modstitch.isLoom,
-        "neoforge" to modstitch.isModDevGradleRegular,
-        "forge" to modstitch.isModDevGradleLegacy,
-        "forgelike" to modstitch.isModDevGradle,
+        "fabric" to constraint.equals("fabric"),
+        "neoforge" to constraint.equals("neoforge"),
+        "forge" to constraint.equals("forge"),
+        "vanilla" to constraint.equals("vanilla")
     )
-}
-
-allprojects {
-    repositories {
-        mavenCentral()
-        mavenLocal()
-        maven("https://maven.neoforged.net/releases/")
-        maven("https://maven.fabricmc.net/")
-    }
 }
 
 // All dependencies should be specified through modstitch's proxy configuration.
@@ -114,12 +118,6 @@ allprojects {
 dependencies {
     modstitch.loom {
         modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.112.0+1.21.4")
-    }
-
-    modstitch.moddevgradle {
-        // Neoforge/Forge specific dependencies here.
-        // You can do stuff like if (modstitch.isForge) to differentiate
-        // between NeoForge and Legacy Forge
     }
 
     // Anything else in the dependencies block will be used for all platforms.
