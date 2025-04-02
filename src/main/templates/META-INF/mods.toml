@@ -12,10 +12,10 @@ license = "${mod_license}"
 
 [[dependencies.${mod_id}]]
     modId = "neoforge"
-    type = "required"
+    mandatory = true
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.${mod_id}]]
     modId = "minecraft"
-    type = "required"
+    mandatory = true

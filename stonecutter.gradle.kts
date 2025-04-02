@@ -7,7 +7,3 @@ stonecutter registerChiseled tasks.register("chiseledBuild", stonecutter.chisele
     group = "mod"
     ofTask("build")
 }
-
-stonecutter.parameters {
-
-}

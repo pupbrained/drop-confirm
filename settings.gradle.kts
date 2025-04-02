@@ -15,11 +15,14 @@ pluginManagement {
         // Stonecutter
         maven("https://maven.kikugie.dev/releases")
         maven("https://maven.kikugie.dev/snapshots")
+
+        // Modstitch
+        maven("https://maven.isxander.dev/releases")
     }
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.5"
+    id("dev.kikugie.stonecutter") version "0.6+"
 }
 
 stonecutter {
@@ -30,12 +33,13 @@ stonecutter {
         fun mc(mcVersion: String, name: String = mcVersion, loaders: Iterable<String>) =
             loaders.forEach { vers("$name-$it", mcVersion) }
 
-        mc("1.21.4", loaders = listOf("fabric", "neoforge", "vanilla"))
-        mc("1.20.1", loaders = listOf("forge"))
+        // "vanilla"
+        mc("1.21.4", loaders = listOf("fabric", "neoforge"))
+//        mc("1.20.1", loaders = listOf("forge"))
 
         vcsVersion = "1.21.4-fabric"
     }
 }
 
-rootProject.name = "ModstitchStonecutterTemplate"
+rootProject.name = "Example Mod"
 

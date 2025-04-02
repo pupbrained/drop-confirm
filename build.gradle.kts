@@ -1,7 +1,5 @@
 plugins {
-    val modstitchVersion = "0.3.0"
-    id("dev.isxander.modstitch.base") version modstitchVersion
-    id("dev.isxander.modstitch.publishing") version modstitchVersion
+    id("dev.isxander.modstitch.base") version "0.5.12"
 }
 
 fun prop(name: String, consumer: (prop: String) -> Unit) {
@@ -13,37 +11,54 @@ modstitch {
     minecraftVersion = stonecutter.current.version
     javaTarget = 17
 
-    /* Modstitch supports parchment, but due to a fabric-loom bug, it is unsupported on loom. A PR is targetting 1.10
+    // If parchment doesnt exist for a version yet you can safely
+    // omit the "deps.parchment" property from your versioned gradle.properties
     parchment {
-        mappingsVersion = "2024.12.07"
+        prop("deps.parchment") { mappingsVersion = it }
     }
-    */
 
-    // This metadata is used for many things from mod publishing to string replacements in mod manifests
+    // This metadata is used to fill out the information inside
+    // the metadata files found in the templates folder.
     metadata {
-        modId = "example_mod"
+        modId = "examplemod"
         modName = "Example Mod"
         modVersion = "1.0.0"
         modGroup = "com.example"
+        modAuthor = "John Doe, Patrina Doe, Jill Doe"
 
-        // There are more properties in here, type `this.` and let your IDE show you the rest
+        fun <K, V> MapProperty<K, V>.populate(block: MapProperty<K, V>.() -> Unit) {
+            block()
+        }
+
+        replacementProperties.populate {
+            // You can put any other replacement properties/metadata here that
+            // modstitch doesn't initially support. Some examples below.
+            put("mod_issue_tracker", "https://github.com/modunion/modstitch/issues")
+            put("pack_format", when (property("deps.minecraft")) {
+                "1.20.1" -> 15
+                "1.21.4" -> 46
+                else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
+            }.toString())
+        }
     }
 
-    // This block configures loom-specific settings
+    // Fabric Loom (Fabric)
     loom {
-        fabricLoaderVersion = "0.16.9"
+        // It's not recommended to store the Fabric Loader version in properties.
+        // Make sure its up to date.
+        fabricLoaderVersion = "0.16.10"
 
-        // This block configures the `loom` extension that fabric-loom exposes by default,
-        // you can configure loom like normal from here
+        // Configure loom like normal in this block.
         configureLoom {
 
         }
     }
 
-    // This block configures moddevgradle-specific settings
+    // ModDevGradle (NeoForge, Forge, Forgelike)
     moddevgradle {
-        prop("deps.forge") { forgeVersion = it }
-        prop("deps.neoform") { neoformVersion = it }
+        enable {
+            prop("deps.neoforge") { neoForgeVersion = it }
+        }
 
         // Configures client and server runs for MDG, it is not done by default
         defaultRuns()
@@ -51,21 +66,30 @@ modstitch {
         // This block configures the `neoforge` extension that MDG exposes by default,
         // you can configure MDG like normal from here
         configureNeoforge {
-
+            runs.all {
+                disableIdeRun()
+            }
         }
     }
 
     mixin {
-        configs.register("stonecuttertemplate")
+        // You do not need to specify mixins in any mods.json/toml file if this is set to
+        // true, it will automatically be generated.
+        addMixinsToModManifest = true
 
-        if (isLoom) configs.register("stonecuttertemplate-fabric")
-        if (isModDevGradleRegular) configs.register("stonecuttertemplate-neoforge")
-        if (isModDevGradleLegacy) configs.register("stonecuttertemplate-forge")
+        configs.register("examplemod")
+
+        // Most of the time you wont ever need loader specific mixins.
+        // If you do, simply make the mixin file and add it like so for the respective loader:
+        // if (isLoom) configs.register("examplemod-fabric")
+        // if (isModDevGradleRegular) configs.register("examplemod-neoforge")
+        // if (isModDevGradleLegacy) configs.register("examplemod-forge")
     }
 }
 
+// Stonecutter constants for mod loaders.
+// See https://stonecutter.kikugie.dev/stonecutter/guide/comments#condition-constants
 stonecutter {
-    // Allows you to do `if fabric { ... }` or `if neoforge { ... }` in stonecutter comments
     consts(
         "fabric" to modstitch.isLoom,
         "neoforge" to modstitch.isModDevGradleRegular,
@@ -74,42 +98,29 @@ stonecutter {
     )
 }
 
-// all dependencies should go through the modstitch proxy configurations
-// modstitch ensures dependencies are configured correctly for the target platform
-// to create these configurations for more source sets, use `modstitch.createProxyConfigurations(sourceSets["client"])` for example
+allprojects {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven("https://maven.neoforged.net/releases/")
+        maven("https://maven.fabricmc.net/")
+    }
+}
+
+// All dependencies should be specified through modstitch's proxy configuration.
+// Wondering where the "repositories" block is? Go to "stonecutter.gradle.kts"
+// If you want to create proxy configurations for more source sets, such as client source sets,
+// use the modstitch.createProxyConfigurations(sourceSets["client"]) function.
 dependencies {
     modstitch.loom {
         modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.112.0+1.21.4")
     }
 
-    "org.commonmark:commonmark:0.21.0".let {
-        modstitchImplementation(it)
-        modstitchJiJ(it)
+    modstitch.moddevgradle {
+        // Neoforge/Forge specific dependencies here.
+        // You can do stuff like if (modstitch.isForge) to differentiate
+        // between NeoForge and Legacy Forge
     }
 
+    // Anything else in the dependencies block will be used for all platforms.
 }
-
-// Stands for 'modstitch publishing'
-// This is provided by the `publishing` extension plugin defined at the top
-msPublishing {
-    // the publication is already set up by modstitch
-    maven {
-        repositories {
-            mavenLocal()
-        }
-    }
-
-    // modstitch covers all the basics like setting the file,
-    // name and version, so we just need to set the project ID
-    // and configure the platforms
-    mpp {
-        type = STABLE
-        changelog = "hello"
-
-        modrinth {
-            accessToken = "abc123"
-            projectId = "12345678"
-        }
-    }
-}
-
