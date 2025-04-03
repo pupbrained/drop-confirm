@@ -1,4 +1,4 @@
-modLoader = "javafml"
+modLoader = "kotlinforforge"
 loaderVersion = "${neoforge_loader_version_range}"
 issueTrackerURL = "https://github.com/pupbrained/drop-confirm/issues"
 license = "${license}"
