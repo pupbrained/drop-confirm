@@ -20,7 +20,7 @@ plugins {
 
 repositories {
   mavenCentral()
-  maven("https://maven.isxander.dev/releases/") // Consider adding a comment about what this repo is for
+  maven("https://maven.isxander.dev/releases/")
   maven("https://maven.fabricmc.net")
 }
 
@@ -122,8 +122,7 @@ project.afterEvaluate {
   }
 }
 
-// --- Kotlin Configuration ---
 kotlin {
-  jvmToolchain(21) // Ensure JDK 21 is available
+  jvmToolchain(21)
   compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
 }
