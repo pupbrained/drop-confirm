@@ -87,7 +87,7 @@ project.afterEvaluate {
       accessToken.set(envVars["GITHUB_TOKEN"])
       repository.set("pupbrained/drop-confirm")
       commitish.set(minecraft_version)
-      tagName.set("v$mod_version")
+      tagName.set("v$mod_version-$minecraft_version")
       modLoaders.add("fabric")
       modLoaders.add("quilt")
       modLoaders.add("neoforge")
