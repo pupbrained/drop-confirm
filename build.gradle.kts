@@ -1,6 +1,14 @@
+@file:Suppress("PropertyName")
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-// Plugin declarations
+val group: String by project
+val mod_id: String by project
+val mod_name: String by project
+val minecraft_version: String by project
+val mod_version: String by project
+val supported_versions: String by project
+
 plugins {
   id("fabric-loom") version "1.10-SNAPSHOT" apply false
   id("net.neoforged.moddev") version "2.0.80" apply false
@@ -10,31 +18,27 @@ plugins {
   kotlin("jvm")
 }
 
-// Repositories
 repositories {
   mavenCentral()
-  maven("https://maven.isxander.dev/releases/")
+  maven("https://maven.isxander.dev/releases/") // Consider adding a comment about what this repo is for
   maven("https://maven.fabricmc.net")
 }
 
-// Forgix setup
 forgix {
   group = property("group") as String
-  mergedJarName = property("mod_id") as String
+  mergedJarName = "$mod_id-$minecraft_version-$mod_version.jar"
   outputDir = "build/libs/merged"
 
   neoForgeContainer = NeoForgeContainer().apply {
-    jarLocation = "build/libs/drop_confirm-neoforge-${property("minecraft_version")}-${property("version")}.jar"
+    jarLocation = "build/libs/$mod_id-neoforge-$minecraft_version-$mod_version.jar"
   }
 }
 
-// Make sure jars are built before merging
 tasks.named("mergeJars") {
   dependsOn(project(":neoforge").tasks.named("jar"))
   dependsOn(project(":fabric").tasks.named("remapJar"))
 }
 
-// Mod publishing
 project.afterEvaluate {
   val forgixExtension = extensions.getByType(io.github.pacifistmc.forgix.plugin.ForgixMergeExtension::class.java)
 
@@ -42,31 +46,38 @@ project.afterEvaluate {
     "${forgixExtension.outputDir}/${forgixExtension.mergedJarName}"
   )
 
-  val supportedVersionsString: String = providers.gradleProperty("supported_versions").getOrElse("")
-
-  val supportedVersionsList: List<String> = supportedVersionsString.split(',')
+  val supportedVersionsList = supported_versions.split(',')
     .map { it.trim() }
     .filter { it.isNotEmpty() }
 
+  val versionRangeString: String = when {
+    supportedVersionsList.isEmpty() -> ""
+    supportedVersionsList.size == 1 -> supportedVersionsList.first()
+    else -> "${supportedVersionsList.first()}-${supportedVersionsList.last()}"
+  }
+
+  val displayVersionSuffix = if (versionRangeString.isNotEmpty()) " ($versionRangeString)" else ""
+  val releaseDisplayName = "$mod_name $mod_version$displayVersionSuffix"
+
   publishMods {
-    type = ALPHA
-    displayName = "DropConfirm 4.0.0"
+    type = STABLE
+    displayName = releaseDisplayName
     changelog = """
-      # DropConfirm 4.0.0
+      # $mod_name $mod_version
       
       * Complete Rewrite
         * Mod now uses Kotlin and multiloader
-        * Jar is merged so it works for both fabric/quilt and neoforge
+        * Jar is merged so it works for both Fabric/Quilt and NeoForge
       * Dependency Changes
-        * No more architectury
-        * Fabric Language Kotlin/KotlinForForge required for fabric and neoforge, respectively
+        * No more Architectury
+        * Fabric Language Kotlin/KotlinForForge required for Fabric and NeoForge, respectively
     """.trimIndent()
 
     github("github") {
       accessToken.set(env.GITHUB_TOKEN.orNull())
       repository.set("pupbrained/drop-confirm")
-      commitish = property("minecraft_version") as String
-      tagName.set("v${property("version")}-${property("minecraft_version")}")
+      commitish.set(minecraft_version)
+      tagName.set("v$mod_version")
       modLoaders.add("fabric")
       modLoaders.add("quilt")
       modLoaders.add("neoforge")
@@ -81,6 +92,11 @@ project.afterEvaluate {
       modLoaders.add("quilt")
       modLoaders.add("neoforge")
       file.set(mergedJarFileProvider)
+
+      requires("yacl")
+      optional("modmenu")
+      optional("fabric-language-kotlin")
+      optional("kotlin-for-forge")
     }
 
     modrinth("modrinth") {
@@ -91,24 +107,23 @@ project.afterEvaluate {
       modLoaders.add("quilt")
       modLoaders.add("neoforge")
       file.set(mergedJarFileProvider)
+
+      requires("yacl")
+      optional("modmenu")
+      optional("fabric-language-kotlin")
+      optional("kotlin-for-forge")
     }
   }
 
-  tasks.named("publishGithub") {
-    dependsOn(tasks.named("mergeJars"))
-  }
-
-  tasks.named("publishCurseforge") {
-    dependsOn(tasks.named("mergeJars"))
-  }
-
-  tasks.named("publishModrinth") {
-    dependsOn(tasks.named("mergeJars"))
+  listOf("publishGithub", "publishCurseforge", "publishModrinth").forEach {
+    tasks.named(it) {
+      dependsOn(tasks.named("mergeJars"))
+    }
   }
 }
 
-// Kotlin configuration
+// --- Kotlin Configuration ---
 kotlin {
-  jvmToolchain(21)
+  jvmToolchain(21) // Ensure JDK 21 is available
   compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
 }
