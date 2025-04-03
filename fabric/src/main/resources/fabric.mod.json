@@ -35,6 +35,7 @@
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
     "fabric-api": "*",
+    "fabric-language-kotlin": "*",
     "minecraft": "~${minecraft_version}",
     "java": ">=${java_version}",
     "yet_another_config_lib_v3": ">=${yacl_version}-fabric"
