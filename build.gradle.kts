@@ -48,8 +48,6 @@ project.afterEvaluate {
     .map { it.trim() }
     .filter { it.isNotEmpty() }
 
-  val modVersion: String = providers.gradleProperty("version").getOrElse("0.0.0-SNAPSHOT")
-
   publishMods {
     type = ALPHA
     displayName = "DropConfirm 4.0.0"
@@ -67,8 +65,8 @@ project.afterEvaluate {
     github("github") {
       accessToken.set(env.GITHUB_TOKEN.orNull())
       repository.set("pupbrained/drop-confirm")
-      commitish = "1.21.1"
-      tagName.set("v$modVersion")
+      commitish = property("minecraft_version") as String
+      tagName.set("v${property("version")}-${property("minecraft_version")}")
       modLoaders.add("fabric")
       modLoaders.add("quilt")
       modLoaders.add("neoforge")
