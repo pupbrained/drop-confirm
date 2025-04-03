@@ -26,7 +26,7 @@ repositories {
 
 forgix {
   group = property("group") as String
-  mergedJarName = "$mod_id-$minecraft_version-$mod_version.jar"
+  mergedJarName = "$mod_id-$mod_version-$minecraft_version.jar"
   outputDir = "build/libs/merged"
 
   neoForgeContainer = NeoForgeContainer().apply {
