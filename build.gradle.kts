@@ -41,9 +41,13 @@ tasks.named("mergeJars") {
 }
 
 project.afterEvaluate {
+  val envFilePath = rootDir.resolve(".env")
+
   val envVars = DotEnvBuilder.dotEnv {
     addSystemEnv()
-    addFile("$rootDir/.env")
+
+    if (envFilePath.exists() && envFilePath.isFile)
+      addFile(envFilePath.absolutePath)
   }
 
   val forgixExtension = extensions.getByType(io.github.pacifistmc.forgix.plugin.ForgixMergeExtension::class.java)
@@ -80,7 +84,7 @@ project.afterEvaluate {
     """.trimIndent()
 
     github("github") {
-      accessToken.set(envVars.get("GITHUB_TOKEN"))
+      accessToken.set(envVars["GITHUB_TOKEN"])
       repository.set("pupbrained/drop-confirm")
       commitish.set(minecraft_version)
       tagName.set("v$mod_version")
@@ -91,7 +95,7 @@ project.afterEvaluate {
     }
 
     curseforge("curseforge") {
-      accessToken.set(envVars.get("CURSEFORGE_TOKEN"))
+      accessToken.set(envVars["CURSEFORGE_TOKEN"])
       projectId.set("881314")
       minecraftVersions.addAll(supportedVersionsList)
       modLoaders.add("fabric")
@@ -106,7 +110,7 @@ project.afterEvaluate {
     }
 
     modrinth("modrinth") {
-      accessToken.set(envVars.get("MODRINTH_TOKEN"))
+      accessToken.set(envVars["MODRINTH_TOKEN"])
       projectId.set("I45rjF2F")
       minecraftVersions.addAll(supportedVersionsList)
       modLoaders.add("fabric")
