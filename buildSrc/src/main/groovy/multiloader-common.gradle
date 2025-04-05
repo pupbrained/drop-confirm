@@ -1,21 +1,98 @@
+import dev.kikugie.stonecutter.build.StonecutterBuild
+
 plugins {
   id 'java-library'
   id 'maven-publish'
 }
 
+/**
+ * Groovy equivalent for Project.prop extension function.
+ * Retrieves a property value from the given project.
+ * @param proj The project instance
+ * @param key The property key
+ * @return The property value as a string, or null if not found.
+ */
+String getProjectProp(Project proj, String key) {
+  return proj.findProperty(key)?.toString()
+}
+
+/**
+ * Helper to get the StonecutterBuild extension safely.
+ * @param proj The project instance
+ * @return The StonecutterBuild extension
+ * @throws GradleException if the extension is not found
+ */
+StonecutterBuild getStonecutterExt(Project proj) {
+  def stonecutterExt = proj.extensions.findByType(StonecutterBuild.class)
+  if (stonecutterExt == null) {
+    throw new GradleException("Stonecutter build extension not found in project ${proj.name}")
+  }
+  return stonecutterExt
+}
+
+/**
+ * Groovy equivalent for Project.versionProp extension function.
+ * Retrieves a version-specific or wildcard property.
+ * @param proj The project instance
+ * @param key The property key suffix (e.g., 'minecraft', 'fabric_loader')
+ * @return The property value as a string.
+ * @throws IllegalArgumentException if neither the specific nor wildcard key is found.
+ */
+String getVersionProp(Project proj, String key) {
+  def stonecutterExt = getStonecutterExt(proj)
+  def currentVersion = stonecutterExt.current.version.replace('.', '_')
+  def specificKey = "vers.${currentVersion}.$key"
+  def wildcardKey = "vers.*.$key"
+
+  def specificValue = getProjectProp(proj, specificKey)
+  def wildcardValue = getProjectProp(proj, wildcardKey)
+
+  if (specificValue != null) {
+    return specificValue
+  } else if (wildcardValue != null) {
+    return wildcardValue
+  } else {
+    // Throw if required, or return null/default if appropriate for the key
+    // Consider adding a default value parameter or specific handling per key if needed
+    throw new IllegalArgumentException("Missing project property '$specificKey' or '$wildcardKey' in project ${proj.name}")
+  }
+}
+
+// --- Configuration ---
+
+// Fetch properties needed across multiple tasks/closures *once* at the top level
+// Use final keys from gradle.properties [cite: 82]
+def modIdProp = getProjectProp(project, 'mod.id')
+def modNameProp = getProjectProp(project, 'mod.name')
+def modAuthorProp = getProjectProp(project, 'mod.author') ?: '' // Use default if potentially missing
+def modLicenseProp = getProjectProp(project, 'mod.license')
+def modVersionProp = getProjectProp(project, 'mod.version')
+def modCreditsProp = getProjectProp(project, 'mod.credits') ?: ''
+
+def minecraftVersionProp = getVersionProp(project, 'minecraft')
+def minecraftRangeProp = getVersionProp(project, 'minecraft_range')
+def fabricVersionProp = getVersionProp(project, 'fabric')
+def fabricLoaderVersionProp = getVersionProp(project, 'fabric_loader')
+def neoforgeVersionProp = getVersionProp(project, 'neoforge')
+def neoforgeLoaderRangeProp = getVersionProp(project, 'neoforge_loader_range')
+def yaclVersionProp = getVersionProp(project, 'yacl')
+def modmenuVersionProp = getVersionProp(project, 'modmenu')
+
 base {
-  archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+  archivesBaseName = "${modIdProp}-${project.name}-${minecraftVersionProp}"
 }
 
 java {
-  toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+  // You might need to fetch java_version property if it's defined in gradle.properties
+  // Using toolchain directly is often preferred if already configured.
+  toolchain.languageVersion = JavaLanguageVersion.of(21)
   withSourcesJar()
   withJavadocJar()
 }
 
 repositories {
   mavenCentral()
-  // https://docs.gradle.org/current/userguide/declaring_repositories.html#declaring_content_exclusively_found_in_one_repository
+  // Exclusive content blocks look okay
   exclusiveContent {
     forRepository {
       maven {
@@ -44,69 +121,69 @@ repositories {
   }
 }
 
-// Declare capabilities on the outgoing configurations.
-// Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
 ['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
-  configurations."$variant".outgoing {
-    capability("$group:${project.name}:$version")
-    capability("$group:${base.archivesName.get()}:$version")
-    capability("$group:$mod_id-${project.name}-${minecraft_version}:$version")
-    capability("$group:$mod_id:$version")
+  configurations."$variant".outgoing { config ->
+    // Use properties fetched earlier
+    // Assuming 'group' and 'version' are standard project properties set elsewhere (e.g., project.group = ...)
+    config.capability("${project.group}:${project.name}:${project.version}")
+    config.capability("${project.group}:${project.base.archivesBaseName}:${project.version}")
+    config.capability("${project.group}:${modIdProp}-${project.name}-${minecraftVersionProp}:${project.version}")
+    config.capability("${project.group}:${modIdProp}:${project.version}")
   }
   publishing.publications.configureEach {
     suppressPomMetadataWarningsFor(variant)
   }
 }
 
+// Use the fetched modNameProp in rename closures
 sourcesJar {
   from(rootProject.file('LICENSE')) {
-    rename { "${it}_${mod_name}" }
+    rename { "${it}_${modNameProp}" }
   }
 }
 
 jar {
   from(rootProject.file('LICENSE')) {
-    rename { "${it}_${mod_name}" }
+    rename { "${it}_${modNameProp}" }
   }
 
   manifest {
     attributes([
-      'Specification-Title'   : mod_name,
-      'Specification-Vendor'  : mod_author,
-      'Specification-Version' : project.jar.archiveVersion,
+      'Specification-Title'   : modNameProp, // Use fetched property
+      'Specification-Vendor'  : modAuthorProp, // Use fetched property
+      'Specification-Version' : project.version, // Use standard project version
       'Implementation-Title'  : project.name,
-      'Implementation-Version': project.jar.archiveVersion,
-      'Implementation-Vendor' : mod_author,
-      'Built-On-Minecraft'    : minecraft_version
+      'Implementation-Version': project.version, // Use standard project version
+      'Implementation-Vendor' : modAuthorProp, // Use fetched property
+      'Built-On-Minecraft'    : minecraftVersionProp // Use fetched property
     ])
   }
 }
 
 processResources {
-  var expandProps = [
-    mod_version                  : mod_version,
-    group                        : project.group,
-    minecraft_version            : minecraft_version,
-    minecraft_version_range      : minecraft_version_range,
-    fabric_version               : fabric_version,
-    fabric_loader_version        : fabric_loader_version,
-    mod_name                     : mod_name,
-    mod_author                   : mod_author,
-    mod_id                       : mod_id,
-    license                      : license,
-    description                  : project.description,
-    neoforge_version             : neoforge_version,
-    neoforge_loader_version_range: neoforge_loader_version_range,
-    forge_version                : forge_version,
-    forge_loader_version_range   : forge_loader_version_range,
-    credits                      : credits,
-    java_version                 : java_version,
-    yacl_version                 : yacl_version,
-    modmenu_version              : modmenu_version
+  // Define the map using the variables fetched at the top
+  def expandProps = [
+    mod_version                  : modVersionProp,
+    group                        : project.group, // Assuming standard project property
+    minecraft_version            : minecraftVersionProp,
+    minecraft_version_range      : minecraftRangeProp,
+    fabric_version               : fabricVersionProp,
+    fabric_loader_version        : fabricLoaderVersionProp,
+    mod_name                     : modNameProp,
+    mod_author                   : modAuthorProp,
+    mod_id                       : modIdProp,
+    license                      : modLicenseProp,
+    description                  : project.description, // Assuming standard project property
+    neoforge_version             : neoforgeVersionProp,
+    neoforge_loader_version_range: neoforgeLoaderRangeProp,
+    credits                      : modCreditsProp,
+    java_version                 : '21',
+    yacl_version                 : yaclVersionProp,
+    modmenu_version              : modmenuVersionProp
   ]
 
-  var jsonExpandProps = expandProps.collectEntries {
-    key, value -> [(key): value instanceof String ? value.replace("\n", "\\\\n") : value]
+  def jsonExpandProps = expandProps.collectEntries { key, value ->
+    [(key): value instanceof String ? value.replace("\n", "\\\\n") : value]
   }
 
   filesMatching(['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']) {
@@ -118,18 +195,4 @@ processResources {
   }
 
   inputs.properties(expandProps)
-}
-
-publishing {
-  publications {
-    register('mavenJava', MavenPublication) {
-      artifactId base.archivesName.get()
-      from components.java
-    }
-  }
-  repositories {
-    maven {
-      url System.getenv('local_maven_url')
-    }
-  }
 }

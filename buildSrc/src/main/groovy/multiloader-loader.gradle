@@ -2,6 +2,10 @@ plugins {
   id 'multiloader-common'
 }
 
+String getProjectProp(Project proj, String key) {
+  return proj.findProperty(key)?.toString()
+}
+
 configurations {
   commonJava {
     canBeResolved = true
@@ -12,11 +16,7 @@ configurations {
 }
 
 dependencies {
-  compileOnly(project(':common')) {
-    capabilities {
-      requireCapability "$group:$mod_id"
-    }
-  }
+  implementation project(':common')
   commonJava project(path: ':common', configuration: 'commonJava')
   commonResources project(path: ':common', configuration: 'commonResources')
 }

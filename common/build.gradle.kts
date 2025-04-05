@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 // Plugin declarations
 plugins {
   id("multiloader-common")
-  id("net.neoforged.moddev")
+  id("net.neoforged.moddev") version "2.0.80"
   kotlin("jvm")
 }
 
@@ -11,27 +11,24 @@ plugins {
 repositories {
   maven("https://maven.isxander.dev/releases/")
   maven("https://maven.fabricmc.net")
+  maven("https://maven.kikugie.dev/snapshots")
 }
 
 // Dependencies
 dependencies {
   annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.5")
-  compileOnly("dev.isxander:yet-another-config-lib:${property("yacl_version")}-neoforge")
+  compileOnly("dev.isxander:yet-another-config-lib:${versionProp("yacl")}-neoforge")
   compileOnly("io.github.llamalad7:mixinextras-common:0.3.5")
   compileOnly("org.spongepowered:mixin:0.8.5")
 }
 
 // NeoForge configuration
 neoForge {
-  neoFormVersion = property("neo_form_version") as String
-
-  // Access transformers setup
-  val at = file("src/main/resources/META-INF/accesstransformer.cfg")
-  if (at.exists()) accessTransformers.from(at.absolutePath)
+  neoFormVersion = versionProp("neo_form")
 
   parchment {
-    minecraftVersion = property("parchment_minecraft") as String
-    mappingsVersion = property("parchment_version") as String
+    minecraftVersion = versionProp("parchment_minecraft")
+    mappingsVersion = versionProp("parchment")
   }
 }
 

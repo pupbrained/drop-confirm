@@ -4,7 +4,7 @@ import java.util.*
 // Plugin declarations
 plugins {
   id("multiloader-loader")
-  id("net.neoforged.moddev")
+  id("net.neoforged.moddev") version "2.0.80"
   kotlin("jvm")
 }
 
@@ -15,26 +15,23 @@ repositories {
 
 // Dependencies
 dependencies {
-  compileOnly(project(":common"))
-  implementation("dev.isxander:yet-another-config-lib:${property("yacl_version")}-neoforge")
+  val commonProject = stonecutter.node.sibling("common")
+  implementation(project(path = commonProject!!.project.path, configuration = "commonJava"))
+  implementation("dev.isxander:yet-another-config-lib:${versionProp("yacl")}-neoforge")
 }
 
 // NeoForge configuration
 neoForge {
-  version = property("neoforge_version").toString()
-
-  // Access transformers setup
-  val at = project(":common").file("src/main/resources/META-INF/accesstransformer.cfg")
-  if (at.exists()) accessTransformers.from(at.absolutePath)
+  version = versionProp("neoforge")
 
   parchment {
-    minecraftVersion = property("parchment_minecraft").toString()
-    mappingsVersion = property("parchment_version").toString()
+    minecraftVersion = versionProp("parchment_minecraft")
+    mappingsVersion = versionProp("parchment")
   }
 
   runs {
     configureEach {
-      systemProperty("neoforge.enabledGameTestNamespaces", property("mod_id").toString())
+      systemProperty("neoforge.enabledGameTestNamespaces", prop("mod.id"))
       ideName = "NeoForge ${
         name.replaceFirstChar {
           if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
@@ -42,28 +39,20 @@ neoForge {
       } (${project.path})"
     }
     register("client") { client() }
-    register("data") { clientData() }
+    register("data") {
+      if (stonecutter.eval(stonecutter.current.version, ">1.21.1"))
+        clientData()
+      else
+        data()
+    }
     register("server") { server() }
   }
 
-  mods.create(property("mod_id").toString()).sourceSet(sourceSets.main.get())
+  mods.create(prop("mod.id")!!).sourceSet(sourceSets.main.get())
 }
 
 sourceSets.main.get().resources {
   srcDir("src/generated/resources")
-}
-
-dependencies {
-  implementation(project(":common"))
-  implementation("dev.isxander:yet-another-config-lib:${property("yacl_version")}-neoforge")
-}
-
-tasks.compileKotlin {
-  source(project(":common").sourceSets.main.get().allSource)
-}
-
-repositories {
-  maven { url = uri("https://maven.isxander.dev/releases/") }
 }
 
 kotlin {
