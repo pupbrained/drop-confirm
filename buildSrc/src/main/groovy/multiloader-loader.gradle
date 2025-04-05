@@ -2,10 +2,6 @@ plugins {
   id 'multiloader-common'
 }
 
-String getProjectProp(Project proj, String key) {
-  return proj.findProperty(key)?.toString()
-}
-
 configurations {
   commonJava {
     canBeResolved = true
@@ -15,10 +11,19 @@ configurations {
   }
 }
 
+// Get the common project reference using Stonecutter
+def commonNode = stonecutter.node.sibling("common")
+def commonProject = commonNode?.project
+
+if (commonProject == null) {
+  throw new GradleException("Could not find common project for ${project.name}")
+}
+
 dependencies {
-  implementation project(':common')
-  commonJava project(path: ':common', configuration: 'commonJava')
-  commonResources project(path: ':common', configuration: 'commonResources')
+  // Use reference to the correct common project via Stonecutter
+  implementation commonProject
+  commonJava project(path: commonProject.path, configuration: 'commonJava')
+  commonResources project(path: commonProject.path, configuration: 'commonResources')
 }
 
 tasks.named('compileJava', JavaCompile) {

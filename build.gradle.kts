@@ -1,5 +1,3 @@
-@file:Suppress("PropertyName")
-
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -9,6 +7,11 @@ plugins {
   id("me.modmuss50.mod-publish-plugin") version "0.8.4"
   id("io.github.klahap.dotenv") version "1.1.3"
   kotlin("jvm")
+}
+
+allprojects {
+  group = property("mod.group") as String
+  version = property("mod.version") as String
 }
 
 repositories {

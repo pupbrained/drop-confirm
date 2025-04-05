@@ -53,7 +53,6 @@ String getVersionProp(Project proj, String key) {
     return wildcardValue
   } else {
     // Throw if required, or return null/default if appropriate for the key
-    // Consider adding a default value parameter or specific handling per key if needed
     throw new IllegalArgumentException("Missing project property '$specificKey' or '$wildcardKey' in project ${proj.name}")
   }
 }
@@ -61,7 +60,6 @@ String getVersionProp(Project proj, String key) {
 // --- Configuration ---
 
 // Fetch properties needed across multiple tasks/closures *once* at the top level
-// Use final keys from gradle.properties [cite: 82]
 def modIdProp = getProjectProp(project, 'mod.id')
 def modNameProp = getProjectProp(project, 'mod.name')
 def modAuthorProp = getProjectProp(project, 'mod.author') ?: '' // Use default if potentially missing
@@ -83,8 +81,6 @@ base {
 }
 
 java {
-  // You might need to fetch java_version property if it's defined in gradle.properties
-  // Using toolchain directly is often preferred if already configured.
   toolchain.languageVersion = JavaLanguageVersion.of(21)
   withSourcesJar()
   withJavadocJar()
@@ -92,7 +88,6 @@ java {
 
 repositories {
   mavenCentral()
-  // Exclusive content blocks look okay
   exclusiveContent {
     forRepository {
       maven {
@@ -121,13 +116,14 @@ repositories {
   }
 }
 
+// Update capabilities to use correct formatting
 ['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
   configurations."$variant".outgoing { config ->
-    // Use properties fetched earlier
-    // Assuming 'group' and 'version' are standard project properties set elsewhere (e.g., project.group = ...)
+    // Use the explicit group and version
     config.capability("${project.group}:${project.name}:${project.version}")
     config.capability("${project.group}:${project.base.archivesBaseName}:${project.version}")
-    config.capability("${project.group}:${modIdProp}-${project.name}-${minecraftVersionProp}:${project.version}")
+
+    // Add the mod ID capability without Minecraft version in the artifact ID
     config.capability("${project.group}:${modIdProp}:${project.version}")
   }
   publishing.publications.configureEach {
@@ -135,7 +131,6 @@ repositories {
   }
 }
 
-// Use the fetched modNameProp in rename closures
 sourcesJar {
   from(rootProject.file('LICENSE')) {
     rename { "${it}_${modNameProp}" }
@@ -149,13 +144,13 @@ jar {
 
   manifest {
     attributes([
-      'Specification-Title'   : modNameProp, // Use fetched property
-      'Specification-Vendor'  : modAuthorProp, // Use fetched property
-      'Specification-Version' : project.version, // Use standard project version
+      'Specification-Title'   : modNameProp,
+      'Specification-Vendor'  : modAuthorProp,
+      'Specification-Version' : project.version,
       'Implementation-Title'  : project.name,
-      'Implementation-Version': project.version, // Use standard project version
-      'Implementation-Vendor' : modAuthorProp, // Use fetched property
-      'Built-On-Minecraft'    : minecraftVersionProp // Use fetched property
+      'Implementation-Version': project.version,
+      'Implementation-Vendor' : modAuthorProp,
+      'Built-On-Minecraft'    : minecraftVersionProp
     ])
   }
 }
@@ -164,7 +159,7 @@ processResources {
   // Define the map using the variables fetched at the top
   def expandProps = [
     mod_version                  : modVersionProp,
-    group                        : project.group, // Assuming standard project property
+    group                        : project.group,
     minecraft_version            : minecraftVersionProp,
     minecraft_version_range      : minecraftRangeProp,
     fabric_version               : fabricVersionProp,
@@ -173,7 +168,7 @@ processResources {
     mod_author                   : modAuthorProp,
     mod_id                       : modIdProp,
     license                      : modLicenseProp,
-    description                  : project.description, // Assuming standard project property
+    description                  : project.description,
     neoforge_version             : neoforgeVersionProp,
     neoforge_loader_version_range: neoforgeLoaderRangeProp,
     credits                      : modCreditsProp,

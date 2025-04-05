@@ -46,9 +46,10 @@ configurations {
 }
 
 // Artifacts
+val mainSourceSet: SourceSet = the<SourceSetContainer>()["main"]
 artifacts {
-  add("commonJava", the<SourceSetContainer>()["main"].java.sourceDirectories.singleFile)
-  add("commonResources", the<SourceSetContainer>()["main"].resources.sourceDirectories.singleFile)
+  add("commonJava", mainSourceSet.java.sourceDirectories.files.first())
+  add("commonResources", mainSourceSet.resources.sourceDirectories.files.first())
 }
 
 // Kotlin configuration
