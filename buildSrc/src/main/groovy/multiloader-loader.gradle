@@ -11,7 +11,6 @@ configurations {
   }
 }
 
-// Get the common project reference using Stonecutter
 def commonNode = stonecutter.node.sibling("common")
 def commonProject = commonNode?.project
 
@@ -20,7 +19,6 @@ if (commonProject == null) {
 }
 
 dependencies {
-  // Use reference to the correct common project via Stonecutter
   implementation commonProject
   commonJava project(path: commonProject.path, configuration: 'commonJava')
   commonResources project(path: commonProject.path, configuration: 'commonResources')
