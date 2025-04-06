@@ -36,32 +36,30 @@ listOf("1.20.4", "1.21.1", "1.21.4", "1.21.5").forEach { mcVersion ->
     doLast {
       println("Configuring Forgix for Minecraft $mcVersion")
 
-      val fabricJarPath = "${rootProject.projectDir}/${mcVersion}-fabric/build/libs/drop_confirm-4.1.0.jar"
-      val neoforgeJarPath = "${rootProject.projectDir}/${mcVersion}-neoforge/build/libs/drop_confirm-4.1.0.jar"
-
-      println("Fabric JAR path: $fabricJarPath (exists: ${File(fabricJarPath).exists()})")
-      println("NeoForge JAR path: $neoforgeJarPath (exists: ${File(neoforgeJarPath).exists()})")
-
       // Point to the specific version JARs
       project.rootProject.configure<ForgixMergeExtension> {
         group = "xyz.pupbrained.drop_confirm"
         mergedJarName = "DropConfirm-${mcVersion}-merged.jar"
+        removeDuplicate("xyz.pupbrained.drop_confirm.config")
+        removeDuplicate("xyz.pupbrained.drop_confirm.DropConfirm")
 
         fabricContainer = FabricContainer().apply {
           projectName = "$mcVersion-fabric"
-          jarLocation = fabricJarPath
+          jarLocation = "build/libs/drop_confirm-4.1.0.jar"
         }
 
         neoForgeContainer = NeoForgeContainer().apply {
           projectName = "$mcVersion-neoforge"
-          jarLocation = neoforgeJarPath
+          jarLocation = "build/libs/drop_confirm-4.1.0.jar"
         }
       }
 
-      // This will be used by the mergeJars task
-      tasks.named("mergeJars").configure {
-        dependsOn(this@register)
+      // Now directly execute the mergeJars task
+      println("Executing mergeJars task...")
+      tasks.getByName("mergeJars").actions.forEach { action ->
+        action.execute(tasks.getByName("mergeJars"))
       }
+      println("mergeJars task completed")
     }
   }
 }
