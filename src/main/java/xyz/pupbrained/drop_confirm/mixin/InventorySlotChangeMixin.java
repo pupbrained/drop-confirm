@@ -19,7 +19,7 @@ public class InventorySlotChangeMixin {
   /*@Shadow public int selected;*/
 
   @Inject(
-    method = /*? if >1.21.4 {*/"setSelectedSlot"/*?} else if >1.21.1 {*//*"setSelectedHotbarSlot"*//*?} else {*//*"tick"*//*?}*/,
+    method = /*? if >1.21.4 {*//*"setSelectedSlot"*//*?} else if >1.21.1 {*/"setSelectedHotbarSlot"/*?} else {*//*"tick"*//*?}*/,
     at = @At("TAIL")
   )
   private void onSlotSet(

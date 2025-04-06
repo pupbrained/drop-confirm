@@ -5,21 +5,25 @@ plugins {
   id("io.github.pacifistmc.forgix") version "1.2.9"
 }
 
-stonecutter active "1.21.5-fabric"
+stonecutter active "1.21.4-fabric"
 
 stonecutter registerChiseled tasks.register("chiseledBuild", stonecutter.chiseled) {
   group = "project"
   ofTask("build")
 }
 
-// Register a task to merge JARs after building all variants
+// Register a task to merge JARs for all variants
 tasks.register("mergeAllJars") {
   group = "forgix"
-  description = "Merges all built JARs for a specific Minecraft version"
+  description = "Builds and merges all Minecraft versions"
 
-  // This will run after all versions are built
-  dependsOn("chiseledBuild")
-  finalizedBy("mergeJars")
+  // Make it depend on all individual merge tasks instead of trying to run them directly
+  dependsOn(
+    "merge1204",
+    "merge1211",
+    "merge1214",
+    "merge1215"
+  )
 }
 
 listOf("1.20.4", "1.21.1", "1.21.4", "1.21.5").forEach { mcVersion ->
@@ -60,29 +64,6 @@ listOf("1.20.4", "1.21.1", "1.21.4", "1.21.5").forEach { mcVersion ->
         action.execute(tasks.getByName("mergeJars"))
       }
       println("mergeJars task completed")
-    }
-  }
-}
-
-tasks.register("findMergedJars") {
-  group = "forgix"
-  description = "Find merged JAR files"
-
-  doLast {
-    // Check standard locations
-    val locations = listOf(
-      File(rootProject.projectDir, "Merged"),
-      File(rootProject.projectDir, "build/libs/merged"),
-      File(rootProject.projectDir, "build/libs")
-    )
-
-    locations.forEach { dir ->
-      println("Checking directory: ${dir.absolutePath} (exists: ${dir.exists()})")
-      if (dir.exists()) {
-        dir.listFiles()?.forEach { file ->
-          println("  Found file: ${file.name}")
-        }
-      }
     }
   }
 }

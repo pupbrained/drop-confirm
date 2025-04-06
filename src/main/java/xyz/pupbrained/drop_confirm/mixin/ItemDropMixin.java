@@ -44,7 +44,7 @@ public class ItemDropMixin {
     final var config = DropConfirmConfig.Companion.getGSON().instance();
     final var player = mc.player;
     final var inventory = player.getInventory();
-    var itemStack = inventory./*? if >=1.21.5 {*/getSelectedItem/*?} else {*//*getSelected*//*?}*/();
+    var itemStack = inventory./*? if >=1.21.5 {*//*getSelectedItem*//*?} else {*/getSelected/*?}*/();
 
     if (!config.getEnabled() || itemStack.isEmpty())
       return;
