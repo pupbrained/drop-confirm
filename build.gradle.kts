@@ -52,7 +52,7 @@ modstitch {
           "1.21.1" -> 34
           "1.21.3" -> 42
           "1.21.4" -> 46
-          "1.21.5" -> 55
+          "1.21.5", "25w14craftmine" -> 55
           else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
         }.toString()
       )
@@ -100,7 +100,11 @@ stonecutter {
 }
 
 dependencies {
-  modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader")
+  when (minecraft) {
+    "25w14craftmine" -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+1.21.5-$loader")
+    "1.20.1", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5" -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader")
+    else -> throw RuntimeException("No yet-another-config-lib version defined for $minecraft")
+  }
 
   modstitch.loom {
     modstitchModImplementation(
@@ -113,6 +117,7 @@ dependencies {
           "1.21.3" -> "0.114.0"
           "1.21.4" -> "0.119.2"
           "1.21.5" -> "0.119.9"
+          "25w14craftmine" -> "0.119.8"
           else -> throw RuntimeException("No fabric api version defined for $minecraft")
         }
       }+$minecraft"
@@ -126,7 +131,7 @@ dependencies {
           "1.21.1" -> "11.0.3"
           "1.21.3" -> "12.0.0"
           "1.21.4" -> "13.0.3"
-          "1.21.5" -> "14.0.0-rc.2"
+          "1.21.5", "25w14craftmine" -> "14.0.0-rc.2"
           else -> throw RuntimeException("No modmenu version defined for $minecraft")
         }
       }"

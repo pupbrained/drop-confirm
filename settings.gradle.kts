@@ -38,6 +38,7 @@ stonecutter {
     mc("1.21.3", loaders = listOf("fabric", "neoforge"))
     mc("1.21.4", loaders = listOf("fabric", "neoforge"))
     mc("1.21.5", loaders = listOf("fabric", "neoforge"))
+    mc("25w14craftmine", loaders = listOf("fabric"))
 
     vcsVersion = "1.21.4-fabric"
   }
