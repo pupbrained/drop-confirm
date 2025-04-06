@@ -48,7 +48,9 @@ modstitch {
         "pack_format", when (property("deps.minecraft")) {
           "1.20.1" -> 15
           "1.20.4" -> 22
+          "1.20.6" -> 32
           "1.21.1" -> 34
+          "1.21.3" -> 42
           "1.21.4" -> 46
           "1.21.5" -> 55
           else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
@@ -106,7 +108,9 @@ dependencies {
         when (minecraft) {
           "1.20.1" -> "0.92.5"
           "1.20.4" -> "0.97.2"
+          "1.20.6" -> "0.100.8"
           "1.21.1" -> "0.115.4"
+          "1.21.3" -> "0.114.0"
           "1.21.4" -> "0.119.2"
           "1.21.5" -> "0.119.9"
           else -> throw RuntimeException("No fabric api version defined for $minecraft")
@@ -118,7 +122,9 @@ dependencies {
         when (minecraft) {
           "1.20.1" -> "7.2.2"
           "1.20.4" -> "9.2.0"
+          "1.20.6" -> "10.0.0"
           "1.21.1" -> "11.0.3"
+          "1.21.3" -> "12.0.0"
           "1.21.4" -> "13.0.3"
           "1.21.5" -> "14.0.0-rc.2"
           else -> throw RuntimeException("No modmenu version defined for $minecraft")
