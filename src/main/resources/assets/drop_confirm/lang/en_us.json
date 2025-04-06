@@ -1,0 +1,21 @@
+{
+  "category.drop_confirm.general": "General",
+  "category.drop_confirm.keybinds": "DropConfirm",
+  "config.drop_confirm.title": "DropConfirm Settings",
+  "drop_confirm.confirmation": "Press %s again to drop this item.",
+  "drop_confirm.toggle.off": "OFF",
+  "drop_confirm.toggle.on": "ON",
+  "key.drop_confirm.toggle": "Toggle DropConfirm",
+  "option.drop_confirm.confirmation_reset_delay": "Reset Delay",
+  "option.drop_confirm.confirmation_reset_delay.description": "The amount of time in seconds before the confirmation status is reset.",
+  "option.drop_confirm.enabled": "Enable DropConfirm",
+  "option.drop_confirm.enabled.description": "Whether DropConfirm should be enabled.",
+  "option.drop_confirm.play_sounds": "Play Sounds",
+  "option.drop_confirm.play_sounds.description": "Whether DropConfirm should play sounds for various events.",
+  "option.drop_confirm.treat_as_whitelist": "Treat as whitelist",
+  "option.drop_confirm.treat_as_whitelist.description": "Whether the blacklist should be instead be treated as a whitelist.",
+  "option.drop_confirm.blacklisted_items": "Blacklisted Items",
+  "option.drop_confirm.blacklisted_items.description": "Items that should be ignored by DropConfirm.",
+  "option.drop_confirm.whitelisted_items": "Whitelisted Items",
+  "option.drop_confirm.whitelisted_items.description": "Items that should not be ignored by DropConfirm."
+}

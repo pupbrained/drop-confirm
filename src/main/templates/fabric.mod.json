@@ -5,9 +5,13 @@
   "version": "${mod_version}",
   "description": "${mod_description}",
   "environment": "*",
+  "icon": "drop_confirm.png",
   "entrypoints": {
     "main": [
-      "com.example.mymod.FabricEntrypoint"
+      "xyz.pupbrained.drop_confirm.loaders.fabric.FabricEntrypoint"
+    ],
+    "modmenu": [
+      "xyz.pupbrained.drop_confirm.loaders.fabric.ModMenuIntegration"
     ]
   }
 }
