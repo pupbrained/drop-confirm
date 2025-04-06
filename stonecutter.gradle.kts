@@ -1,3 +1,5 @@
+import io.github.pacifistmc.forgix.plugin.ForgixMergeExtension
+
 plugins {
   id("dev.kikugie.stonecutter")
   id("io.github.pacifistmc.forgix") version "1.2.9"
@@ -32,24 +34,56 @@ listOf("1.20.4", "1.21.1", "1.21.4", "1.21.5").forEach { mcVersion ->
     )
 
     doLast {
+      println("Configuring Forgix for Minecraft $mcVersion")
+
+      val fabricJarPath = "${rootProject.projectDir}/${mcVersion}-fabric/build/libs/drop_confirm-4.1.0.jar"
+      val neoforgeJarPath = "${rootProject.projectDir}/${mcVersion}-neoforge/build/libs/drop_confirm-4.1.0.jar"
+
+      println("Fabric JAR path: $fabricJarPath (exists: ${File(fabricJarPath).exists()})")
+      println("NeoForge JAR path: $neoforgeJarPath (exists: ${File(neoforgeJarPath).exists()})")
+
       // Point to the specific version JARs
-      project.rootProject.configure<io.github.pacifistmc.forgix.plugin.ForgixMergeExtension> {
+      project.rootProject.configure<ForgixMergeExtension> {
+        group = "xyz.pupbrained.drop_confirm"
         mergedJarName = "DropConfirm-${mcVersion}-merged.jar"
 
         fabricContainer = FabricContainer().apply {
-          jarLocation =
-            "${rootProject.projectDir}/versions/${mcVersion}-fabric/build/libs/drop_confirm-4.1.0.jar"
+          projectName = "$mcVersion-fabric"
+          jarLocation = fabricJarPath
         }
 
         neoForgeContainer = NeoForgeContainer().apply {
-          jarLocation =
-            "${rootProject.projectDir}/versions/${mcVersion}-neoforge/build/libs/drop_confirm-4.1.0.jar"
+          projectName = "$mcVersion-neoforge"
+          jarLocation = neoforgeJarPath
         }
       }
 
       // This will be used by the mergeJars task
       tasks.named("mergeJars").configure {
         dependsOn(this@register)
+      }
+    }
+  }
+}
+
+tasks.register("findMergedJars") {
+  group = "forgix"
+  description = "Find merged JAR files"
+
+  doLast {
+    // Check standard locations
+    val locations = listOf(
+      File(rootProject.projectDir, "Merged"),
+      File(rootProject.projectDir, "build/libs/merged"),
+      File(rootProject.projectDir, "build/libs")
+    )
+
+    locations.forEach { dir ->
+      println("Checking directory: ${dir.absolutePath} (exists: ${dir.exists()})")
+      if (dir.exists()) {
+        dir.listFiles()?.forEach { file ->
+          println("  Found file: ${file.name}")
+        }
       }
     }
   }

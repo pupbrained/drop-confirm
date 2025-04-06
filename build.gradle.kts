@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   id("dev.isxander.modstitch.base") version "0.5.14+"
-  id("io.github.pacifistmc.forgix") version "1.2.9"
   kotlin("jvm") version "2.1.20"
 }
 
