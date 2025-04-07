@@ -15,7 +15,8 @@ val minecraft = property("deps.minecraft") as String
 
 val java =
   if (stonecutter.eval(minecraft, ">=1.20.5")) Pair(21, JvmTarget.JVM_21)
-  else Pair(17, JvmTarget.JVM_17)
+  else if (stonecutter.eval(minecraft, ">=1.19.4")) Pair(17, JvmTarget.JVM_17)
+  else Pair(8, JvmTarget.JVM_1_8)
 
 val loader = when {
   modstitch.isLoom -> "fabric"
@@ -47,6 +48,8 @@ modstitch {
       put("mod_issue_tracker", "https://github.com/pupbrained/drop-confirm/issues")
       put(
         "pack_format", when (property("deps.minecraft")) {
+          "1.16.5" -> 6
+          "1.19.4" -> 13
           "1.20.1" -> 15
           "1.20.4" -> 22
           "1.20.6" -> 32
@@ -117,28 +120,40 @@ dependencies {
   when (minecraft) {
     "25w14craftmine" -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+1.21.5-$loader")
     "1.20.1", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5" -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader")
-    else -> throw IllegalStateException("No yet-another-config-lib version defined for $minecraft")
+    "1.16.5", "1.19.4" -> {
+      modstitchCompileOnlyApi("io.github.CDAGaming:unicore:1.2.8")
+      modstitchModImplementation("maven.modrinth:unilib:1.0.5+$minecraft-$loader")
+    }
+
+    else -> throw IllegalStateException("No config library defined for $minecraft")
   }
 
   modstitch.loom {
-    modstitchModImplementation(
-      "net.fabricmc.fabric-api:fabric-api:${
-        when (minecraft) {
-          "1.20.1" -> "0.92.5"
-          "1.20.4" -> "0.97.2"
-          "1.20.6" -> "0.100.8"
-          "1.21.1" -> "0.115.4"
-          "1.21.3" -> "0.114.0"
-          "1.21.4" -> "0.119.2"
-          "1.21.5" -> "0.119.9"
-          "25w14craftmine" -> "0.119.8"
-          else -> throw IllegalStateException("No fabric api version defined for $minecraft")
-        }
-      }+$minecraft"
-    )
+    if (minecraft == "1.16.5")
+      modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.42.0+1.16")
+    else
+      modstitchModImplementation(
+        "net.fabricmc.fabric-api:fabric-api:${
+          when (minecraft) {
+            "1.19.4" -> "0.87.2"
+            "1.20.1" -> "0.92.5"
+            "1.20.4" -> "0.97.2"
+            "1.20.6" -> "0.100.8"
+            "1.21.1" -> "0.115.4"
+            "1.21.3" -> "0.114.0"
+            "1.21.4" -> "0.119.2"
+            "1.21.5" -> "0.119.9"
+            "25w14craftmine" -> "0.119.8"
+            else -> throw IllegalStateException("No fabric api version defined for $minecraft")
+          }
+        }+$minecraft"
+      )
+
     modstitchModImplementation(
       "com.terraformersmc:modmenu:${
         when (minecraft) {
+          "1.16.5" -> "1.16.23"
+          "1.19.4" -> "6.3.1"
           "1.20.1" -> "7.2.2"
           "1.20.4" -> "9.2.0"
           "1.20.6" -> "10.0.0"

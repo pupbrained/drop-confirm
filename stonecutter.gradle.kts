@@ -2,7 +2,7 @@ plugins {
   id("dev.kikugie.stonecutter")
 }
 
-stonecutter active "1.21.4-fabric"
+stonecutter active "1.21.5-neoforge"
 
 allprojects {
   repositories {
@@ -15,5 +15,6 @@ allprojects {
     maven("https://maven.nucleoid.xyz/")
     maven("https://maven.terraformersmc.com/releases/")
     maven("https://thedarkcolour.github.io/KotlinForForge/")
+    maven("https://api.modrinth.com/maven")
   }
 }

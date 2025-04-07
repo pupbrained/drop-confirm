@@ -1,13 +1,16 @@
 package xyz.pupbrained.drop_confirm
 
 import com.mojang.blaze3d.platform.InputConstants
-import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
+import org.lwjgl.glfw.GLFW
+
+//? if >=1.20.1 {
+import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundEvents
-import org.lwjgl.glfw.GLFW
-import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
+import net.minecraft.ChatFormatting
+//?}
 
 object DropConfirm {
   var isConfirmed = false
@@ -19,6 +22,7 @@ object DropConfirm {
     "category.drop_confirm.keybinds"
   )
 
+  //? if >=1.20.1 {
   fun handleKeyPresses(mc: Minecraft) {
     while (TOGGLE_KEY.consumeClick()) {
       DropConfirmConfig.GSON.instance().apply {
@@ -41,4 +45,5 @@ object DropConfirm {
       }
     }
   }
+  //?}
 }

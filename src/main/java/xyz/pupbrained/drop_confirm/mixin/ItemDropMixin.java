@@ -4,10 +4,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+//? if <=1.16.5 {
+/*import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+*///?} else {
 import net.minecraft.network.chat.Component;
+//?}
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+//? if >1.16.5
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.pupbrained.drop_confirm.DropConfirm;
+//? if >=1.20.1
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig;
 
 import java.util.concurrent.Executors;
@@ -38,48 +47,64 @@ public class ItemDropMixin {
 
   @Inject(method = "drop", at = @At("HEAD"), cancellable = true)
   private void onItemDrop(boolean entireStack, CallbackInfoReturnable<Boolean> cir) {
-    final var mc = Minecraft.getInstance();
+    final Minecraft mc = Minecraft.getInstance();
     if (mc.player == null) return;
 
-    final var config = DropConfirmConfig.Companion.getGSON().instance();
-    final var player = mc.player;
-    final var inventory = player.getInventory();
-    var itemStack = inventory./*? if >=1.21.5 {*//*getSelectedItem*//*?} else {*/getSelected/*?}*/();
+    //? if >=1.20.1
+    final DropConfirmConfig config = DropConfirmConfig.Companion.getGSON().instance();
+    final LocalPlayer player = mc.player;
+    final Inventory inventory = player./*? if >1.16.5 {*/getInventory()/*?} else {*//*inventory*//*?}*/;
+    ItemStack itemStack = inventory./*? if >=1.21.5 {*/getSelectedItem/*?} else {*//*getSelected*//*?}*/();
 
-    if (!config.getEnabled() || itemStack.isEmpty())
+    if (itemStack.isEmpty())
       return;
 
-    final var action = entireStack
+    final ServerboundPlayerActionPacket.Action action = entireStack
       ? ServerboundPlayerActionPacket.Action.DROP_ALL_ITEMS
       : ServerboundPlayerActionPacket.Action.DROP_ITEM;
 
+    //? if >=1.20.1 {
     if (config.getBlacklistedItems().contains(itemStack.getItem()) ^ config.getTreatAsWhitelist())
       return;
+    //?}
 
     if (!DropConfirm.INSTANCE.isConfirmed()) {
       mc.gui.setOverlayMessage(
-        Component.translatable(
+        /*? if >1.16.5 {*/Component.translatable/*?} else {*//*new TranslatableComponent*//*?}*/(
           "drop_confirm.confirmation",
-          mc.options.keyDrop.getTranslatedKeyMessage().getString()
+          mc.options.keyDrop.getTranslatedKeyMessage().getString()/*? if <=1.16.5 {*//*.toUpperCase()*//*?}*/
         ),
         false
       );
 
       DropConfirm.INSTANCE.setConfirmed(true);
 
+      //? if >=1.20.1 {
+      long resetDelay = (long) (config.getConfirmationResetDelay() * 1000);
+      //?} else {
+      /*long resetDelay = 1000;
+       *///?}
+
       drop_confirm$scheduler.schedule(() -> {
         synchronized (DropConfirm.class) {
           DropConfirm.INSTANCE.setConfirmed(false);
         }
-      }, (long) (config.getConfirmationResetDelay() * 1000), TimeUnit.MILLISECONDS);
+      }, resetDelay, TimeUnit.MILLISECONDS);
     } else {
       DropConfirm.INSTANCE.setConfirmed(false);
+      //? if >1.16.5 {
       itemStack = inventory.removeFromSelected(entireStack);
+      //?} else {
+      /*itemStack = inventory.removeItem(inventory.selected, entireStack && !inventory.getSelected().isEmpty() ? inventory.getSelected().getCount() : 1);
+       *///?}
 
-      mc.gui.setOverlayMessage(Component.empty(), false);
+      // make empty component
+      mc.gui.setOverlayMessage(/*? if >1.16.5 {*/Component.empty()/*?} else {*//*TextComponent.EMPTY*//*?}*/, false);
 
+      //? if >=1.20.1 {
       if (config.getPlaySounds())
         player.playSound(SoundEvents.BUNDLE_DROP_CONTENTS, 1.0F, 1.0F);
+      //?}
 
       player.connection.send(new ServerboundPlayerActionPacket(action, BlockPos.ZERO, Direction.DOWN));
     }

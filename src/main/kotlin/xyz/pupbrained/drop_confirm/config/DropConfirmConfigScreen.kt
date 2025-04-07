@@ -1,3 +1,4 @@
+//? if >=1.20.1 {
 package xyz.pupbrained.drop_confirm.config
 
 import dev.isxander.yacl3.api.*
@@ -89,3 +90,4 @@ object DropConfirmConfigScreen {
     }
   }.generateScreen(parent)
 }
+//?}
