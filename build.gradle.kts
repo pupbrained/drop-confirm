@@ -1,8 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-  id("dev.isxander.modstitch.base") version "0.5.14+"
   kotlin("jvm") version "2.1.20"
+  id("dev.isxander.modstitch.base") version "0.5.14+"
+  id("dev.kikugie.stonecutter")
 }
 
 fun prop(name: String, consumer: (prop: String) -> Unit) {
@@ -90,6 +91,19 @@ modstitch {
   }
 }
 
+tasks.named<ProcessResources>("generateModMetadata") {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+  dependsOn("stonecutterGenerate")
+}
+
+tasks.named("compileKotlin") {
+  dependsOn("stonecutterGenerate")
+}
+
+tasks.processResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 stonecutter {
   val constraint: String = name.split("-")[1]
 
@@ -103,7 +117,7 @@ dependencies {
   when (minecraft) {
     "25w14craftmine" -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+1.21.5-$loader")
     "1.20.1", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5" -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader")
-    else -> throw RuntimeException("No yet-another-config-lib version defined for $minecraft")
+    else -> throw IllegalStateException("No yet-another-config-lib version defined for $minecraft")
   }
 
   modstitch.loom {
@@ -118,7 +132,7 @@ dependencies {
           "1.21.4" -> "0.119.2"
           "1.21.5" -> "0.119.9"
           "25w14craftmine" -> "0.119.8"
-          else -> throw RuntimeException("No fabric api version defined for $minecraft")
+          else -> throw IllegalStateException("No fabric api version defined for $minecraft")
         }
       }+$minecraft"
     )
@@ -132,7 +146,7 @@ dependencies {
           "1.21.3" -> "12.0.0"
           "1.21.4" -> "13.0.3"
           "1.21.5", "25w14craftmine" -> "14.0.0-rc.2"
-          else -> throw RuntimeException("No modmenu version defined for $minecraft")
+          else -> throw IllegalStateException("No modmenu version defined for $minecraft")
         }
       }"
     )
