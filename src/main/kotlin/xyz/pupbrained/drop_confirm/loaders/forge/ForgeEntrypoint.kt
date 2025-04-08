@@ -1,5 +1,5 @@
 //? if forge {
-package xyz.pupbrained.drop_confirm.loaders.forge
+/*package xyz.pupbrained.drop_confirm.loaders.forge
 
 import net.minecraft.client.Minecraft
 import net.minecraftforge.api.distmarker.Dist
@@ -48,4 +48,4 @@ class ForgeEntrypoint {
       })
   }
 }
-//?}
+*///?}

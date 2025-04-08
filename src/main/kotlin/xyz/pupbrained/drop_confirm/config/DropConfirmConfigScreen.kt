@@ -1,5 +1,5 @@
 //? if >=1.20.1 && !forge {
-/*package xyz.pupbrained.drop_confirm.config
+package xyz.pupbrained.drop_confirm.config
 
 import dev.isxander.yacl3.api.*
 import dev.isxander.yacl3.gui.controllers.BooleanController
@@ -90,8 +90,8 @@ object DropConfirmConfigScreen {
     }
   }.generateScreen(parent)
 }
-*///?} else {
-package xyz.pupbrained.drop_confirm.config
+//?} else {
+/*package xyz.pupbrained.drop_confirm.config
 
 import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
 import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl
@@ -99,17 +99,21 @@ import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
 import io.github.cdagaming.unicore.impl.Pair
 import net.minecraft.client.Minecraft
+//? if >=1.19.4 {
 import net.minecraft.client.gui.narration.NarratableEntry
 import net.minecraft.client.gui.narration.NarrationElementOutput
+//?}
 import net.minecraft.client.gui.screens.Screen
 import xyz.pupbrained.drop_confirm.DropConfirm
 
 class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfirm") {
+  //? if >=1.19.4 {
   override fun updateNarration(output: NarrationElementOutput) {}
 
   override fun narrationPriority(): NarratableEntry.NarrationPriority {
     return NarratableEntry.NarrationPriority.NONE
   }
+  //?}
 
   private val config = DropConfirmConfig.get()
 
@@ -215,4 +219,4 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     DropConfirmConfig.reload()
   }
 }
-//?}
+*///?}
