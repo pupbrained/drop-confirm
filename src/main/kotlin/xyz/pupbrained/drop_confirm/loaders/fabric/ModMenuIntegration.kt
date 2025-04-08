@@ -1,4 +1,4 @@
-//? if fabric {
+//? if fabric && <=1.21.5 {
 package xyz.pupbrained.drop_confirm.loaders.fabric
 
 //? if <1.15.2 {

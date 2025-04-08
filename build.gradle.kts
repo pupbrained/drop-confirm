@@ -66,6 +66,7 @@ modstitch {
           "1.21.3" -> 42
           "1.21.4" -> 46
           "1.21.5", "25w14craftmine" -> 55
+          "25w15a" -> 56
           else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
         }.toString()
       )
@@ -73,7 +74,7 @@ modstitch {
   }
 
   loom {
-    fabricLoaderVersion = "0.16.12"
+    fabricLoaderVersion = "0.16.13"
 
     configureLoom {}
   }
@@ -149,6 +150,7 @@ dependencies {
         "1.15.2" -> modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.28.5+1.15")
         "1.16.5" -> modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.42.0+1.16")
         "1.17.1" -> modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.46.1+1.17")
+        "25w15a" -> modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.119.10+1.21.6")
         else -> modstitchModImplementation(
           "net.fabricmc.fabric-api:fabric-api:${
             when (minecraft) {
@@ -168,26 +170,27 @@ dependencies {
         )
       }
 
-      modstitchModImplementation(
-        "maven.modrinth:modmenu:${
-          when (minecraft) {
-            "1.14.4" -> "1.7.17"
-            "1.15.2" -> "1.10.7"
-            "1.16.5" -> "1.16.23"
-            "1.17.1" -> "2.0.17"
-            "1.18.2" -> "3.2.5"
-            "1.19.4" -> "6.3.1"
-            "1.20.1" -> "7.2.2"
-            "1.20.4" -> "9.2.0"
-            "1.20.6" -> "10.0.0"
-            "1.21.1" -> "11.0.3"
-            "1.21.3" -> "12.0.0"
-            "1.21.4" -> "13.0.3"
-            "1.21.5", "25w14craftmine" -> "14.0.0-rc.2"
-            else -> throw IllegalStateException("No modmenu version defined for $minecraft")
-          }
-        }"
-      )
+      if (minecraft != "25w15a")
+        modstitchModImplementation(
+          "maven.modrinth:modmenu:${
+            when (minecraft) {
+              "1.14.4" -> "1.7.17"
+              "1.15.2" -> "1.10.7"
+              "1.16.5" -> "1.16.23"
+              "1.17.1" -> "2.0.17"
+              "1.18.2" -> "3.2.5"
+              "1.19.4" -> "6.3.1"
+              "1.20.1" -> "7.2.2"
+              "1.20.4" -> "9.2.0"
+              "1.20.6" -> "10.0.0"
+              "1.21.1" -> "11.0.3"
+              "1.21.3" -> "12.0.0"
+              "1.21.4" -> "13.0.3"
+              "1.21.5", "25w14craftmine" -> "14.0.0-rc.2"
+              else -> throw IllegalStateException("No modmenu version defined for $minecraft")
+            }
+          }"
+        )
     }
 
     moddevgradle {

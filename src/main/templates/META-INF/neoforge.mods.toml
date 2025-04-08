@@ -1,5 +1,5 @@
-modLoader = "javafml"
-loaderVersion = "[2,)"
+modLoader = "kotlinforforge"
+loaderVersion = "[4.10,)"
 issueTrackerURL = "${mod_issue_tracker}"
 license = "${mod_license}"
 
@@ -10,9 +10,6 @@ displayName = "${mod_name}"
 description = '''${mod_description}'''
 authors = "${mod_author}"
 logoFile = "drop_confirm.png"
-
-[[mixins]]
-config = "drop_confirm.mixins.json"
 
 [[dependencies.${ mod_id }]]
 modId = "neoforge"

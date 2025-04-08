@@ -2,7 +2,7 @@
   "package": "xyz.pupbrained.drop_confirm.mixin",
   "required": true,
   "minVersion": "0.7",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
     "InventorySlotChangeMixin",
     "ItemDropMixin"

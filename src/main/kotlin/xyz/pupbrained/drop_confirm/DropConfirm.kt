@@ -37,7 +37,7 @@ object DropConfirm {
   val TOGGLE_KEY = KeyMapping(
     "key.drop_confirm.toggle",
     InputConstants.Type.KEYSYM,
-    GLFW.GLFW_KEY_UNKNOWN,
+    GLFW.GLFW_KEY_J,
     "category.drop_confirm.keybinds"
   )
 

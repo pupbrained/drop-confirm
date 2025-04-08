@@ -13,7 +13,7 @@ logoFile = "drop_confirm.png"
 
 [[dependencies.${mod_id}]]
 modId = "forge"
-versionRange = "[47,)"
+versionRange = "[1,)"
 mandatory = true
 ordering = "NONE"
 side = "BOTH"
