@@ -1,4 +1,4 @@
-//? if >=1.20.1 {
+//? if >=1.20.1 && !forge {
 package xyz.pupbrained.drop_confirm.config
 
 import dev.isxander.yacl3.api.*
@@ -99,11 +99,12 @@ import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
 import io.github.cdagaming.unicore.impl.Pair
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.narration.NarratableEntry.NarrationPriority
+import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.Screen
 import xyz.pupbrained.drop_confirm.DropConfirm
 
 class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfirm") {
-
   private val config = DropConfirmConfig.get()
 
   // Store the parent screen to return to
@@ -126,6 +127,13 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
   private var enabledCheckbox: CheckBoxControl? = null
   private var playSoundsCheckbox: CheckBoxControl? = null
   private var delaySlider: SliderControl? = null
+
+  override fun updateNarration(p0: NarrationElementOutput) {
+  }
+
+  override fun narrationPriority(): NarrationPriority {
+    return NarrationPriority.NONE
+  }
 
   override fun initializeUi() {
     super.initializeUi()

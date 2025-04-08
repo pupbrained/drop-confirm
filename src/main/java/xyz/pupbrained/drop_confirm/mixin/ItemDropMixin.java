@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 //? if >=1.19.4 {
 import net.minecraft.network.chat.Component;
- //?} else {
+  //?} else {
 /*import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 *///?}
@@ -48,21 +48,21 @@ public class ItemDropMixin {
     final Minecraft mc = Minecraft.getInstance();
     if (mc.player == null) return;
 
-    //? if >=1.20.1
+    //? if >=1.20.1 && !forge
     final DropConfirmConfig config = DropConfirmConfig.Companion.getGSON().instance();
 
     final LocalPlayer player = mc.player;
     final Inventory inventory = player./*? if >1.16.5 {*/getInventory()/*?} else {*//*inventory*//*?}*/;
     ItemStack itemStack = inventory./*? if >=1.21.5 {*//*getSelectedItem*//*?} else {*/getSelected/*?}*/();
 
-    if (!/*? if >=1.20.1 {*/config.getEnabled()/*?} else {*//*DropConfirmConfig.Companion.isEnabled()*//*?}*/ || itemStack.isEmpty())
+    if (!/*? if >=1.20.1 && !forge {*/config.getEnabled()/*?} else {*//*DropConfirmConfig.Companion.isEnabled()*//*?}*/ || itemStack.isEmpty())
       return;
 
     final ServerboundPlayerActionPacket.Action action = entireStack
       ? ServerboundPlayerActionPacket.Action.DROP_ALL_ITEMS
       : ServerboundPlayerActionPacket.Action.DROP_ITEM;
 
-    //? if >=1.20.1 {
+    //? if >=1.20.1 && !forge {
     if (config.getBlacklistedItems().contains(itemStack.getItem()) ^ config.getTreatAsWhitelist())
       return;
     //?}
@@ -82,19 +82,19 @@ public class ItemDropMixin {
         synchronized (DropConfirm.class) {
           DropConfirm.INSTANCE.setConfirmed(false);
         }
-      }, (long) (/*? if >=1.20.1 {*/config.getConfirmationResetDelay()/*?} else {*//*DropConfirmConfig.Companion.getResetDelay()*//*?}*/ * 1000), TimeUnit.MILLISECONDS);
+      }, (long) (/*? if >=1.20.1 && !forge {*/config.getConfirmationResetDelay()/*?} else {*//*DropConfirmConfig.Companion.getResetDelay()*//*?}*/ * 1000), TimeUnit.MILLISECONDS);
     } else {
       DropConfirm.INSTANCE.setConfirmed(false);
       //? if >=1.19.4 {
       itemStack = inventory.removeFromSelected(entireStack);
-       //?} else {
+      //?} else {
       /*itemStack = inventory.removeItem(inventory.selected, entireStack && !inventory.getSelected().isEmpty() ? inventory.getSelected().getCount() : 1);
-      *///?}
+       *///?}
 
       // make empty component
       mc.gui.setOverlayMessage(/*? if >=1.19.4 {*/Component.empty()/*?} else if >=1.16.5 {*//*TextComponent.EMPTY*//*?} else {*//*new TextComponent("")*//*?}*/, false);
 
-      //? if >=1.20.1 {
+      //? if >=1.20.1 && !forge {
       if (config.getPlaySounds())
         player.playSound(SoundEvents.BUNDLE_DROP_CONTENTS, 1.0F, 1.0F);
       //?} else {

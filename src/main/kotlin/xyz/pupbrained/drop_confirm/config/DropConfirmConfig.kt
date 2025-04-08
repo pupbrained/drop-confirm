@@ -1,4 +1,4 @@
-//? if >=1.20.1 {
+//? if >=1.20.1 && !forge {
 package xyz.pupbrained.drop_confirm.config
 
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler

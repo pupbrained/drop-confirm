@@ -26,11 +26,11 @@ public class InventorySlotChangeMixin {
     /*? if >1.21.1 {*/int selected,/*?}*/
     CallbackInfo ci
   ) {
-    //? if >=1.20.1 {
+    //? if >=1.20.1 && !forge {
     if (!DropConfirmConfig.Companion.getGSON().instance().getEnabled()) return;
-     //?} else {
+    //?} else {
     /*if (!DropConfirmConfig.Companion.isEnabled()) return;
-    *///?}
+     *///?}
 
     if (selected != drop_confirm$lastSlot) {
       DropConfirm.INSTANCE.setConfirmed(false);

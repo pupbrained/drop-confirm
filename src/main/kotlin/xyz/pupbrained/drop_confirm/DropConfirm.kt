@@ -1,6 +1,6 @@
 package xyz.pupbrained.drop_confirm
 
-//? if <1.20.1 {
+//? if <1.20.1 || forge {
 /*import io.github.cdagaming.unicore.utils.TranslationUtils
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -22,7 +22,7 @@ import org.lwjgl.glfw.GLFW
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
 
 object DropConfirm {
-  //? if <1.20.1 {
+  //? if <1.20.1 || forge {
   /*@JvmStatic
   val TRANSLATOR: TranslationUtils = TranslationUtils("drop_confirm", true)
     .setDefaultLanguage("en_us")
@@ -43,18 +43,18 @@ object DropConfirm {
 
   fun handleKeyPresses(mc: Minecraft) {
     while (TOGGLE_KEY.consumeClick()) {
-      /*? if >=1.20.1 {*/DropConfirmConfig.GSON.instance()/*?} else {*//*DropConfirmConfig*//*?}*/.apply {
+      /*? if >=1.20.1 && !forge {*/DropConfirmConfig.GSON.instance()/*?} else {*//*DropConfirmConfig*//*?}*/.apply {
         mc.player?.let {
-          //? if <1.20.1 {
+          //? if >=1.20.1 && !forge {
+          enabled = !enabled
+          DropConfirmConfig.GSON.save()
+          //?} else {
           /*get().enabled = !isEnabled()
           save()
 
           val enabled = isEnabled()
           val playSounds = shouldPlaySounds()
-          *///?} else {
-          enabled = !enabled
-          DropConfirmConfig.GSON.save()
-          //?}
+          *///?}
 
           if (playSounds)
             it.playSound(SoundEvents.ITEM_PICKUP, 1.0f, if (enabled) 1.0f else 0.5f)
