@@ -17,5 +17,7 @@
   "option.drop_confirm.blacklisted_items": "Blacklisted Items",
   "option.drop_confirm.blacklisted_items.description": "Items that should be ignored by DropConfirm.",
   "option.drop_confirm.whitelisted_items": "Whitelisted Items",
-  "option.drop_confirm.whitelisted_items.description": "Items that should not be ignored by DropConfirm."
+  "option.drop_confirm.whitelisted_items.description": "Items that should not be ignored by DropConfirm.",
+  "option.drop_confirm.cancel": "Cancel",
+  "option.drop_confirm.save_and_close": "Save & Close"
 }

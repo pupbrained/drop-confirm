@@ -1,12 +1,12 @@
 //? if neoforge {
-package xyz.pupbrained.drop_confirm.loaders.neoforge
+/*package xyz.pupbrained.drop_confirm.loaders.neoforge
 
 import net.minecraft.client.Minecraft
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.ModLoadingContext
-import net.neoforged.fml.common./*? if <=1.20.4 {*//*Mod.*//*?}*/EventBusSubscriber
-import net.neoforged.neoforge.client./*? if <=1.20.4 {*//*ConfigScreenHandler.ConfigScreenFactory*//*?} else {*/gui.IConfigScreenFactory as ConfigScreenFactory/*?}*/
+import net.neoforged.fml.common./^? if <=1.20.4 {^/Mod./^?}^/EventBusSubscriber
+import net.neoforged.neoforge.client./^? if <=1.20.4 {^/ConfigScreenHandler.ConfigScreenFactory/^?} else {^//^gui.IConfigScreenFactory as ConfigScreenFactory^//^?}^/
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.loading.FMLEnvironment
 import net.neoforged.neoforge.client.event.InputEvent
@@ -40,4 +40,4 @@ class NeoforgeEntrypoint {
       })
   }
 }
-//?}
+*///?}

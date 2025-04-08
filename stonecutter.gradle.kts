@@ -2,7 +2,7 @@ plugins {
   id("dev.kikugie.stonecutter")
 }
 
-stonecutter active "1.21.5-neoforge"
+stonecutter active "1.21.4-fabric"
 
 allprojects {
   repositories {
