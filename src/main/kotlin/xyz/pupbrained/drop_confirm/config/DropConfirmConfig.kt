@@ -1,5 +1,5 @@
 //? if >=1.20.1 && !forge {
-package xyz.pupbrained.drop_confirm.config
+/*package xyz.pupbrained.drop_confirm.config
 
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler
 import dev.isxander.yacl3.config.v2.api.SerialEntry
@@ -34,8 +34,8 @@ class DropConfirmConfig {
       .build()
   }
 }
-//?} else {
-/*package xyz.pupbrained.drop_confirm.config
+*///?} else {
+package xyz.pupbrained.drop_confirm.config
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -94,4 +94,4 @@ class DropConfirmConfig {
     fun getResetDelay(): Float = get().confirmationResetDelay
   }
 }
-*///?}
+//?}

@@ -25,6 +25,7 @@ val java = when {
 val loader = when {
   modstitch.isLoom -> "fabric"
   modstitch.isModDevGradleRegular -> "neoforge"
+  modstitch.isModDevGradleLegacy -> "forge"
   else -> throw IllegalStateException("Unsupported loader")
 }
 
@@ -80,7 +81,10 @@ modstitch {
 
   moddevgradle {
     enable {
+      prop("deps.forge") { forgeVersion = it }
+      prop("deps.neoform") { neoFormVersion = it }
       prop("deps.neoforge") { neoForgeVersion = it }
+      prop("deps.mcp") { mcpVersion = it }
     }
 
     defaultRuns()
@@ -124,16 +128,17 @@ stonecutter {
   consts(
     "fabric" to (constraint == "fabric"),
     "neoforge" to (constraint == "neoforge"),
-    "forge" to (false)
+    "forge" to (constraint == "forge"),
   )
 }
 
 dependencies {
   when {
     atLeast("25w14craftmine") -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+1.21.5-$loader")
-    atLeast("1.20.1") -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader")
+    atLeast("1.20.1") && loader != "forge" -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader")
     else -> {
-      modstitchCompileOnlyApi("io.github.CDAGaming:unicore:1.2.8")
+      if (loader != "forge")
+        modstitchCompileOnlyApi("io.github.CDAGaming:unicore:1.2.8")
       modstitchModImplementation("maven.modrinth:unilib:1.0.5+$minecraft-$loader")
     }
   }
@@ -189,7 +194,10 @@ dependencies {
     }
 
     moddevgradle {
-      modstitchImplementation("thedarkcolour:kotlinforforge-neoforge:${if (atLeast("1.20.5")) "5.6.0" else "4.10.0"}")
+      if (loader == "neoforge")
+        modstitchImplementation("thedarkcolour:kotlinforforge-neoforge:${if (atLeast("1.20.5")) "5.6.0" else "4.10.0"}")
+      else
+        modstitchModImplementation("thedarkcolour:kotlinforforge:4.10.0")
     }
   }
 }
