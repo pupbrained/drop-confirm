@@ -1,4 +1,4 @@
-//? if fabric && <=1.21.5 {
+//? if fabric && <=1.21.6-alpha.25.14.craftmine {
 package xyz.pupbrained.drop_confirm.loaders.fabric
 
 //? if <1.15.2 {

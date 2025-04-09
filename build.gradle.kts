@@ -6,12 +6,13 @@ plugins {
   id("dev.kikugie.stonecutter")
 }
 
-fun prop(name: String, consumer: (prop: String) -> Unit) {
-  (findProperty(name) as? String?)
-    ?.let(consumer)
-}
+fun useDep(name: String, consumer: (prop: String) -> Unit): Unit? =
+  (findProperty("deps.$name") as? String?)?.let(consumer)
 
-val minecraft = property("deps.minecraft") as String
+fun getDep(name: String): String =
+  findProperty("deps.$name") as String
+
+val minecraft = getDep("minecraft")
 
 fun atLeast(version: String): Boolean = stonecutter.eval(minecraft, ">=$version")
 
@@ -35,7 +36,7 @@ modstitch {
   javaTarget = java.first
 
   parchment {
-    prop("deps.parchment") { mappingsVersion = it }
+    useDep("parchment") { mappingsVersion = it }
   }
 
   metadata {
@@ -45,43 +46,39 @@ modstitch {
     modGroup = "xyz.pupbrained.drop_confirm"
     modAuthor = "pupbrained"
 
-    fun <K, V> MapProperty<K, V>.populate(block: MapProperty<K, V>.() -> Unit) = block()
-
-    replacementProperties.populate {
-      put("mod_issue_tracker", "https://github.com/pupbrained/drop-confirm/issues")
-      put(
-        "pack_format", when (minecraft) {
-          "1.14.4" -> 4
-          "1.15.2" -> 5
-          "1.16.5" -> 6
-          "1.17.1" -> 7
-          "1.18.2" -> 8
-          "1.19.4" -> 13
-          "1.20.1" -> 15
-          "1.20.4" -> 22
-          "1.20.6" -> 32
-          "1.21.1" -> 34
-          "1.21.3" -> 42
-          "1.21.4" -> 46
-          "1.21.5", "25w14craftmine" -> 55
-          "25w15a" -> 56
-          else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
-        }.toString()
-      )
-    }
+    replacementProperties.put("mod_issue_tracker", "https://github.com/pupbrained/drop-confirm/issues")
+    replacementProperties.put(
+      "pack_format",
+      when (minecraft) {
+        "1.14.4" -> "4"
+        "1.15.2" -> "5"
+        "1.16.5" -> "6"
+        "1.17.1" -> "7"
+        "1.18.2" -> "8"
+        "1.19.4" -> "13"
+        "1.20.1" -> "15"
+        "1.20.4" -> "22"
+        "1.20.6" -> "32"
+        "1.21.1" -> "34"
+        "1.21.3" -> "42"
+        "1.21.4" -> "46"
+        "1.21.5", "25w14craftmine" -> "55"
+        "25w15a" -> "56"
+        else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
+      }
+    )
   }
 
   loom { fabricLoaderVersion = "0.16.13" }
 
   moddevgradle {
-    enable {
-      prop("deps.forge") { forgeVersion = it }
-      prop("deps.neoforge") { neoForgeVersion = it }
-    }
-
     defaultRuns()
-
     configureNeoforge { runs.all { disableIdeRun() } }
+
+    enable {
+      useDep("forge") { forgeVersion = it }
+      useDep("neoforge") { neoForgeVersion = it }
+    }
   }
 
   mixin {
@@ -101,22 +98,17 @@ tasks {
     dependsOn("stonecutterGenerate")
   }
 
-  named("compileKotlin") {
-    dependsOn("stonecutterGenerate")
-  }
-
-  processResources {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-  }
+  named("compileKotlin") { dependsOn("stonecutterGenerate") }
+  processResources { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
 }
 
 stonecutter {
-  val constraint: String = name.split("-")[1]
+  val loader = name.split("-")[1]
 
   consts(
-    "fabric" to (constraint == "fabric"),
-    "neoforge" to (constraint == "neoforge"),
-    "forge" to (constraint == "forge"),
+    "fabric" to (loader == "fabric"),
+    "neoforge" to (loader == "neoforge"),
+    "forge" to (loader == "forge")
   )
 }
 
@@ -129,29 +121,8 @@ dependencies {
 
   modstitch {
     loom {
-      when (minecraft) {
-        "1.14.4" -> modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.28.5+1.14")
-        "1.15.2" -> modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.28.5+1.15")
-        "1.16.5" -> modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.42.0+1.16")
-        "1.17.1" -> modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.46.1+1.17")
-        "25w15a" -> modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.119.10+1.21.6")
-        else -> modstitchModImplementation(
-          "net.fabricmc.fabric-api:fabric-api:${
-            when (minecraft) {
-              "1.18.2" -> "0.77.0"
-              "1.19.4" -> "0.87.2"
-              "1.20.1" -> "0.92.5"
-              "1.20.4" -> "0.97.2"
-              "1.20.6" -> "0.100.8"
-              "1.21.1" -> "0.115.4"
-              "1.21.3" -> "0.114.0"
-              "1.21.4" -> "0.119.2"
-              "1.21.5", "25w14craftmine" -> "0.119.9"
-              else -> throw IllegalStateException("No fabric api version defined for $minecraft")
-            }
-          }+$minecraft"
-        )
-      }
+      // TODO: Figure out how to just use the needed modules instead of including the entirety of fabric-api
+      modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:${getDep("fabric-api")}")
 
       if (minecraft != "25w15a")
         modstitchModImplementation(
