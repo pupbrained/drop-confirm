@@ -12,7 +12,7 @@ import xyz.pupbrained.drop_confirm.DropConfirm;
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig;
 
 @Mixin(Inventory.class)
-public class InventorySlotChangeMixin {
+public class SlotChangeMixin {
   @Unique private static int drop_confirm$lastSlot = 0;
 
   //? if <=1.21.1
