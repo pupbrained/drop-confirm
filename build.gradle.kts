@@ -45,9 +45,7 @@ modstitch {
     modGroup = "xyz.pupbrained.drop_confirm"
     modAuthor = "pupbrained"
 
-    fun <K, V> MapProperty<K, V>.populate(block: MapProperty<K, V>.() -> Unit) {
-      block()
-    }
+    fun <K, V> MapProperty<K, V>.populate(block: MapProperty<K, V>.() -> Unit) = block()
 
     replacementProperties.populate {
       put("mod_issue_tracker", "https://github.com/pupbrained/drop-confirm/issues")
@@ -75,25 +73,17 @@ modstitch {
 
   loom {
     fabricLoaderVersion = "0.16.13"
-
-    configureLoom {}
   }
 
   moddevgradle {
     enable {
       prop("deps.forge") { forgeVersion = it }
-      prop("deps.neoform") { neoFormVersion = it }
       prop("deps.neoforge") { neoForgeVersion = it }
-      prop("deps.mcp") { mcpVersion = it }
     }
 
     defaultRuns()
 
-    configureNeoforge {
-      runs.all {
-        disableIdeRun()
-      }
-    }
+    configureNeoforge { runs.all { disableIdeRun() } }
   }
 
   mixin {
@@ -136,11 +126,7 @@ dependencies {
   when {
     atLeast("25w14craftmine") -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+1.21.5-$loader")
     atLeast("1.20.1") && loader != "forge" -> modstitchModImplementation("dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader")
-    else -> {
-      if (loader != "forge")
-        modstitchCompileOnlyApi("io.github.CDAGaming:unicore:1.2.8")
-      modstitchModImplementation("maven.modrinth:unilib:1.0.5+$minecraft-$loader")
-    }
+    else -> modstitchModImplementation("maven.modrinth:unilib:1.0.5+$minecraft-$loader")
   }
 
   modstitch {
@@ -197,7 +183,16 @@ dependencies {
       if (loader == "neoforge")
         modstitchImplementation("thedarkcolour:kotlinforforge-neoforge:${if (atLeast("1.20.5")) "5.6.0" else "4.10.0"}")
       else
-        modstitchModImplementation("thedarkcolour:kotlinforforge:4.10.0")
+        modstitchModImplementation(
+          "thedarkcolour:kotlinforforge:${
+            when {
+              atLeast("1.18.2") -> "4.10.0"
+              atLeast("1.17") -> "2.0.1"
+              atLeast("1.16") -> "1.16.0"
+              else -> throw IllegalStateException("No kotlinforforge version defined for $minecraft")
+            }
+          }"
+        )
 
       if (loader == "forge") {
         modstitchImplementation("org.spongepowered:mixin:0.8.5")

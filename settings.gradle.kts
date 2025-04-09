@@ -33,16 +33,18 @@ stonecutter {
     mc("1.15.2", loaders = listOf("fabric"))
     mc("1.16.5", loaders = listOf("fabric"))
     mc("1.17.1", loaders = listOf("fabric"))
-    mc("1.18.2", loaders = listOf("fabric"))
+
+    mc("1.18.2", loaders = listOf("fabric", "forge"))
     mc("1.19.4", loaders = listOf("fabric", "forge"))
     mc("1.20.1", loaders = listOf("fabric", "forge"))
+
     mc("1.20.4", loaders = listOf("fabric", "neoforge"))
     mc("1.20.6", loaders = listOf("fabric", "neoforge"))
-
     mc("1.21.1", loaders = listOf("fabric", "neoforge"))
     mc("1.21.3", loaders = listOf("fabric", "neoforge"))
     mc("1.21.4", loaders = listOf("fabric", "neoforge"))
     mc("1.21.5", loaders = listOf("fabric", "neoforge"))
+
     mc("25w14craftmine", loaders = listOf("fabric"))
     mc("25w15a", loaders = listOf("fabric"))
 
