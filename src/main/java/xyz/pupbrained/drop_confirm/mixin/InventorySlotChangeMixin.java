@@ -3,7 +3,7 @@ package xyz.pupbrained.drop_confirm.mixin;
 import net.minecraft.world.entity.player.Inventory;
 import org.spongepowered.asm.mixin.Mixin;
 //? if <=1.21.1
-import org.spongepowered.asm.mixin.Shadow;
+/*import org.spongepowered.asm.mixin.Shadow;*/
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,21 +16,21 @@ public class InventorySlotChangeMixin {
   @Unique private static int drop_confirm$lastSlot = 0;
 
   //? if <=1.21.1
-  @Shadow public int selected;
+  /*@Shadow public int selected;*/
 
   @Inject(
-    method = /*? if >1.21.4 {*//*"setSelectedSlot"*//*?} elif >1.21.1 {*//*"setSelectedHotbarSlot"*//*?} else {*/"tick"/*?}*/,
+    method = /*? if >1.21.4 {*//*"setSelectedSlot"*//*?} elif >1.21.1 {*/"setSelectedHotbarSlot"/*?} else {*//*"tick"*//*?}*/,
     at = @At("TAIL")
   )
   private void onSlotSet(
-    /*? if >1.21.1 {*//*int selected,*//*?}*/
+    /*? if >1.21.1 {*/int selected,/*?}*/
     CallbackInfo ci
   ) {
     //? if >=1.20.1 && !forge {
-    /*if (!DropConfirmConfig.Companion.getGSON().instance().getEnabled()) return;
-    *///?} else {
-    if (!DropConfirmConfig.Companion.isEnabled()) return;
-     //?}
+    if (!DropConfirmConfig.Companion.getGSON().instance().getEnabled()) return;
+    //?} else {
+    /*if (!DropConfirmConfig.Companion.isEnabled()) return;
+     *///?}
 
     if (selected != drop_confirm$lastSlot) {
       DropConfirm.INSTANCE.setConfirmed(false);
