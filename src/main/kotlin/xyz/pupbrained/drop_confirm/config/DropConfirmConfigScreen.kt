@@ -1,5 +1,5 @@
 //? if >=1.20.1 && !forge {
-package xyz.pupbrained.drop_confirm.config
+/*package xyz.pupbrained.drop_confirm.config
 
 import dev.isxander.yacl3.api.*
 import dev.isxander.yacl3.gui.controllers.BooleanController
@@ -90,8 +90,8 @@ object DropConfirmConfigScreen {
     }
   }.generateScreen(parent)
 }
-//?} else {
-/*package xyz.pupbrained.drop_confirm.config
+*///?} else {
+package xyz.pupbrained.drop_confirm.config
 
 import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
 import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl
@@ -219,4 +219,4 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     DropConfirmConfig.reload()
   }
 }
-*///?}
+//?}

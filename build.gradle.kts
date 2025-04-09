@@ -198,6 +198,11 @@ dependencies {
         modstitchImplementation("thedarkcolour:kotlinforforge-neoforge:${if (atLeast("1.20.5")) "5.6.0" else "4.10.0"}")
       else
         modstitchModImplementation("thedarkcolour:kotlinforforge:4.10.0")
+
+      if (loader == "forge") {
+        modstitchImplementation("org.spongepowered:mixin:0.8.5")
+        annotationProcessor("org.spongepowered:mixin:0.8.5")
+      }
     }
   }
 }

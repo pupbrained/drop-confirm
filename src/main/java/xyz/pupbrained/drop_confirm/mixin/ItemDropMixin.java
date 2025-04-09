@@ -49,13 +49,13 @@ public class ItemDropMixin {
     if (mc.player == null) return;
 
     //? if >=1.20.1 && !forge
-    final DropConfirmConfig config = DropConfirmConfig.Companion.getGSON().instance();
+    /*final DropConfirmConfig config = DropConfirmConfig.Companion.getGSON().instance();*/
 
     final LocalPlayer player = mc.player;
     final Inventory inventory = player./*? if >1.16.5 {*/getInventory()/*?} else {*//*inventory*//*?}*/;
     ItemStack itemStack = inventory./*? if >=1.21.5 {*//*getSelectedItem*//*?} else {*/getSelected/*?}*/();
 
-    if (!/*? if >=1.20.1 && !forge {*/config.getEnabled()/*?} else {*//*DropConfirmConfig.Companion.isEnabled()*//*?}*/ || itemStack.isEmpty())
+    if (!/*? if >=1.20.1 && !forge {*//*config.getEnabled()*//*?} else {*/DropConfirmConfig.Companion.isEnabled()/*?}*/ || itemStack.isEmpty())
       return;
 
     final ServerboundPlayerActionPacket.Action action = entireStack
@@ -63,9 +63,9 @@ public class ItemDropMixin {
       : ServerboundPlayerActionPacket.Action.DROP_ITEM;
 
     //? if >=1.20.1 && !forge {
-    if (config.getBlacklistedItems().contains(itemStack.getItem()) ^ config.getTreatAsWhitelist())
+    /*if (config.getBlacklistedItems().contains(itemStack.getItem()) ^ config.getTreatAsWhitelist())
       return;
-    //?}
+    *///?}
 
     if (!DropConfirm.INSTANCE.isConfirmed()) {
       mc.gui.setOverlayMessage(
@@ -82,7 +82,7 @@ public class ItemDropMixin {
         synchronized (DropConfirm.class) {
           DropConfirm.INSTANCE.setConfirmed(false);
         }
-      }, (long) (/*? if >=1.20.1 && !forge {*/config.getConfirmationResetDelay()/*?} else {*//*DropConfirmConfig.Companion.getResetDelay()*//*?}*/ * 1000), TimeUnit.MILLISECONDS);
+      }, (long) (/*? if >=1.20.1 && !forge {*//*config.getConfirmationResetDelay()*//*?} else {*/DropConfirmConfig.Companion.getResetDelay()/*?}*/ * 1000), TimeUnit.MILLISECONDS);
     } else {
       DropConfirm.INSTANCE.setConfirmed(false);
       //? if >=1.19.4 {
@@ -95,12 +95,12 @@ public class ItemDropMixin {
       mc.gui.setOverlayMessage(/*? if >=1.19.4 {*/Component.empty()/*?} else if >=1.16.5 {*//*TextComponent.EMPTY*//*?} else {*//*new TextComponent("")*//*?}*/, false);
 
       //? if >=1.20.1 && !forge {
-      if (config.getPlaySounds())
+      /*if (config.getPlaySounds())
         player.playSound(SoundEvents.BUNDLE_DROP_CONTENTS, 1.0F, 1.0F);
-      //?} else {
-      /*if (DropConfirmConfig.Companion.shouldPlaySounds())
+      *///?} else {
+      if (DropConfirmConfig.Companion.shouldPlaySounds())
         player.playSound(SoundEvents.ITEM_PICKUP, 1.0F, 1.0F);
-      *///?}
+      //?}
 
       player.connection.send(new ServerboundPlayerActionPacket(action, BlockPos.ZERO, Direction.DOWN));
     }
