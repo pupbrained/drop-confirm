@@ -1,6 +1,7 @@
 {
   "package": "xyz.pupbrained.drop_confirm.mixin",
   "required": true,
+  "refmap": "drop_confirm.refmap.json",
   "minVersion": "0.7",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
