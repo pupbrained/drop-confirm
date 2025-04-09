@@ -99,31 +99,28 @@ import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
 import io.github.cdagaming.unicore.impl.Pair
 import net.minecraft.client.Minecraft
-//? if >=1.19.4 {
-import net.minecraft.client.gui.narration.NarratableEntry
+//? if >=1.18.2 {
+import net.minecraft.client.gui.narration.NarratableEntry.NarrationPriority
 import net.minecraft.client.gui.narration.NarrationElementOutput
 //?}
 import net.minecraft.client.gui.screens.Screen
 import xyz.pupbrained.drop_confirm.DropConfirm
 
 class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfirm") {
-  //? if >=1.19.4 {
+  //? if >=1.18.2 {
   override fun updateNarration(output: NarrationElementOutput) {}
-
-  override fun narrationPriority(): NarratableEntry.NarrationPriority {
-    return NarratableEntry.NarrationPriority.NONE
-  }
+  override fun narrationPriority() = NarrationPriority.NONE
   //?}
 
   private val config = DropConfirmConfig.get()
 
   // Store the parent screen to return to
-  private val previousScreen: Screen = parentScreen
+  private val previousScreen = parentScreen
 
   // Store original values to restore on cancel
-  private val originalEnabled: Boolean = config.enabled
-  private val originalPlaySounds: Boolean = config.playSounds
-  private val originalResetDelay: Float = config.confirmationResetDelay
+  private val originalEnabled = config.enabled
+  private val originalPlaySounds = config.playSounds
+  private val originalResetDelay = config.confirmationResetDelay
 
   private val startY = 50
   private val controlSpacing = 24

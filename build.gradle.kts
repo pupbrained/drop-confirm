@@ -71,9 +71,7 @@ modstitch {
     }
   }
 
-  loom {
-    fabricLoaderVersion = "0.16.13"
-  }
+  loom { fabricLoaderVersion = "0.16.13" }
 
   moddevgradle {
     enable {
@@ -148,8 +146,7 @@ dependencies {
               "1.21.1" -> "0.115.4"
               "1.21.3" -> "0.114.0"
               "1.21.4" -> "0.119.2"
-              "1.21.5" -> "0.119.9"
-              "25w14craftmine" -> "0.119.8"
+              "1.21.5", "25w14craftmine" -> "0.119.9"
               else -> throw IllegalStateException("No fabric api version defined for $minecraft")
             }
           }+$minecraft"
@@ -180,21 +177,10 @@ dependencies {
     }
 
     moddevgradle {
-      if (loader == "neoforge")
+      if (loader == "neoforge") {
         modstitchImplementation("thedarkcolour:kotlinforforge-neoforge:${if (atLeast("1.20.5")) "5.6.0" else "4.10.0"}")
-      else
-        modstitchModImplementation(
-          "thedarkcolour:kotlinforforge:${
-            when {
-              atLeast("1.18.2") -> "4.10.0"
-              atLeast("1.17") -> "2.0.1"
-              atLeast("1.16") -> "1.16.0"
-              else -> throw IllegalStateException("No kotlinforforge version defined for $minecraft")
-            }
-          }"
-        )
-
-      if (loader == "forge") {
+      } else {
+        modstitchModImplementation("thedarkcolour:kotlinforforge:${if (atLeast("1.19.4")) "4.10.0" else "3.12.0"}")
         modstitchImplementation("org.spongepowered:mixin:0.8.5")
         annotationProcessor("org.spongepowered:mixin:0.8.5")
       }

@@ -1,5 +1,5 @@
 modLoader = "kotlinforforge"
-loaderVersion = "[4.10,)"
+loaderVersion = "[3,)"
 issueTrackerURL = "${mod_issue_tracker}"
 license = "${mod_license}"
 
