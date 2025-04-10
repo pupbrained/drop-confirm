@@ -69,7 +69,11 @@ object DropConfirmConfig {
 /*package xyz.pupbrained.drop_confirm.config
 
 import com.google.gson.GsonBuilder
+//? if fabric {
 import net.fabricmc.loader.api.FabricLoader
+//?} else {
+/^import net.minecraftforge.fml.loading.FMLPaths
+^///?}
 import xyz.pupbrained.drop_confirm.DropConfirm
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -92,7 +96,11 @@ object DropConfirmConfig {
 
   private val GSON = GsonBuilder().setPrettyPrinting().create()
 
+  //? if fabric {
   private val configFile = FabricLoader.getInstance().configDir.resolve("drop_confirm.json")
+  //?} else {
+  /^private val configFile = FMLPaths.CONFIGDIR.get().resolve("drop_confirm.json")
+  ^///?}
 
   private var isLoaded = false
 

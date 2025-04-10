@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 //? if >=1.19.4 {
 import net.minecraft.network.chat.Component;
-  //?} else {
+ //?} else {
 /*import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 *///?}
@@ -51,7 +51,6 @@ public class ItemDropMixin {
 
   @Inject(method = "drop", at = @At("HEAD"), cancellable = true)
   private void onItemDrop(boolean entireStack, CallbackInfoReturnable<Boolean> cir) {
-    //? if >=1.20.1 && !forge
     final LocalPlayer player = (LocalPlayer) (Object) this;
     final Inventory inventory = player./*? if >1.16.5 {*/getInventory()/*?} else {*//*inventory*//*?}*/;
     ItemStack itemStack = inventory./*? if >=1.21.5 {*//*getSelectedItem*//*?} else {*/getSelected/*?}*/();
@@ -88,15 +87,14 @@ public class ItemDropMixin {
       DropConfirm.setConfirmed(false);
       //? if >=1.19.4 {
       itemStack = inventory.removeFromSelected(entireStack);
-      //?} else {
+       //?} else {
       /*itemStack = inventory.removeItem(inventory.selected, entireStack && !inventory.getSelected().isEmpty() ? inventory.getSelected().getCount() : 1);
-       *///?}
+      *///?}
 
-      // make empty component
       minecraft.gui.setOverlayMessage(/*? if >=1.19.4 {*/Component.empty()/*?} else if >=1.16.5 {*//*TextComponent.EMPTY*//*?} else {*//*new TextComponent("")*//*?}*/, false);
 
       if (DropConfirmConfig.shouldPlaySounds())
-        player.playSound(SoundEvents./*? if >=1.20.1 && !forge {*/BUNDLE_DROP_CONTENTS/*?} else {*//*ITEM_PICKUP*//*?}*/, 1.0F, 1.0F);
+        player.playSound(SoundEvents./*? if >=1.20.1 {*/BUNDLE_DROP_CONTENTS/*?} else {*//*ITEM_PICKUP*//*?}*/, 1.0F, 1.0F);
 
       player.connection.send(new ServerboundPlayerActionPacket(action, BlockPos.ZERO, Direction.DOWN));
     }

@@ -1,13 +1,15 @@
 //? if (>=1.15.2 && <1.20.1) || forge {
 /*package xyz.pupbrained.drop_confirm.config.widgets
 
+//? if >=1.16.5 && !forge {
+import com.mojang.blaze3d.vertex.PoseStack
+//?} elif forge {
+/^import net.minecraft.client.gui.GuiGraphics as PoseStack
+^///?}
 import com.gitlab.cdagaming.unilib.ModUtils
 import com.gitlab.cdagaming.unilib.utils.gui.RenderUtils
 import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
 import io.github.cdagaming.unicore.impl.Pair
-
-//? if >=1.16.5
-import com.mojang.blaze3d.vertex.PoseStack
 
 class ModernSliderControl(
   positionData: Pair<Int, Int>,
@@ -20,7 +22,7 @@ class ModernSliderControl(
 ) :
   SliderControl(positionData, dimensions, startValue, minValue, maxValue, valueStep, displayString) {
   @Suppress("DuplicatedCode")
-  override fun render(
+  override fun /^? if forge {^//^m_87963_^//^?} else {^/render/^?}^/(
     /^? if >=1.16.5 {^/matrixStack: PoseStack,/^?}^/
     mouseX: Int,
     mouseY: Int,
