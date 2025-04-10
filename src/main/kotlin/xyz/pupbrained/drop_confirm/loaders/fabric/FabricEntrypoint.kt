@@ -10,7 +10,7 @@ import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
 
 class FabricEntrypoint : ModInitializer {
   override fun onInitialize() {
-    DropConfirmConfig/*? if >=1.20.1 {*/.GSON/*?}*/.load()
+    DropConfirmConfig.load()
     KeyBindingHelper.registerKeyBinding(TOGGLE_KEY)
     ClientTickEvents.END_CLIENT_TICK.register { handleKeyPresses(it) }
   }

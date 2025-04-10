@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 //? if >=1.19.4 {
 import net.minecraft.network.chat.Component;
- //?} else {
+  //?} else {
 /*import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 *///?}
@@ -15,7 +15,9 @@ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,24 +40,23 @@ public class ItemDropMixin {
       return thread;
     });
 
+  @Shadow
+  @Final
+  protected Minecraft minecraft;
+
   @Inject(method = "swing", at = @At("HEAD"), cancellable = true)
   private void onHandSwing(InteractionHand hand, CallbackInfo ci) {
-    if (DropConfirm.INSTANCE.isConfirmed()) ci.cancel();
+    if (DropConfirm.isConfirmed()) ci.cancel();
   }
 
   @Inject(method = "drop", at = @At("HEAD"), cancellable = true)
   private void onItemDrop(boolean entireStack, CallbackInfoReturnable<Boolean> cir) {
-    final Minecraft mc = Minecraft.getInstance();
-    if (mc.player == null) return;
-
     //? if >=1.20.1 && !forge
-    final DropConfirmConfig config = DropConfirmConfig.Companion.getGSON().instance();
-
-    final LocalPlayer player = mc.player;
+    final LocalPlayer player = (LocalPlayer) (Object) this;
     final Inventory inventory = player./*? if >1.16.5 {*/getInventory()/*?} else {*//*inventory*//*?}*/;
     ItemStack itemStack = inventory./*? if >=1.21.5 {*//*getSelectedItem*//*?} else {*/getSelected/*?}*/();
 
-    if (!/*? if >=1.20.1 && !forge {*/config.getEnabled()/*?} else {*//*DropConfirmConfig.Companion.isEnabled()*//*?}*/ || itemStack.isEmpty())
+    if (!DropConfirmConfig.isEnabled() || itemStack.isEmpty())
       return;
 
     final ServerboundPlayerActionPacket.Action action = entireStack
@@ -63,44 +64,39 @@ public class ItemDropMixin {
       : ServerboundPlayerActionPacket.Action.DROP_ITEM;
 
     //? if >=1.20.1 && !forge {
-    if (config.getBlacklistedItems().contains(itemStack.getItem()) ^ config.getTreatAsWhitelist())
+    if (DropConfirmConfig.getBlacklistedItems().contains(itemStack.getItem()) ^ DropConfirmConfig.shouldTreatAsWhitelist())
       return;
     //?}
 
-    if (!DropConfirm.INSTANCE.isConfirmed()) {
-      mc.gui.setOverlayMessage(
+    if (!DropConfirm.isConfirmed()) {
+      minecraft.gui.setOverlayMessage(
         /*? if >=1.19.4 {*/Component.translatable/*?} else {*//*new TranslatableComponent*//*?}*/(
           "drop_confirm.confirmation",
-          mc.options.keyDrop.getTranslatedKeyMessage()/*? if >1.15.2 {*/.getString()/*?}*//*? if <=1.19.4 {*//*.toUpperCase()*//*?}*/
+          minecraft.options.keyDrop.getTranslatedKeyMessage()/*? if >1.15.2 {*/.getString()/*?}*//*? if <=1.19.4 {*//*.toUpperCase()*//*?}*/
         ),
         false
       );
 
-      DropConfirm.INSTANCE.setConfirmed(true);
+      DropConfirm.setConfirmed(true);
 
       drop_confirm$scheduler.schedule(() -> {
         synchronized (DropConfirm.class) {
-          DropConfirm.INSTANCE.setConfirmed(false);
+          DropConfirm.setConfirmed(false);
         }
-      }, (long) (/*? if >=1.20.1 && !forge {*/config.getConfirmationResetDelay()/*?} else {*//*DropConfirmConfig.Companion.getResetDelay()*//*?}*/ * 1000), TimeUnit.MILLISECONDS);
+      }, (long) (DropConfirmConfig.getResetDelay() * 1000), TimeUnit.MILLISECONDS);
     } else {
-      DropConfirm.INSTANCE.setConfirmed(false);
+      DropConfirm.setConfirmed(false);
       //? if >=1.19.4 {
       itemStack = inventory.removeFromSelected(entireStack);
-       //?} else {
+      //?} else {
       /*itemStack = inventory.removeItem(inventory.selected, entireStack && !inventory.getSelected().isEmpty() ? inventory.getSelected().getCount() : 1);
-      *///?}
+       *///?}
 
       // make empty component
-      mc.gui.setOverlayMessage(/*? if >=1.19.4 {*/Component.empty()/*?} else if >=1.16.5 {*//*TextComponent.EMPTY*//*?} else {*//*new TextComponent("")*//*?}*/, false);
+      minecraft.gui.setOverlayMessage(/*? if >=1.19.4 {*/Component.empty()/*?} else if >=1.16.5 {*//*TextComponent.EMPTY*//*?} else {*//*new TextComponent("")*//*?}*/, false);
 
-      //? if >=1.20.1 && !forge {
-      if (config.getPlaySounds())
-        player.playSound(SoundEvents.BUNDLE_DROP_CONTENTS, 1.0F, 1.0F);
-      //?} else {
-      /*if (DropConfirmConfig.Companion.shouldPlaySounds())
-        player.playSound(SoundEvents.ITEM_PICKUP, 1.0F, 1.0F);
-      *///?}
+      if (DropConfirmConfig.shouldPlaySounds())
+        player.playSound(SoundEvents./*? if >=1.20.1 && !forge {*/BUNDLE_DROP_CONTENTS/*?} else {*//*ITEM_PICKUP*//*?}*/, 1.0F, 1.0F);
 
       player.connection.send(new ServerboundPlayerActionPacket(action, BlockPos.ZERO, Direction.DOWN));
     }

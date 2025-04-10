@@ -28,7 +28,7 @@ class NeoforgeEntrypoint {
 
   init {
     ModLoadingContext.get().registerExtensionPoint(ConfigScreenFactory::class.java) {
-      ConfigScreenFactory { _, screen -> DropConfirmConfigScreen.createScreen(screen) }
+      ConfigScreenFactory { _, screen -> DropConfirmConfigScreen(screen) }
     }
 
     DropConfirmConfig.GSON.load()

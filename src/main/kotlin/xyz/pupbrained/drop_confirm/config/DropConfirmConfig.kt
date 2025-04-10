@@ -4,94 +4,133 @@ package xyz.pupbrained.drop_confirm.config
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler
 import dev.isxander.yacl3.config.v2.api.SerialEntry
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder
-import dev.isxander.yacl3.platform.YACLPlatform.getConfigDir
 import net.minecraft.world.item.Item
 
-class DropConfirmConfig {
-  @SerialEntry
-  var enabled = true
+import dev.isxander.yacl3.platform.YACLPlatform
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty
 
-  @SerialEntry
-  var playSounds = true
+object DropConfirmConfig {
+  class DropConfirmConfigInternal {
+    @SerialEntry
+    var enabled = true
 
-  @SerialEntry
-  var treatAsWhitelist = false
+    @SerialEntry
+    var shouldPlaySounds = true
 
-  @SerialEntry
-  var confirmationResetDelay = 1.0
+    @SerialEntry
+    var treatAsWhitelist = false
 
-  @SerialEntry
-  var blacklistedItems: List<Item> = emptyList()
+    @SerialEntry
+    var confirmationResetDelay = 1.0
 
-  companion object {
-    val GSON: ConfigClassHandler<DropConfirmConfig> = ConfigClassHandler.createBuilder(DropConfirmConfig::class.java)
+    @SerialEntry
+    var blacklistedItems: List<Item> = emptyList()
+  }
+
+  val HANDLER: ConfigClassHandler<DropConfirmConfigInternal> =
+    ConfigClassHandler.createBuilder(DropConfirmConfigInternal::class.java)
       .serializer {
         GsonConfigSerializerBuilder.create(it)
-          .setPath(getConfigDir().resolve("drop_confirm.json5"))
-          .setJson5(true)
+          .setPath(YACLPlatform.getConfigDir().resolve("drop_confirm.json"))
           .build()
       }
       .build()
+
+  fun save() = HANDLER.save()
+  fun load() = HANDLER.load()
+
+  @JvmStatic
+  @get:JvmName("isEnabled")
+  var enabled: Boolean by ConfigDelegate(DropConfirmConfigInternal::enabled)
+
+  @JvmStatic
+  @get:JvmName("shouldPlaySounds")
+  var shouldPlaySounds: Boolean by ConfigDelegate(DropConfirmConfigInternal::shouldPlaySounds)
+
+  @JvmStatic
+  @get:JvmName("shouldTreatAsWhitelist")
+  var treatAsWhitelist: Boolean by ConfigDelegate(DropConfirmConfigInternal::treatAsWhitelist)
+
+  @JvmStatic
+  @get:JvmName("getResetDelay")
+  var confirmationResetDelay: Double by ConfigDelegate(DropConfirmConfigInternal::confirmationResetDelay)
+
+  @JvmStatic
+  @get:JvmName("getBlacklistedItems")
+  var blacklistedItems: List<Item> by ConfigDelegate(DropConfirmConfigInternal::blacklistedItems)
+
+  private class ConfigDelegate<T>(private val propertyRef: KMutableProperty1<DropConfirmConfigInternal, T>) {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = propertyRef.get(HANDLER.instance())
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) = propertyRef.set(HANDLER.instance(), value)
   }
 }
 //?} else {
 /*package xyz.pupbrained.drop_confirm.config
 
 import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
+import net.fabricmc.loader.api.FabricLoader
 import xyz.pupbrained.drop_confirm.DropConfirm
-import java.io.FileReader
-import java.io.FileWriter
-import java.nio.file.Paths
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.absolutePathString
 
-class DropConfirmConfig {
-  var enabled: Boolean = true
-  var playSounds: Boolean = true
-  var confirmationResetDelay: Float = 1.0F
+object DropConfirmConfig {
+  @JvmStatic
+  @get:JvmName("isEnabled")
+  var enabled = true
 
-  companion object {
-    private val GSON = GsonBuilder().setPrettyPrinting().create()
-    private val configFile = Paths.get("config", "drop_confirm.json").toFile()
-    private val CONFIG_TYPE = object : TypeToken<DropConfirmConfig>() {}.type
-    private var instance: DropConfirmConfig? = null
+  @JvmStatic
+  @get:JvmName("shouldPlaySounds")
+  var shouldPlaySounds = true
 
-    fun load(): DropConfirmConfig =
-      instance ?: (if (configFile.exists()) {
-        try {
-          FileReader(configFile).use { GSON.fromJson(it, CONFIG_TYPE) }
-        } catch (e: Exception) {
-          DropConfirm.LOGGER.error("Failed to load DropConfirmConfig from ${configFile.absolutePath}", e)
-          DropConfirmConfig()
-        }
-      } else {
-        DropConfirmConfig()
-      }).also { instance = it }
+  @JvmStatic
+  @get:JvmName("getResetDelay")
+  var confirmationResetDelay = 1.0F
 
-    fun save() {
-      configFile.parentFile.mkdirs()
+  private val GSON = GsonBuilder().setPrettyPrinting().create()
+
+  private val configFile = FabricLoader.getInstance().configDir.resolve("drop_confirm.json")
+
+  private var isLoaded = false
+
+  fun load() {
+    if (isLoaded) return
+
+    if (configFile.exists()) {
       try {
-        FileWriter(configFile).use { GSON.toJson(instance, it) }
+        Files.newBufferedReader(configFile, StandardCharsets.UTF_8).use { reader ->
+          val loadedData = GSON.fromJson(reader, Map::class.java)
+
+          enabled = loadedData["enabled"] as? Boolean ?: enabled
+          shouldPlaySounds = loadedData["playSounds"] as? Boolean ?: shouldPlaySounds
+          confirmationResetDelay =
+            (loadedData["confirmationResetDelay"] as? Number)?.toFloat() ?: confirmationResetDelay
+        }
       } catch (e: Exception) {
-        DropConfirm.LOGGER.error("Failed to save DropConfirm config to ${configFile.absolutePath}", e)
+        DropConfirm.LOGGER.error("Failed to load DropConfirmConfig from ${configFile.absolutePathString()}", e)
       }
     }
 
-    fun get(): DropConfirmConfig = instance ?: load()
+    isLoaded = true
+  }
 
-    // Add a reload method to refresh from the saved file
-    fun reload() {
-      instance = null
-      load()
+  fun save() {
+    try {
+      configFile.parent.createDirectories()
+
+      val dataToSave = mapOf(
+        "enabled" to enabled,
+        "playSounds" to shouldPlaySounds,
+        "confirmationResetDelay" to confirmationResetDelay
+      )
+
+      Files.newBufferedWriter(configFile, StandardCharsets.UTF_8).use { GSON.toJson(dataToSave, it) }
+    } catch (e: Exception) {
+      DropConfirm.LOGGER.error("Failed to save DropConfirm config to ${configFile.absolutePathString()}", e)
     }
-
-    // Convenience methods for accessing config values
-    fun isEnabled(): Boolean = get().enabled
-
-    // Check if sounds should be played
-    fun shouldPlaySounds(): Boolean = get().playSounds
-
-    // Get the confirmation reset delay
-    fun getResetDelay(): Float = get().confirmationResetDelay
   }
 }
 *///?}

@@ -23,16 +23,15 @@ import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
 
 object DropConfirm {
   //? if <1.20.1 || forge {
-  /*@JvmStatic
-  val TRANSLATOR: TranslationUtils = TranslationUtils("drop_confirm", true)
-    .setDefaultLanguage("en_us")
-    .build()
+  /*@JvmStatic val TRANSLATOR: TranslationUtils =
+    TranslationUtils("drop_confirm", true)
+      .setDefaultLanguage("en_us")
+      .build()
 
-  @JvmStatic
-  val LOGGER: Logger = LogManager.getLogger("DropConfirm")
+  @JvmStatic val LOGGER: Logger = LogManager.getLogger("DropConfirm")
   *///?}
 
-  var isConfirmed = false
+  @JvmStatic var isConfirmed = false
 
   val TOGGLE_KEY = KeyMapping(
     "key.drop_confirm.toggle",
@@ -43,21 +42,14 @@ object DropConfirm {
 
   fun handleKeyPresses(mc: Minecraft) {
     while (TOGGLE_KEY.consumeClick()) {
-      /*? if >=1.20.1 && !forge {*/DropConfirmConfig.GSON.instance()/*?} else {*//*DropConfirmConfig*//*?}*/.apply {
-        @Suppress("UNNECESSARY_SAFE_CALL", "KotlinRedundantDiagnosticSuppress")
+      DropConfirmConfig.apply {
+        //? if <=1.20.1
+        /*@Suppress("UNNECESSARY_SAFE_CALL")*/
         mc.player?.let {
-          //? if >=1.20.1 && !forge {
           enabled = !enabled
-          DropConfirmConfig.GSON.save()
-          //?} else {
-          /*get().enabled = !isEnabled()
           save()
 
-          val enabled = isEnabled()
-          val playSounds = shouldPlaySounds()
-          *///?}
-
-          if (playSounds)
+          if (shouldPlaySounds)
             it.playSound(SoundEvents.ITEM_PICKUP, 1.0f, if (enabled) 1.0f else 0.5f)
 
           mc.gui.setOverlayMessage(

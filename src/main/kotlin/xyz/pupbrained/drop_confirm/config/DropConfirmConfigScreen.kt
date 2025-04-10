@@ -10,11 +10,11 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
-import xyz.pupbrained.drop_confirm.config.DropConfirmConfig.Companion.GSON
+import xyz.pupbrained.drop_confirm.config.DropConfirmConfig.HANDLER
 
 object DropConfirmConfigScreen {
   @JvmStatic
-  fun createScreen(parent: Screen): Screen = YetAnotherConfigLib.create(GSON) { defaults, config, builder ->
+  operator fun invoke(parent: Screen): Screen = YetAnotherConfigLib.create(HANDLER) { defaults, config, builder ->
     fun String.t() = Component.translatable(this)
     fun String.desc() = OptionDescription.createBuilder().text(this.t()).build()
 
@@ -42,9 +42,9 @@ object DropConfirmConfigScreen {
 
       option(
         key = "play_sounds",
-        default = defaults.playSounds,
-        get = { config.playSounds },
-        set = { config.playSounds = it },
+        default = defaults.shouldPlaySounds,
+        get = { config.shouldPlaySounds },
+        set = { config.shouldPlaySounds = it },
         controller = { BooleanController(it, true) }
       ),
 
@@ -62,7 +62,7 @@ object DropConfirmConfigScreen {
         get = { config.treatAsWhitelist },
         set = { value ->
           config.treatAsWhitelist = value
-          Minecraft.getInstance().apply { execute { setScreen(createScreen(parent)) } }
+          Minecraft.getInstance().apply { execute { setScreen(invoke(parent)) } }
         },
         controller = { BooleanController(it, true) }
       )
@@ -94,15 +94,19 @@ object DropConfirmConfigScreen {
 /*package xyz.pupbrained.drop_confirm.config
 
 import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
-import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl
-import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
 import io.github.cdagaming.unicore.impl.Pair
-import net.minecraft.client.Minecraft
 //? if >=1.18.2 {
 import net.minecraft.client.gui.narration.NarratableEntry.NarrationPriority
 import net.minecraft.client.gui.narration.NarrationElementOutput
 //?}
+//? if >=1.15.2 {
+import xyz.pupbrained.drop_confirm.config.widgets.ModernButtonControl as ButtonControl
+import xyz.pupbrained.drop_confirm.config.widgets.ModernSliderControl as SliderControl
+//?} else {
+/^import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl as ButtonControl
+import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
+^///?}
 import net.minecraft.client.gui.screens.Screen
 import xyz.pupbrained.drop_confirm.DropConfirm
 
@@ -112,53 +116,65 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
   override fun narrationPriority() = NarrationPriority.NONE
   //?}
 
-  private val config = DropConfirmConfig.get()
-
-  // Store the parent screen to return to
+  private val config = DropConfirmConfig
   private val previousScreen = parentScreen
 
-  // Store original values to restore on cancel
   private val originalEnabled = config.enabled
-  private val originalPlaySounds = config.playSounds
+  private val originalPlaySounds = config.shouldPlaySounds
   private val originalResetDelay = config.confirmationResetDelay
 
-  private val startY = 50
-  private val controlSpacing = 24
   private val controlWidth = 150
   private val controlHeight = 20
-  private val buttonWidth = 150
-  private val buttonHeight = 20
-  private val buttonSpacing = 4
 
-  // Reference to UI controls that need updating if we cancel
   private var enabledCheckbox: CheckBoxControl? = null
   private var playSoundsCheckbox: CheckBoxControl? = null
   private var delaySlider: SliderControl? = null
 
+  private val adjustedControlSpacing = 4
+  private val checkboxWidth = 16
+
+  private val buttonSpacing = 8
+
+  private val buttonY: Int
+    get() = this.height - controlHeight - 8
+
+  private val groupStartX: Int
+    get() = this.width / 2 - ((controlWidth * 2) + buttonSpacing) / 2
+
+  private val centeredStartY: Int
+    get() {
+      val totalControls = 3
+      val titleReservedSpace = 25 // Space reserved at the top
+
+      val controlsTotalHeight = (controlHeight * totalControls) + (adjustedControlSpacing * (totalControls - 1))
+      val availableSpaceForControls = buttonY - titleReservedSpace
+      val topPadding = (availableSpaceForControls - controlsTotalHeight) / 2
+
+      return titleReservedSpace + topPadding.coerceAtLeast(0)
+    }
+
   override fun initializeUi() {
     super.initializeUi()
-    val centeredX = this.width / 2 - controlWidth / 2
 
-    // Create and store references to controls
+    val enabledText = DropConfirm.TRANSLATOR.translate("option.drop_confirm.enabled")
+    val playSoundsText = DropConfirm.TRANSLATOR.translate("option.drop_confirm.play_sounds")
+
     enabledCheckbox = CheckBoxControl(
-      0,
-      centeredX,
-      startY,
-      DropConfirm.TRANSLATOR.translate("option.drop_confirm.enabled"),
+      this.width / 2 - (fontRenderer.width(enabledText) + checkboxWidth) / 2,
+      centeredStartY,
+      enabledText,
       config.enabled
     ) { config.enabled = !config.enabled }
 
     playSoundsCheckbox = CheckBoxControl(
-      1,
-      centeredX,
-      startY + controlSpacing,
-      DropConfirm.TRANSLATOR.translate("option.drop_confirm.play_sounds"),
-      config.playSounds
-    ) { config.playSounds = !config.playSounds }
+      this.width / 2 - (fontRenderer.width(playSoundsText) + checkboxWidth) / 2,
+      centeredStartY + controlHeight + adjustedControlSpacing,
+      playSoundsText,
+      config.shouldPlaySounds
+    ) { config.shouldPlaySounds = !config.shouldPlaySounds }
 
     delaySlider = SliderControl(
-      3,
-      Pair(centeredX, startY + (controlSpacing * 2)),
+      Pair(this.width / 2 - controlWidth / 2, centeredStartY + (controlHeight * 2) + (adjustedControlSpacing * 2)),
       Pair(controlWidth, controlHeight),
       config.confirmationResetDelay,
       1.0f,
@@ -167,53 +183,44 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
       DropConfirm.TRANSLATOR.translate("option.drop_confirm.confirmation_reset_delay")
     ).apply {
       setOnSlide { config.confirmationResetDelay = this.sliderValue }
-      valueFormat = "%.1fs"
+      valueFormat += "s" // Add 's' for seconds
     }
 
-    // Add controls to screen
     addControl(enabledCheckbox!!)
     addControl(playSoundsCheckbox!!)
     addControl(delaySlider!!)
 
-    val totalButtonWidth = (buttonWidth * 2) + buttonSpacing
-    val groupStartX = this.width / 2 - totalButtonWidth / 2
-    val buttonY = this.height - 30
-
     addControl(
-      ExtendedButtonControl(
+      ButtonControl(
         groupStartX,
         buttonY,
-        buttonWidth,
-        buttonHeight,
-        DropConfirm.TRANSLATOR.translate("option.drop_confirm.cancel"),
-        {
-          resetConfigToOriginalValues()
-          Minecraft.getInstance().setScreen(previousScreen)
-        }
-      )
+        controlWidth,
+        controlHeight,
+        DropConfirm.TRANSLATOR.translate("option.drop_confirm.cancel")
+      ) {
+        resetConfigToOriginalValues()
+        minecraft?.setScreen(previousScreen)
+      }
     )
 
     addControl(
-      ExtendedButtonControl(
-        groupStartX + buttonWidth + buttonSpacing,
+      ButtonControl(
+        groupStartX + controlWidth + buttonSpacing,
         buttonY,
-        buttonWidth,
-        buttonHeight,
-        DropConfirm.TRANSLATOR.translate("option.drop_confirm.save_and_close"),
-        {
-          DropConfirmConfig.save()
-          Minecraft.getInstance().setScreen(previousScreen)
-        }
-      )
+        controlWidth,
+        controlHeight,
+        DropConfirm.TRANSLATOR.translate("option.drop_confirm.save_and_close")
+      ) {
+        DropConfirmConfig.save()
+        minecraft?.setScreen(previousScreen)
+      }
     )
   }
 
   private fun resetConfigToOriginalValues() {
     config.enabled = originalEnabled
-    config.playSounds = originalPlaySounds
+    config.shouldPlaySounds = originalPlaySounds
     config.confirmationResetDelay = originalResetDelay
-
-    DropConfirmConfig.reload()
   }
 }
 *///?}

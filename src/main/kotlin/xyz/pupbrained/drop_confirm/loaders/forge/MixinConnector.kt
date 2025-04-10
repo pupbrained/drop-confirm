@@ -1,10 +1,10 @@
-package xyz.pupbrained.drop_confirm.loaders.forge
+//? if forge {
+/*package xyz.pupbrained.drop_confirm.loaders.forge
 
 import org.spongepowered.asm.mixin.Mixins
 import org.spongepowered.asm.mixin.connect.IMixinConnector
 
 class MixinConnector : IMixinConnector {
-  override fun connect() {
-    Mixins.addConfiguration("drop_confirm.mixins.json")
-  }
+  override fun connect() = Mixins.addConfiguration("drop_confirm.mixins.json")
 }
+*///?}

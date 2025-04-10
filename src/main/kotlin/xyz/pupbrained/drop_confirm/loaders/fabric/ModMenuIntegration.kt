@@ -16,10 +16,7 @@ import xyz.pupbrained.drop_confirm.config.DropConfirmConfigScreen
 
 class ModMenuIntegration : ModMenuApi {
   //? if >=1.15.2 {
-  override fun getModConfigScreenFactory(): ConfigScreenFactory<*> =
-    ConfigScreenFactory {
-      /*? if >= 1.20.1 {*/DropConfirmConfigScreen.createScreen/*?} else {*//*DropConfirmConfigScreen*//*?}*/(it)
-    }
+  override fun getModConfigScreenFactory() = ConfigScreenFactory { DropConfirmConfigScreen(it) }
   //?} else {
   /*override fun getModId(): String = "drop_confirm"
   override fun getConfigScreenFactory(): Function<Screen, out Screen> {
