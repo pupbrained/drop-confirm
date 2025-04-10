@@ -93,9 +93,6 @@ object DropConfirmConfigScreen {
 //?} else {
 /*package xyz.pupbrained.drop_confirm.config
 
-import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
-import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
-import io.github.cdagaming.unicore.impl.Pair
 //? if >=1.18.2 {
 import net.minecraft.client.gui.narration.NarratableEntry.NarrationPriority
 import net.minecraft.client.gui.narration.NarrationElementOutput
@@ -104,9 +101,12 @@ import net.minecraft.client.gui.narration.NarrationElementOutput
 import xyz.pupbrained.drop_confirm.config.widgets.ModernButtonControl as ButtonControl
 import xyz.pupbrained.drop_confirm.config.widgets.ModernSliderControl as SliderControl
 //?} else {
-/^import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl as ButtonControl
-import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
+/^import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
+import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl as ButtonControl
 ^///?}
+import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
+import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
+import io.github.cdagaming.unicore.impl.Pair
 import net.minecraft.client.gui.screens.Screen
 import xyz.pupbrained.drop_confirm.DropConfirm
 
@@ -196,11 +196,12 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
         buttonY,
         controlWidth,
         controlHeight,
-        DropConfirm.TRANSLATOR.translate("option.drop_confirm.cancel")
-      ) {
-        resetConfigToOriginalValues()
-        minecraft?.setScreen(previousScreen)
-      }
+        DropConfirm.TRANSLATOR.translate("option.drop_confirm.cancel"),
+        /^? if >=1.15.2 {^/onPushEvent =/^?}^/ {
+          resetConfigToOriginalValues()
+          minecraft?.setScreen(previousScreen)
+        }
+      )
     )
 
     addControl(
@@ -209,11 +210,12 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
         buttonY,
         controlWidth,
         controlHeight,
-        DropConfirm.TRANSLATOR.translate("option.drop_confirm.save_and_close")
-      ) {
-        DropConfirmConfig.save()
-        minecraft?.setScreen(previousScreen)
-      }
+        DropConfirm.TRANSLATOR.translate("option.drop_confirm.save_and_close"),
+        /^? if >=1.15.2 {^/onPushEvent =/^?}^/ {
+          DropConfirmConfig.save()
+          minecraft?.setScreen(previousScreen)
+        }
+      )
     )
   }
 

@@ -16,8 +16,8 @@ class ModernButtonControl(
   width: Int,
   height: Int,
   text: String,
-  onClick: () -> Unit,
-) : ExtendedButtonControl(x, y, width, height, text, onClick) {
+  onPushEvent: () -> Unit,
+) : ExtendedButtonControl(x, y, width, height, text, onPushEvent) {
   @Suppress("DuplicatedCode")
   override fun /^? if forge {^//^m_87963_^//^?} else {^/render/^?}^/(
     /^? if >=1.16.5 {^/matrixStack: PoseStack,/^?}^/
