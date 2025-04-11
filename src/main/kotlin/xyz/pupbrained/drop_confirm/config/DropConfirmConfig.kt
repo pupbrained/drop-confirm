@@ -68,13 +68,9 @@ object DropConfirmConfig {
 //?} else {
 /*package xyz.pupbrained.drop_confirm.config
 
+import /^? if fabric {^/net.fabricmc.loader.api.FabricLoader/^?} else {^//^net.minecraftforge.fml.loading.FMLPaths^//^?}^/
 import com.google.gson.GsonBuilder
-//? if fabric {
-import net.fabricmc.loader.api.FabricLoader
-//?} else {
-/^import net.minecraftforge.fml.loading.FMLPaths
-^/
-//?}
+import net.minecraft.world.item.Item
 import xyz.pupbrained.drop_confirm.DropConfirm
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -101,16 +97,13 @@ object DropConfirmConfig {
 
   @JvmStatic
   @get:JvmName("getBlacklistedItems")
-  var blacklistedItems: MutableList<String> = mutableListOf()
+  var blacklistedItems: MutableList<Item> = mutableListOf()
 
   private val GSON = GsonBuilder().setPrettyPrinting().create()
 
-  //? if fabric {
-  private val configFile = FabricLoader.getInstance().configDir.resolve("drop_confirm.json")
-  //?} else {
-  /^private val configFile = FMLPaths.CONFIGDIR.get().resolve("drop_confirm.json")
-  ^/
-  //?}
+  private val configFile =
+    /^? if fabric {^/FabricLoader.getInstance().configDir/^?} else {^//^FMLPaths.CONFIGDIR.get()^//^?}^/
+    .resolve("drop_confirm.json")
 
   private var isLoaded = false
 
@@ -128,7 +121,7 @@ object DropConfirmConfig {
           confirmationResetDelay =
             (loadedData["confirmationResetDelay"] as? Number)?.toFloat() ?: confirmationResetDelay
           (loadedData["blacklistedItems"] as? List<*>)?.let { list ->
-            blacklistedItems = list.mapNotNull { it as? String }.toMutableList()
+            blacklistedItems = list.mapNotNull { it as Item? }.toMutableList()
           }
         }
       } catch (e: Exception) {

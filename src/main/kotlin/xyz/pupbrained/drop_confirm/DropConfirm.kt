@@ -6,13 +6,6 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 *///?}
 
-//? if >=1.19.4 {
-import net.minecraft.network.chat.Component
-//?} else {
-/*import net.minecraft.network.chat.TextComponent
-import net.minecraft.network.chat.TranslatableComponent
-*///?}
-
 import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
@@ -20,6 +13,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.sounds.SoundEvents
 import org.lwjgl.glfw.GLFW
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
+import xyz.pupbrained.drop_confirm.util.ComponentUtils
 
 object DropConfirm {
   //? if <1.20.1 || forge {
@@ -53,18 +47,11 @@ object DropConfirm {
             it.playSound(SoundEvents.ITEM_PICKUP, 1.0f, if (enabled) 1.0f else 0.5f)
 
           mc.gui.setOverlayMessage(
-            //? if >=1.19.4 {
-            Component.literal("DropConfirm: ").append(
-              Component
+            ComponentUtils.literal("DropConfirm: ").append(
+              ComponentUtils
                 .translatable(if (enabled) "drop_confirm.toggle.on" else "drop_confirm.toggle.off")
                 .withStyle(if (enabled) ChatFormatting.GREEN else ChatFormatting.RED)
             ),
-            //?} else {
-            /*TextComponent("DropConfirm: ").append(
-              TranslatableComponent(if (enabled) "drop_confirm.toggle.on" else "drop_confirm.toggle.off")
-                .withStyle(if (enabled) ChatFormatting.GREEN else ChatFormatting.RED)
-            ),
-            *///?}
             false
           )
         }
