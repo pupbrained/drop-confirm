@@ -154,8 +154,6 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     }
 
   override fun initializeUi() {
-    super.initializeUi()
-
     val enabledText = DropConfirm.TRANSLATOR.translate("option.drop_confirm.enabled")
     val playSoundsText = DropConfirm.TRANSLATOR.translate("option.drop_confirm.play_sounds")
 
@@ -217,6 +215,8 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
         }
       )
     )
+
+    super.initializeUi()
   }
 
   private fun resetConfigToOriginalValues() {

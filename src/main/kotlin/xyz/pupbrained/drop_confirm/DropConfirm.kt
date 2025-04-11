@@ -43,7 +43,7 @@ object DropConfirm {
   fun handleKeyPresses(mc: Minecraft) {
     while (TOGGLE_KEY.consumeClick()) {
       DropConfirmConfig.apply {
-        //? if <=1.20.1
+        //? if <=1.14.4
         /*@Suppress("UNNECESSARY_SAFE_CALL")*/
         mc.player?.let {
           enabled = !enabled
