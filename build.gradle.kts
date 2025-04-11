@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_16
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+import java.util.*
 
 plugins {
   kotlin("jvm") version "2.1.20"
@@ -98,7 +99,7 @@ dependencies {
     when {
       atLeast("25w14craftmine") -> "dev.isxander:yet-another-config-lib:3.6.6+1.21.5-$loader"
       atLeast("1.20.1") && loader != "forge" -> "dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader"
-      else -> "maven.modrinth:unilib:1.0.5+$minecraft-$loader"
+      else -> "com.gitlab.cdagaming.unilib:UniLib-${loader.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}:1.0.6+$minecraft:$loader"
     }
   )
 

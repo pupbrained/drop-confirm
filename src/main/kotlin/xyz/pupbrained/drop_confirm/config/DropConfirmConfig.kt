@@ -1,5 +1,5 @@
 //? if >=1.20.1 && !forge {
-package xyz.pupbrained.drop_confirm.config
+/*package xyz.pupbrained.drop_confirm.config
 
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler
 import dev.isxander.yacl3.config.v2.api.SerialEntry
@@ -65,11 +65,13 @@ object DropConfirmConfig {
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) = propertyRef.set(HANDLER.instance(), value)
   }
 }
-//?} else {
-/*package xyz.pupbrained.drop_confirm.config
+*///?} else {
+package xyz.pupbrained.drop_confirm.config
 
-import /^? if fabric {^/net.fabricmc.loader.api.FabricLoader/^?} else {^//^net.minecraftforge.fml.loading.FMLPaths^//^?}^/
+import /*? if fabric {*/net.fabricmc.loader.api.FabricLoader/*?} else {*//*net.minecraftforge.fml.loading.FMLPaths*//*?}*/
 import com.google.gson.GsonBuilder
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import xyz.pupbrained.drop_confirm.DropConfirm
 import java.nio.charset.StandardCharsets
@@ -102,7 +104,7 @@ object DropConfirmConfig {
   private val GSON = GsonBuilder().setPrettyPrinting().create()
 
   private val configFile =
-    /^? if fabric {^/FabricLoader.getInstance().configDir/^?} else {^//^FMLPaths.CONFIGDIR.get()^//^?}^/
+    /*? if fabric {*/FabricLoader.getInstance().configDir/*?} else {*//*FMLPaths.CONFIGDIR.get()*//*?}*/
     .resolve("drop_confirm.json")
 
   private var isLoaded = false
@@ -121,7 +123,11 @@ object DropConfirmConfig {
           confirmationResetDelay =
             (loadedData["confirmationResetDelay"] as? Number)?.toFloat() ?: confirmationResetDelay
           (loadedData["blacklistedItems"] as? List<*>)?.let { list ->
-            blacklistedItems = list.mapNotNull { it as Item? }.toMutableList()
+            blacklistedItems = list.mapNotNull {
+              val itemString = it as? String ?: return@mapNotNull null
+              val itemId = if (itemString.contains(":")) itemString else "minecraft:$itemString"
+              BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(itemId))
+            }.toMutableList()
           }
         }
       } catch (e: Exception) {
@@ -152,4 +158,4 @@ object DropConfirmConfig {
     }
   }
 }
-*///?}
+//?}

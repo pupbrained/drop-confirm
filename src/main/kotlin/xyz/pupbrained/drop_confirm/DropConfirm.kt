@@ -1,10 +1,10 @@
 package xyz.pupbrained.drop_confirm
 
 //? if <1.20.1 || forge {
-/*import io.github.cdagaming.unicore.utils.TranslationUtils
+import io.github.cdagaming.unicore.utils.TranslationUtils
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-*///?}
+//?}
 
 import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.ChatFormatting
@@ -17,13 +17,13 @@ import xyz.pupbrained.drop_confirm.util.ComponentUtils
 
 object DropConfirm {
   //? if <1.20.1 || forge {
-  /*@JvmStatic val TRANSLATOR: TranslationUtils =
+  @JvmStatic val TRANSLATOR: TranslationUtils =
     TranslationUtils("drop_confirm", true)
       .setDefaultLanguage("en_us")
       .build()
 
   @JvmStatic val LOGGER: Logger = LogManager.getLogger("DropConfirm")
-  *///?}
+  //?}
 
   @JvmStatic var isConfirmed = false
 

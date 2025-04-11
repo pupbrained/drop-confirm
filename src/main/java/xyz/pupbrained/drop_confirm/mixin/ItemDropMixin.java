@@ -64,7 +64,7 @@ public class ItemDropMixin {
       minecraft.gui.setOverlayMessage(
         ComponentUtils.translatable(
           "drop_confirm.confirmation",
-          minecraft.options.keyDrop.getTranslatedKeyMessage()/*? if >=1.16.5 {*/.getString()/*?}*//*? if <=1.19.4 {*//*.toUpperCase()*//*?}*/
+          minecraft.options.keyDrop.getTranslatedKeyMessage()/*? if >=1.16.5 {*/.getString()/*?}*//*? if <=1.19.4 {*/.toUpperCase()/*?}*/
         ),
         false
       );

@@ -12,7 +12,7 @@ import io.github.prospector.modmenu.api.ModMenuApi
 import com.terraformersmc.modmenu.api.ConfigScreenFactory
 import com.terraformersmc.modmenu.api.ModMenuApi
 //?}
-import xyz.pupbrained.drop_confirm.config.DropConfirmConfigScreen
+import xyz.pupbrained.drop_confirm.config.screens.DropConfirmConfigScreen
 
 class ModMenuIntegration : ModMenuApi {
   //? if >=1.15.2 {

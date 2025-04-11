@@ -1,11 +1,11 @@
 //? if (>=1.15.2 && <1.20.1) || forge {
-/*package xyz.pupbrained.drop_confirm.config.widgets
+package xyz.pupbrained.drop_confirm.config.widgets
 
 //? if >=1.16.5 && !forge {
 import com.mojang.blaze3d.vertex.PoseStack
 //?} elif forge {
-/^import net.minecraft.client.gui.GuiGraphics as PoseStack
-^///?}
+/*import net.minecraft.client.gui.GuiGraphics as PoseStack
+*///?}
 import com.gitlab.cdagaming.unilib.ModUtils
 import com.gitlab.cdagaming.unilib.utils.gui.RenderUtils
 import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
@@ -22,8 +22,8 @@ class ModernSliderControl(
 ) :
   SliderControl(positionData, dimensions, startValue, minValue, maxValue, valueStep, displayString) {
   @Suppress("DuplicatedCode")
-  override fun /^? if forge {^//^m_87963_^//^?} else {^/render/^?}^/(
-    /^? if >=1.16.5 {^/matrixStack: PoseStack,/^?}^/
+  override fun /*? if forge {*//*m_87963_*//*?} else {*/render/*?}*/(
+    /*? if >=1.16.5 {*/matrixStack: PoseStack,/*?}*/
     mouseX: Int,
     mouseY: Int,
     partialTicks: Float
@@ -38,10 +38,10 @@ class ModernSliderControl(
       this,
     )
 
-    this.renderBg(/^? if >=1.16.5 {^/matrixStack,/^?}^/ mc, mouseX, mouseY)
+    this.renderBg(/*? if >=1.16.5 {*/matrixStack,/*?}*/ mc, mouseX, mouseY)
 
     RenderUtils.renderScrollingString(
-      /^? if >=1.16.5 {^/matrixStack,/^?}^/
+      /*? if >=1.16.5 {*/matrixStack,/*?}*/
       mc,
       mc.font,
       this.controlMessage,
@@ -53,4 +53,4 @@ class ModernSliderControl(
     )
   }
 }
-*///?}
+//?}
