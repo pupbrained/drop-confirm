@@ -73,7 +73,8 @@ import com.google.gson.GsonBuilder
 import net.fabricmc.loader.api.FabricLoader
 //?} else {
 /^import net.minecraftforge.fml.loading.FMLPaths
-^///?}
+^/
+//?}
 import xyz.pupbrained.drop_confirm.DropConfirm
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -91,8 +92,16 @@ object DropConfirmConfig {
   var shouldPlaySounds = true
 
   @JvmStatic
+  @get:JvmName("shouldTreatAsWhitelist")
+  var treatAsWhitelist = false // Added
+
+  @JvmStatic
   @get:JvmName("getResetDelay")
   var confirmationResetDelay = 1.0F
+
+  @JvmStatic
+  @get:JvmName("getBlacklistedItems")
+  var blacklistedItems: MutableList<String> = mutableListOf()
 
   private val GSON = GsonBuilder().setPrettyPrinting().create()
 
@@ -100,7 +109,8 @@ object DropConfirmConfig {
   private val configFile = FabricLoader.getInstance().configDir.resolve("drop_confirm.json")
   //?} else {
   /^private val configFile = FMLPaths.CONFIGDIR.get().resolve("drop_confirm.json")
-  ^///?}
+  ^/
+  //?}
 
   private var isLoaded = false
 
@@ -110,16 +120,22 @@ object DropConfirmConfig {
     if (configFile.exists()) {
       try {
         Files.newBufferedReader(configFile, StandardCharsets.UTF_8).use { reader ->
-          val loadedData = GSON.fromJson(reader, Map::class.java)
+          val loadedData = GSON.fromJson(reader, Map::class.java) ?: emptyMap<Any, Any>()
 
           enabled = loadedData["enabled"] as? Boolean ?: enabled
           shouldPlaySounds = loadedData["playSounds"] as? Boolean ?: shouldPlaySounds
+          treatAsWhitelist = loadedData["treatAsWhitelist"] as? Boolean ?: treatAsWhitelist // Added loading
           confirmationResetDelay =
             (loadedData["confirmationResetDelay"] as? Number)?.toFloat() ?: confirmationResetDelay
+          (loadedData["blacklistedItems"] as? List<*>)?.let { list ->
+            blacklistedItems = list.mapNotNull { it as? String }.toMutableList()
+          }
         }
       } catch (e: Exception) {
         DropConfirm.LOGGER.error("Failed to load DropConfirmConfig from ${configFile.absolutePathString()}", e)
       }
+    } else {
+      save()
     }
 
     isLoaded = true
@@ -132,7 +148,9 @@ object DropConfirmConfig {
       val dataToSave = mapOf(
         "enabled" to enabled,
         "playSounds" to shouldPlaySounds,
-        "confirmationResetDelay" to confirmationResetDelay
+        "treatAsWhitelist" to treatAsWhitelist, // Added saving
+        "confirmationResetDelay" to confirmationResetDelay,
+        "blacklistedItems" to blacklistedItems // Added saving
       )
 
       Files.newBufferedWriter(configFile, StandardCharsets.UTF_8).use { GSON.toJson(dataToSave, it) }
