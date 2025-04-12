@@ -19,5 +19,7 @@
   "option.drop_confirm.whitelisted_items": "Whitelisted Items",
   "option.drop_confirm.whitelisted_items.description": "Items that should not be ignored by DropConfirm.",
   "option.drop_confirm.cancel": "Cancel",
-  "option.drop_confirm.save_and_close": "Save & Close"
+  "option.drop_confirm.save_and_close": "Save & Close",
+  "option.drop_confirm.add": "Add",
+  "option.drop_confirm.enter_item_id": "Item ID (e.g. \"stone\", \"mod_id:item\")"
 }

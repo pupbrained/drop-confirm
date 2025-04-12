@@ -1,5 +1,5 @@
 //? if >=1.20.1 && !forge {
-/*package xyz.pupbrained.drop_confirm.config.screens
+package xyz.pupbrained.drop_confirm.config.screens
 
 import dev.isxander.yacl3.api.*
 import dev.isxander.yacl3.gui.controllers.BooleanController
@@ -90,20 +90,16 @@ object DropConfirmConfigScreen {
     }
   }.generateScreen(parent)
 }
-*///?} else {
-package xyz.pupbrained.drop_confirm.config.screens
+//?} else {
+/*package xyz.pupbrained.drop_confirm.config.screens
 
-//? if >=1.18.2 {
-import net.minecraft.client.gui.narration.NarratableEntry.NarrationPriority
-import net.minecraft.client.gui.narration.NarrationElementOutput
-//?}
 //? if >=1.15.2 {
 import xyz.pupbrained.drop_confirm.config.widgets.ModernButtonControl as ButtonControl
 import xyz.pupbrained.drop_confirm.config.widgets.ModernSliderControl as SliderControl
 //?} else {
-/*import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
+/^import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
 import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl as ButtonControl
-*///?}
+^///?}
 import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
 import io.github.cdagaming.unicore.impl.Pair
@@ -111,53 +107,156 @@ import io.github.cdagaming.unicore.utils.StringUtils
 import net.minecraft.client.gui.screens.Screen
 import xyz.pupbrained.drop_confirm.DropConfirm.TRANSLATOR
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
+import xyz.pupbrained.drop_confirm.util.ComponentUtils // Ensure this import is correct
 
-/**
- *  UniLib Config Screen
- *  @param parentScreen The screen to return to when closing
- */
+/^*
+ * UniLib Config Screen
+ * @param parentScreen The screen to return to when closing
+ ^/
 class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfirm") {
+  // --- Companion Object for Constants ---
   companion object {
+    // Layout Constants
     private const val CONTROL_WIDTH = 150
     private const val CONTROL_HEIGHT = 20
-    private const val CONTROL_SPACING = 4
-    private const val CHECKBOX_WIDTH = 16
+    private const val CONTROL_SPACING = 6
+    private const val CHECKBOX_WIDTH = 16 // Used in createCheckbox calculation
     private const val BUTTON_SPACING = 8
     private const val TITLE_SPACE = 25
+    private const val CHECKBOX_HEIGHT = 12
 
+    // Translation Key Constants
     private const val ENABLED_KEY = "option.drop_confirm.enabled"
     private const val PLAY_SOUNDS_KEY = "option.drop_confirm.play_sounds"
+    private const val TREAT_AS_WHITELIST_KEY = "option.drop_confirm.treat_as_whitelist"
     private const val DELAY_KEY = "option.drop_confirm.confirmation_reset_delay"
   }
 
-  //? if >=1.18.2 {
-  override fun updateNarration(output: NarrationElementOutput) {}
-  override fun narrationPriority() = NarrationPriority.NONE
-  //?}
-
+  // --- Instance State & Original Values ---
   private val config = DropConfirmConfig
   private val previousScreen = parentScreen
 
   private val originalEnabled = config.enabled
   private val originalPlaySounds = config.shouldPlaySounds
+  private val originalTreatAsWhitelist = config.treatAsWhitelist
   private val originalResetDelay = config.confirmationResetDelay
 
+  // --- GUI Widget Declarations ---
   private lateinit var enabledCheckbox: CheckBoxControl
   private lateinit var playSoundsCheckbox: CheckBoxControl
+  private lateinit var treatAsWhitelistCheckbox: CheckBoxControl
   private lateinit var delaySlider: SliderControl
+  private lateinit var listEditorButton: ButtonControl
 
+  // --- Computed Properties (Layout & State) ---
   private val buttonY: Int
     get() = this.height - CONTROL_HEIGHT - BUTTON_SPACING
 
   private val groupStartX: Int
     get() = this.width / 2 - ((CONTROL_WIDTH * 2) + BUTTON_SPACING) / 2
 
-  private fun calculateControlPosition(index: Int): Pair<Int, Int> {
-    val x = this.width / 2 - CONTROL_WIDTH / 2
-    val y = centeredStartY + (CONTROL_HEIGHT + CONTROL_SPACING) * index
-    return Pair(x, y)
+  private val totalControlsStackHeight: Int
+    get() {
+      val checkboxStackHeight = 3 * CHECKBOX_HEIGHT
+      val sliderAndButtonHeight = 2 * CONTROL_HEIGHT
+      val totalGapsHeight = 4 * CONTROL_SPACING // Gap below each of 3 checkboxes, slider, button
+      return checkboxStackHeight + sliderAndButtonHeight + totalGapsHeight
+    }
+
+  private val centeredStartY: Int
+    get() = TITLE_SPACE + (buttonY - TITLE_SPACE - totalControlsStackHeight) / 2.coerceAtLeast(0)
+
+  private val listTypeKey: String // Renamed from listType for clarity
+    get() = "option.drop_confirm.${if (config.treatAsWhitelist) "white" else "black"}listed_items"
+
+  // --- Core Lifecycle & Override Methods ---
+  override fun initializeUi() {
+    val startX = this.width / 2 - CONTROL_WIDTH / 2
+    var currentY = centeredStartY
+
+    // Enabled Checkbox
+    enabledCheckbox = createCheckbox(
+      Pair(startX, currentY),
+      TRANSLATOR.translate(ENABLED_KEY),
+      config.enabled,
+      { config.enabled = !config.enabled },
+      { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$ENABLED_KEY.description"))) }
+    )
+    currentY += CHECKBOX_HEIGHT + CONTROL_SPACING
+
+    // Play Sounds Checkbox
+    playSoundsCheckbox = createCheckbox(
+      Pair(startX, currentY),
+      TRANSLATOR.translate(PLAY_SOUNDS_KEY),
+      config.shouldPlaySounds,
+      { config.shouldPlaySounds = !config.shouldPlaySounds },
+      { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$PLAY_SOUNDS_KEY.description"))) }
+    )
+    currentY += CHECKBOX_HEIGHT + CONTROL_SPACING
+
+    // Treat as Whitelist Checkbox
+    treatAsWhitelistCheckbox = createCheckbox(
+      Pair(startX, currentY),
+      TRANSLATOR.translate(TREAT_AS_WHITELIST_KEY),
+      config.treatAsWhitelist,
+      {
+        config.treatAsWhitelist = !config.treatAsWhitelist
+        // Update button using computed property
+        if (::listEditorButton.isInitialized) {
+          listEditorButton.message = ComponentUtils.translatable(listTypeKey)
+          listEditorButton.setOnHover {
+            drawMultiLineString(
+              StringUtils.splitTextByNewLine(
+                TRANSLATOR.translate("$listTypeKey.description")
+              )
+            )
+          }
+        }
+      },
+      { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$TREAT_AS_WHITELIST_KEY.description"))) }
+    )
+    currentY += CHECKBOX_HEIGHT + CONTROL_SPACING
+
+    // Delay Slider
+    delaySlider = SliderControl(
+      Pair(startX, currentY),
+      Pair(CONTROL_WIDTH, CONTROL_HEIGHT),
+      config.confirmationResetDelay,
+      1.0f, 5.0f, 0.1f,
+      TRANSLATOR.translate(DELAY_KEY)
+    ).apply {
+      setOnSlide { config.confirmationResetDelay = this.sliderValue }
+      setOnHover { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$DELAY_KEY.description"))) }
+      valueFormat += "s"
+    }
+    currentY += CONTROL_HEIGHT + CONTROL_SPACING
+
+    // List Editor Button
+    listEditorButton = ButtonControl(
+      startX,
+      currentY,
+      CONTROL_WIDTH,
+      CONTROL_HEIGHT,
+      TRANSLATOR.translate(listTypeKey)
+    ) {
+      minecraft?.setScreen(DropConfirmListEditorScreen(this))
+    }.apply {
+      setOnHover {
+        drawMultiLineString(
+          StringUtils.splitTextByNewLine(
+            TRANSLATOR.translate("$listTypeKey.description") // Use computed property
+          )
+        )
+      }
+    }
+
+    addControls()
+    addActionButtons()
+
+    super.initializeUi()
   }
 
+  // --- Helper Methods ---
   private fun createCheckbox(
     position: Pair<Int, Int>,
     text: String,
@@ -165,8 +264,12 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     onChange: () -> Unit,
     onHover: () -> Unit
   ): CheckBoxControl {
+    // Calculate precise X for centered text + checkbox
+    val textWidth = this.fontRenderer.width(text)
+    val checkboxStartX =
+      position.first + (CONTROL_WIDTH - (textWidth + CHECKBOX_WIDTH + 4)) / 2
     return CheckBoxControl(
-      position.first - (fontRenderer.width(text) + CHECKBOX_WIDTH) / 2 + CONTROL_WIDTH / 2,
+      checkboxStartX,
       position.second,
       text,
       isChecked,
@@ -178,32 +281,34 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
   private fun addControls() {
     addControl(enabledCheckbox)
     addControl(playSoundsCheckbox)
+    addControl(treatAsWhitelistCheckbox)
     addControl(delaySlider)
+    addControl(listEditorButton)
   }
 
   private fun addActionButtons() {
-    // Cancel button
+    // Cancel Button
     addControl(
       ButtonControl(
         groupStartX,
         buttonY,
         CONTROL_WIDTH,
         CONTROL_HEIGHT,
-        TRANSLATOR.translate("option.drop_confirm.cancel")
+        TRANSLATOR.translate("option.drop_confirm.cancel") // Maybe add key constant?
       ) {
         resetConfigToOriginalValues()
         minecraft?.setScreen(previousScreen)
       }
     )
 
-    // Save button
+    // Save Button
     addControl(
       ButtonControl(
         groupStartX + CONTROL_WIDTH + BUTTON_SPACING,
         buttonY,
         CONTROL_WIDTH,
         CONTROL_HEIGHT,
-        TRANSLATOR.translate("option.drop_confirm.save_and_close")
+        TRANSLATOR.translate("option.drop_confirm.save_and_close") // Maybe add key constant?
       ) {
         DropConfirmConfig.save()
         minecraft?.setScreen(previousScreen)
@@ -211,58 +316,11 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     )
   }
 
-  // Simplified centeredStartY calculation
-  private val centeredStartY: Int
-    get() {
-      val totalControlsHeight = (CONTROL_HEIGHT * 3) + (CONTROL_SPACING * 2)
-      val availableSpace = buttonY - TITLE_SPACE
-      return TITLE_SPACE + (availableSpace - totalControlsHeight) / 2.coerceAtLeast(0)
-    }
-
-  override fun initializeUi() {
-    // Create UI elements with clear positioning
-    val pos1 = calculateControlPosition(0)
-    val pos2 = calculateControlPosition(1)
-    val pos3 = calculateControlPosition(2)
-
-    enabledCheckbox = createCheckbox(
-      pos1,
-      TRANSLATOR.translate(ENABLED_KEY),
-      config.enabled,
-      { config.enabled = !config.enabled },
-      { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$ENABLED_KEY.description"))) }
-    )
-
-    playSoundsCheckbox = createCheckbox(
-      pos2,
-      TRANSLATOR.translate(PLAY_SOUNDS_KEY),
-      config.shouldPlaySounds,
-      { config.shouldPlaySounds = !config.shouldPlaySounds },
-      { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$PLAY_SOUNDS_KEY.description"))) }
-    )
-
-    delaySlider = SliderControl(
-      Pair(pos3.first, pos3.second),
-      Pair(CONTROL_WIDTH, CONTROL_HEIGHT),
-      config.confirmationResetDelay,
-      1.0f, 5.0f, 0.1f,
-      TRANSLATOR.translate(DELAY_KEY)
-    ).apply {
-      setOnSlide { config.confirmationResetDelay = this.sliderValue }
-      setOnHover { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$DELAY_KEY.description"))) }
-      valueFormat += "s"  // Add seconds indicator
-    }
-
-    addControls()
-    addActionButtons()
-
-    super.initializeUi()
-  }
-
   private fun resetConfigToOriginalValues() {
     config.enabled = originalEnabled
     config.shouldPlaySounds = originalPlaySounds
+    config.treatAsWhitelist = originalTreatAsWhitelist
     config.confirmationResetDelay = originalResetDelay
   }
 }
-//?}
+*///?}

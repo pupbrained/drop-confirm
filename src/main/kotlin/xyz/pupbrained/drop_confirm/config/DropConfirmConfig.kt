@@ -1,5 +1,5 @@
 //? if >=1.20.1 && !forge {
-/*package xyz.pupbrained.drop_confirm.config
+package xyz.pupbrained.drop_confirm.config
 
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler
 import dev.isxander.yacl3.config.v2.api.SerialEntry
@@ -65,10 +65,10 @@ object DropConfirmConfig {
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) = propertyRef.set(HANDLER.instance(), value)
   }
 }
-*///?} else {
-package xyz.pupbrained.drop_confirm.config
+//?} else {
+/*package xyz.pupbrained.drop_confirm.config
 
-import /*? if fabric {*/net.fabricmc.loader.api.FabricLoader/*?} else {*//*net.minecraftforge.fml.loading.FMLPaths*//*?}*/
+import /^? if fabric {^/net.fabricmc.loader.api.FabricLoader/^?} else {^//^net.minecraftforge.fml.loading.FMLPaths^//^?}^/
 import com.google.gson.GsonBuilder
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
@@ -104,7 +104,7 @@ object DropConfirmConfig {
   private val GSON = GsonBuilder().setPrettyPrinting().create()
 
   private val configFile =
-    /*? if fabric {*/FabricLoader.getInstance().configDir/*?} else {*//*FMLPaths.CONFIGDIR.get()*//*?}*/
+    /^? if fabric {^/FabricLoader.getInstance().configDir/^?} else {^//^FMLPaths.CONFIGDIR.get()^//^?}^/
     .resolve("drop_confirm.json")
 
   private var isLoaded = false
@@ -144,12 +144,17 @@ object DropConfirmConfig {
     try {
       configFile.parent.createDirectories()
 
+      // Convert Item objects to their string identifiers before saving
+      val itemIdentifiers = blacklistedItems.map { item ->
+        BuiltInRegistries.ITEM.getKey(item).toString()
+      }
+
       val dataToSave = mapOf(
         "enabled" to enabled,
         "playSounds" to shouldPlaySounds,
-        "treatAsWhitelist" to treatAsWhitelist, // Added saving
+        "treatAsWhitelist" to treatAsWhitelist,
         "confirmationResetDelay" to confirmationResetDelay,
-        "blacklistedItems" to blacklistedItems // Added saving
+        "blacklistedItems" to itemIdentifiers  // Save as string identifiers instead of Item objects
       )
 
       Files.newBufferedWriter(configFile, StandardCharsets.UTF_8).use { GSON.toJson(dataToSave, it) }
@@ -157,5 +162,6 @@ object DropConfirmConfig {
       DropConfirm.LOGGER.error("Failed to save DropConfirm config to ${configFile.absolutePathString()}", e)
     }
   }
+
 }
-//?}
+*///?}
