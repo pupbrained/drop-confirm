@@ -93,13 +93,8 @@ object DropConfirmConfigScreen {
 //?} else {
 /*package xyz.pupbrained.drop_confirm.config.screens
 
-//? if >=1.15.2 {
-import xyz.pupbrained.drop_confirm.config.widgets.ModernButtonControl as ButtonControl
-import xyz.pupbrained.drop_confirm.config.widgets.ModernSliderControl as SliderControl
-//?} else {
-/^import com.gitlab.cdagaming.unilib.utils.gui.controls.SliderControl
-import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl as ButtonControl
-^///?}
+import xyz.pupbrained.drop_confirm.config.widgets.DropConfirmSliderControl as SliderControl
+import xyz.pupbrained.drop_confirm.config.widgets.DropConfirmButtonControl as ButtonControl
 import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
 import io.github.cdagaming.unicore.impl.Pair
@@ -203,7 +198,7 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
         config.treatAsWhitelist = !config.treatAsWhitelist
         // Update button using computed property
         if (::listEditorButton.isInitialized) {
-          listEditorButton.message = ComponentUtils.translatable(listTypeKey)
+          listEditorButton.message = ComponentUtils.translatable(listTypeKey)/^? if <=1.15.2 {^//^.string^//^?}^/
           listEditorButton.setOnHover {
             drawMultiLineString(
               StringUtils.splitTextByNewLine(

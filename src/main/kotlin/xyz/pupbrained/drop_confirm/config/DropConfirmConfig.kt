@@ -70,7 +70,11 @@ object DropConfirmConfig {
 
 import /^? if fabric {^/net.fabricmc.loader.api.FabricLoader/^?} else {^//^net.minecraftforge.fml.loading.FMLPaths^//^?}^/
 import com.google.gson.GsonBuilder
+//? if <=1.18.2 {
+/^import net.minecraft.core.Registry as BuiltInRegistries
+^///?} else {
 import net.minecraft.core.registries.BuiltInRegistries
+//?}
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import xyz.pupbrained.drop_confirm.DropConfirm

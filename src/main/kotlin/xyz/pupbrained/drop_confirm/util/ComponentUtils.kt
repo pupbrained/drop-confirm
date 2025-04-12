@@ -8,8 +8,10 @@ import net.minecraft.network.chat.TranslatableComponent
 *///?}
 import net.minecraft.network.chat.Component
 
-//? if <1.19.4
-/*typealias MutableComponent = Component*/
+//? if >=1.19.4 {
+typealias TextComponent = MutableComponent
+typealias TranslatableComponent = MutableComponent
+//?}
 
 /**
  * Utility class for creating text components across different Minecraft versions.
@@ -23,7 +25,7 @@ object ComponentUtils {
    * @return A text component containing the literal text
    */
   @JvmStatic
-  fun literal(text: String): MutableComponent =
+  fun literal(text: String): TextComponent =
     /*? if >=1.19.4 {*/Component.literal(text)/*?} else {*//*TextComponent(text)*//*?}*/
 
   /**
@@ -34,7 +36,7 @@ object ComponentUtils {
    * @return A text component that will be translated using the client's language settings
    */
   @JvmStatic
-  fun translatable(key: String, vararg args: Any): MutableComponent =
+  fun translatable(key: String, vararg args: Any): TranslatableComponent =
     /*? if >=1.19.4 {*/Component.translatable(key, *args)/*?} else {*//*TranslatableComponent(key, *args)*//*?}*/
 
   /**
@@ -44,7 +46,7 @@ object ComponentUtils {
    */
   @JvmStatic
   // @formatter:off
-  fun empty(): MutableComponent =
+  fun empty(): Component =
     /*? if >=1.19.4 {*/Component.empty()/*?} else if >=1.16.5 {*//*TextComponent.EMPTY*//*?} else {*//*TextComponent("")*//*?}*/
   // @formatter:on
 }

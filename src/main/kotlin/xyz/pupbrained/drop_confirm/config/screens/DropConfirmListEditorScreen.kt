@@ -1,26 +1,28 @@
 //? if <1.20.1 || forge {
 /*package xyz.pupbrained.drop_confirm.config.screens
 
-//? if >=1.15.2 {
-import xyz.pupbrained.drop_confirm.config.widgets.ModernButtonControl as ButtonControl
-//?} else {
-/^import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl as ButtonControl
-^///?}
+import xyz.pupbrained.drop_confirm.config.widgets.DropConfirmButtonControl as ButtonControl
 import com.gitlab.cdagaming.unilib.utils.ItemUtils
 import com.gitlab.cdagaming.unilib.utils.gui.RenderUtils
 import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedTextControl
 import com.gitlab.cdagaming.unilib.utils.gui.controls.ScrollableListControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
-import com.mojang.blaze3d.platform.InputConstants
+//? if >=1.16.5
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.Screen
+//? if <=1.18.2 {
+/^import net.minecraft.core.Registry as BuiltInRegistries
+^///?} else {
 import net.minecraft.core.registries.BuiltInRegistries
+//?}
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER
+import org.lwjgl.glfw.GLFW.GLFW_KEY_KP_ENTER
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
-import xyz.pupbrained.drop_confirm.config.widgets.ModernButtonControl
+import xyz.pupbrained.drop_confirm.config.widgets.DropConfirmButtonControl
 import xyz.pupbrained.drop_confirm.util.ComponentUtils
 import java.util.*
 
@@ -112,7 +114,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       private val placeholderText = ComponentUtils.translatable("option.drop_confirm.enter_item_id").string
 
       override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        if (this.isFocused && (keyCode == InputConstants.KEY_RETURN || keyCode == InputConstants.KEY_NUMPADENTER)) {
+        if (this.isFocused && (keyCode == GLFW_KEY_ENTER || keyCode == GLFW_KEY_KP_ENTER)) {
           this@DropConfirmListEditorScreen.addItemFromTextField()
           return true
         }
@@ -120,14 +122,29 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
         return super.keyPressed(keyCode, scanCode, modifiers)
       }
 
-      override fun render(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
-        super.render(poseStack, mouseX, mouseY, partialTicks)
+      override fun render(
+        /^? if >=1.16.5 {^/poseStack: PoseStack,/^?}^/
+        mouseX: Int,
+        mouseY: Int,
+        partialTicks: Float
+      ) {
+        super.render(
+          /^? if >=1.16.5 {^/poseStack,/^?}^/
+          mouseX,
+          mouseY,
+          partialTicks
+        )
 
         if (value.isEmpty())
-          fontRenderer.draw(poseStack, placeholderText, (x + 4).toFloat(), (y + (height - 8) / 2).toFloat(), 0x808080)
+          fontRenderer.draw(
+            /^? >=1.16.5 {^/poseStack,/^?}^/
+            placeholderText,
+            (x + 4).toFloat(),
+            (y + (height - 8) / 2).toFloat(),
+            0x808080
+          )
       }
     }
-
 
     originalAddButtonText = ComponentUtils.translatable("option.drop_confirm.add").string
     addButton = ButtonControl(
@@ -164,21 +181,21 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
     val resourceLocation = ResourceLocation.tryParse(fullResourceName)
     if (resourceLocation == null) {
       addButton.controlMessage = "Invalid ID format!"
-      addButton.textColor = ModernButtonControl.ERROR_TEXT_COLOR
+      addButton.textColor = DropConfirmButtonControl.ERROR_TEXT_COLOR
       return
     }
 
     val optionalItem: Optional<Item> = BuiltInRegistries.ITEM.getOptional(resourceLocation)
     if (!optionalItem.isPresent) {
       addButton.controlMessage = "Item not found!"
-      addButton.textColor = ModernButtonControl.ERROR_TEXT_COLOR
+      addButton.textColor = DropConfirmButtonControl.ERROR_TEXT_COLOR
       return
     }
 
     val itemToAdd: Item = optionalItem.get()
     if (itemsList.contains(itemToAdd)) {
       addButton.controlMessage = "Already in list!"
-      addButton.textColor = ModernButtonControl.ERROR_TEXT_COLOR
+      addButton.textColor = DropConfirmButtonControl.ERROR_TEXT_COLOR
       return
     }
 
@@ -224,7 +241,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
   private fun updateTextFieldAndButtonState(currentText: String) {
     if (addButton.controlMessage != originalAddButtonText) {
       addButton.controlMessage = originalAddButtonText
-      addButton.textColor = ModernButtonControl.DEFAULT_TEXT_COLOR
+      addButton.textColor = DropConfirmButtonControl.DEFAULT_TEXT_COLOR
     }
 
     val isValid = isInputValidAndAddable(currentText)
@@ -260,7 +277,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
     }
 
     override fun renderSlotItem(
-      matrices: PoseStack,
+      /^? if >=1.16.5 {^/matrices: PoseStack,/^?}^/
       originalName: String?,
       x: Int,
       y: Int,
@@ -274,7 +291,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       val index = itemList.indexOf(originalName)
       if (index == -1 || index >= currentItems.size) {
         super.renderSlotItem(
-          matrices,
+          /^? if >=1.16.5 {^/matrices,/^?}^/
           "Error: Item not found",
           x,
           y,
@@ -296,9 +313,13 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       if (!ItemUtils.isItemEmpty(stack)) {
         val iconY = y + (slotHeight - ICON_SIZE) / 2
         RenderUtils.drawItemStack(
-          gameInstance, matrices, fontRenderer,
-          currentX, iconY,
-          stack, 1.0f
+          gameInstance,
+          /^? if >=1.19.4 {^/matrices,/^?}^/
+          fontRenderer,
+          currentX,
+          iconY,
+          stack,
+          1.0f
         )
         currentX += ICON_SIZE + ICON_TEXT_PADDING
       }
@@ -318,15 +339,25 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       removeButton.isFocusedOver = removeButton.isControlVisible && removeButton.isControlEnabled &&
         RenderUtils.isMouseOver(mouseX.toDouble(), mouseY.toDouble(), removeButton)
 
-      removeButton.render(matrices, mouseX, mouseY, partialTicks)
+      removeButton.render(
+        /^? if >=1.16.5 {^/matrices,/^?}^/
+        mouseX,
+        mouseY,
+        partialTicks
+      )
 
       val textWidth = buttonX - currentX - HORIZONTAL_PADDING
       super.renderSlotItem(
-        matrices, originalName,
-        currentX, y,
+        /^? if >=1.16.5 {^/matrices,/^?}^/
+        originalName,
+        currentX,
+        y,
         textWidth,
         slotHeight,
-        mouseX, mouseY, isHovering, partialTicks
+        mouseX,
+        mouseY,
+        isHovering,
+        partialTicks
       )
     }
 
