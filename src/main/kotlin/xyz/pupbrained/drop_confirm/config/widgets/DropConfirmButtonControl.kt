@@ -1,4 +1,4 @@
-//? if (<1.20.1) || forge {
+//? if <1.20.1 || forge {
 /*package xyz.pupbrained.drop_confirm.config.widgets
 
 //? if >=1.16.5 && !forge {

@@ -26,7 +26,7 @@ object ComponentUtils {
    */
   @JvmStatic
   fun literal(text: String): TextComponent =
-    /*? if >=1.19.4 {*/Component.literal(text)/*?} else {*//*TextComponent(text)*//*?}*/
+    /*? if >=1.19.4 {*/Component.literal/*?} else {*//*TextComponent*//*?}*/(text)
 
   /**
    * Creates a translatable text component.
@@ -37,7 +37,7 @@ object ComponentUtils {
    */
   @JvmStatic
   fun translatable(key: String, vararg args: Any): TranslatableComponent =
-    /*? if >=1.19.4 {*/Component.translatable(key, *args)/*?} else {*//*TranslatableComponent(key, *args)*//*?}*/
+    /*? if >=1.19.4 {*/Component.translatable/*?} else {*//*TranslatableComponent*//*?}*/(key, *args)
 
   /**
    * Creates an empty text component.
