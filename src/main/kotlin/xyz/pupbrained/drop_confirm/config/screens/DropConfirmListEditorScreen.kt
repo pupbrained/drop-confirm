@@ -11,11 +11,7 @@ import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.Screen
-//? if <=1.18.2 {
-/^import net.minecraft.core.Registry as BuiltInRegistries
-^///?} else {
-import net.minecraft.core.registries.BuiltInRegistries
-//?}
+import net.minecraft.core./^? if <=1.18.2 {^//^Registry as BuiltInRegistries^//^?} else {^/registries.BuiltInRegistries/^?}^/
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
