@@ -2,7 +2,7 @@ package xyz.pupbrained.drop_confirm.mixin;
 
 import net.minecraft.world.entity.player.Inventory;
 import org.spongepowered.asm.mixin.Mixin;
-//? if <=1.21.1
+//? if <=1.21.3
 /*import org.spongepowered.asm.mixin.Shadow;*/
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,7 +15,7 @@ import xyz.pupbrained.drop_confirm.config.DropConfirmConfig;
 public class SlotChangeMixin {
   @Unique private static int drop_confirm$lastSlot = 0;
 
-  //? if <=1.21.1
+  //? if <=1.21.3
   /*@Shadow public int selected;*/
 
   @Inject(

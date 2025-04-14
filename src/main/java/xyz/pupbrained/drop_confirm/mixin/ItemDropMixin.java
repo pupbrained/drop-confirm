@@ -72,7 +72,7 @@ public class ItemDropMixin {
         false
       );
 
-      PopupScreen.Companion.show("hi!", "Confirmation");
+      minecraft.setScreen(new PopupScreen("hi!"));
 
       DropConfirm.setConfirmed(true);
 

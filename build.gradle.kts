@@ -88,11 +88,7 @@ tasks {
   processResources { duplicatesStrategy = INCLUDE }
 }
 
-stonecutter.consts(
-  "fabric" to (loader == "fabric"),
-  "neoforge" to (loader == "neoforge"),
-  "forge" to (loader == "forge")
-)
+stonecutter.consts(loader, "fabric", "forge", "neoforge")
 
 dependencies {
   modstitchModImplementation(

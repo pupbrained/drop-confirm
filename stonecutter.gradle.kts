@@ -2,6 +2,16 @@ plugins { id("dev.kikugie.stonecutter") }
 
 stonecutter active "1.21.4-fabric"
 
+tasks.register("Build active project") {
+  group = "stonecutter"
+  dependsOn(":${stonecutter.current.project}:build")
+}
+
+tasks.register("Run active project") {
+  group = "stonecutter"
+  dependsOn(":${stonecutter.current.project}:runClient")
+}
+
 allprojects {
   repositories {
     mavenCentral()
