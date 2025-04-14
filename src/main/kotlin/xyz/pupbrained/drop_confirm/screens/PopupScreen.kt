@@ -2,12 +2,12 @@ package xyz.pupbrained.drop_confirm.screens
 
 //? if >=1.20.1 {
 import net.minecraft.client.gui.GuiGraphics as PoseStack
+import xyz.pupbrained.drop_confirm.platform.impl.GuiGraphicsRenderImpl
 //?} elif >=1.16.5 {
 /*import com.mojang.blaze3d.vertex.PoseStack
-*///?} elif 1.15.2 {
-/*import com.mojang.blaze3d.systems.RenderSystem
+import xyz.pupbrained.drop_confirm.platform.impl.PoseStackRenderImpl
 *///?} else {
-/*import com.mojang.blaze3d.platform.GlStateManager as RenderSystem
+/*import xyz.pupbrained.drop_confirm.platform.impl.LegacyRenderImpl
 *///?}
 
 //? if >=1.19.4 {
@@ -27,9 +27,22 @@ import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.events.GuiEventListener
 import net.minecraft.client.gui.screens.Screen
+import xyz.pupbrained.drop_confirm.platform.RenderInterface
 import xyz.pupbrained.drop_confirm.util.ComponentUtils
 
 class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.literal("Popup Screen")) {
+  //? if <=1.15.2
+  /*@Suppress("UNUSED_PARAMETER")*/
+  private fun getRenderImpl(context: Any? = null): RenderInterface {
+    //? if >=1.20.1 {
+    return GuiGraphicsRenderImpl(context as PoseStack)
+    //?} else if >=1.16.5 {
+    /*return PoseStackRenderImpl(context as PoseStack)
+    *///?} else {
+    /*return LegacyRenderImpl()
+    *///?}
+  }
+
   // UI dimensions
   private val popupWidth = 220
   private val popupHeight = 120
@@ -67,7 +80,7 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
     const val TRANSPARENT = 0x00000000
   }
 
-  private class StyledButton(
+  inner class StyledButton(
     x: Int, y: Int, width: Int, height: Int,
     private val component: /*? if >=1.16.5 {*/Component/*?} else {*//*String*//*?}*/,
     onPress: OnPress,
@@ -82,45 +95,30 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
     onPress,
     /*? if >=1.19.4 {*/DEFAULT_NARRATION/*?}*/
   ) {
-    override fun /*? if >=1.20.4 {*/renderWidget/*?} else {*//*render*//*?}*/(
+    override fun /*? if >=1.20.4 {*/renderWidget/*?} elif >=1.17.1 {*//*render*//*?} else {*//*renderButton*//*?}*/(
       /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
       mouseX: Int,
       mouseY: Int,
       partialTick: Float
     ) {
-      isHovered =
-        mouseX >= x
-          && mouseY >= y
-          && mouseX < x + width
-          && mouseY < y + height
+      val renderer = getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/)
+
+      isHovered = mouseX >= x && mouseY >= y
+        && mouseX < x + width && mouseY < y + height
 
       // Draw custom button background with rounded appearance
       val color = if (isHovered) hoverColor else baseColor
 
-      //? if >=1.20.1 {
-      poseStack.fill(x, y + 1, x + width, y + height - 1, color)
-      poseStack.fill(x + 1, y, x + width - 1, y + height, color)
-      poseStack.drawCenteredString(
-        Minecraft.getInstance().font,
-        component/*? if >=1.18.2 {*/.string/*?}*/,
-        x + width / 2,
-        y + (height - 8) / 2,
-        TEXT
-      )
-      //?} else {
-      /*fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x, y + 1, x + width, y + height - 1, color)
-      fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x + 1, y, x + width - 1, y + height, color)
-
-      // Draw button text with hover effect
-      drawCenteredString(
-        /^? if >=1.16.5 {^/poseStack,/^?}^/
-        Minecraft.getInstance().font,
-        component/^? if >=1.18.2 {^/.string/^?}^/,
-        x + width / 2,
-        y + (height - 8) / 2,
-        TEXT
-      )
-      *///?}
+      renderer
+        .fill(x, y + 1, x + width, y + height - 1, color)
+        .fill(x + 1, y, x + width - 1, y + height, color)
+        .drawCenteredString(
+          Minecraft.getInstance().font,
+          component/*? if >=1.16.5 {*/.string/*?}*/,
+          x + width / 2,
+          y + (height - 8) / 2,
+          TEXT
+        )
     }
   }
 
@@ -144,10 +142,8 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
 
     val closeAction = Button.OnPress { minecraft?.setScreen(null) }
 
-    val confirmText =
-      ComponentUtils.translatable("gui.yes")/*? if <=1.15.2 {*//*.string*//*?}*/
-    val cancelText =
-      ComponentUtils.translatable("gui.no")/*? if <=1.15.2 {*//*.string*//*?}*/
+    val confirmText = ComponentUtils.translatable("gui.yes")/*? if <=1.15.2 {*//*.string*//*?}*/
+    val cancelText = ComponentUtils.translatable("gui.no")/*? if <=1.15.2 {*//*.string*//*?}*/
 
     /*? if <=1.16.5 {*//*addButton*//*?} else {*/addRenderableWidget/*?}*/(
       StyledButton(
@@ -162,8 +158,10 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
 
     /*? if <=1.16.5 {*//*addButton*//*?} else {*/addRenderableWidget/*?}*/(
       StyledButton(
-        startX + popupWidth / 2 + 10, startY + popupHeight - 35,
-        60, 20,
+        startX + popupWidth / 2 + 10,
+        startY + popupHeight - 35,
+        60,
+        20,
         cancelText,
         closeAction,
         BUTTON_CANCEL,
@@ -173,36 +171,18 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
   }
 
   override fun renderBackground(
-    /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
+    /*? if >=1.16.5 {*/poseStack: PoseStack,
+    /*?}*/
     //? if >=1.20.4 {
     mouseX: Int,
     mouseY: Int,
     partialTick: Float
     //?}
   ) {
+    val renderer = getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/)
+
     if (minecraft?.level != null)
-    //? if >=1.20.1 {
-      poseStack.fillGradient(
-        0,
-        0,
-        width,
-        height,
-        /*? if >=1.18.2 && <=1.21.6-alpha.25.14.craftmine {*/0,/*?}*/
-        DIMMING,
-        DIMMING
-      )
-    //?} else {
-    /*fillGradient(
-      /^? if >=1.16.5 {^/poseStack,/^?}^/
-      0,
-      0,
-      width,
-      height,
-      /^? if >=1.18.2 {^/0,/^?}^/
-      DIMMING,
-      DIMMING
-    )
-  *///?}
+      renderer.fillGradient(0, 0, width, height, DIMMING, DIMMING)
     else
       super.renderBackground(
         /*? if >=1.16.5 {*/poseStack,
@@ -234,78 +214,25 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
     *///?} else {
     renderTransparentBackground(poseStack)
     //?}
+    val renderer = getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/)
 
     val startX = (width - popupWidth) / 2
     val startY = (height - popupHeight) / 2
 
     // Draw the popup with border and translucency
-    drawEnhancedPopup(
-      /*? if >=1.16.5 {*/poseStack,/*?}*/
-      startX,
-      startY,
-      popupWidth,
-      popupHeight
-    )
+    drawEnhancedPopup(renderer, startX, startY, popupWidth, popupHeight)
 
-    //? if >=1.21.6-alpha.25.15.a {
-    /*val pose = poseStack.pose()
-    pose.pushMatrix()
-    pose.translate(0.0F, 0.0F, pose)
-    poseStack.drawString(
+    renderer.drawString(
       font,
-      title,
-      startX + popupWidth / 2 - font.width(title) / 2,
-      startY + 9,
-      TEXT,
-      true
-    )
-    pose.popMatrix()
-    *///?} elif >=1.20.1 {
-    val pose = poseStack.pose()
-    pose.pushPose()
-    pose.translate(0.0, 0.0, 100.0)
-    poseStack.drawString(
-      font,
-      title,
-      startX + popupWidth / 2 - font.width(title) / 2,
-      startY + 9,
-      TEXT,
-      true
-    )
-    pose.popPose()
-    //?} elif >=1.16.5 {
-    /*poseStack.pushPose()
-    poseStack.translate(0.0, 0.0, 100.0)
-    font.drawShadow(
-      poseStack,
-      title,
-      startX + popupWidth / 2 - font.width(title) / 2f,
-      startY + 9.5f,
-      TEXT
-    )
-    poseStack.popPose()
-    *///?} else {
-    /*RenderSystem.pushMatrix()
-    RenderSystem.translated(0.0, 0.0, 100.0)
-    font.drawShadow(
       title.string,
-      startX + popupWidth / 2 - font.width(title.string) / 2f,
-      startY + 9.5f,
-      TEXT
+      startX + popupWidth / 2 - font.width(title.string) / 2,
+      startY + 9,
+      TEXT,
+      true
     )
-    RenderSystem.popMatrix()
-    *///?}
 
     // Draw message with word wrapping
-    drawMultiLineText(
-      /*? if >=1.16.5 {*/poseStack,/*?}*/
-      font,
-      displayMessage,
-      startX + 15,
-      startY + 40,
-      popupWidth - 30,
-      TEXT
-    )
+    drawMultiLineText(renderer, font, displayMessage, startX + 15, startY + 40, popupWidth - 30, TEXT)
 
     //? if <=1.16.5 {
     /*for (k in buttonList.indices)
@@ -318,130 +245,52 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
 
   @Suppress("SameParameterValue")
   private fun drawEnhancedPopup(
-    /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
+    renderer: RenderInterface,
     x: Int,
     y: Int,
     width: Int,
     height: Int
   ) {
     // Draw border
-    drawBorder(
-      /*? if >=1.16.5 {*/poseStack,/*?}*/
-      x,
-      y,
-      width,
-      height
-    )
+    drawBorder(renderer, x, y, width, height)
 
-    // Title bar with gradient
-    //? if >=1.20.1 {
-    poseStack.fillGradient(
-      x + 1, y + 1,
-      x + width - 1, y + titleBarHeight,
-      TITLE_BAR1,
-      TITLE_BAR2
-    )
-
-    // Content area with subtle gradient
-    poseStack.fillGradient(
-      x + 1, y + titleBarHeight + 1,
-      x + width - 1, y + height - 1,
-      CONTENT_AREA,
-      CONTENT_AREA_GRADIENT
-    )
-
-    // Separator line
-    poseStack.fill(
-      x + 1,
-      y + titleBarHeight,
-      x + width - 1,
-      y + titleBarHeight + 1,
-      SEPARATOR
-    )
-    //?} else {
-    /*fillGradient(
-      /^? if >=1.16.5 {^/poseStack,/^?}^/
-      x + 1, y + 1,
-      x + width - 1, y + titleBarHeight,
-      TITLE_BAR1,
-      TITLE_BAR2
-    )
-
-    // Content area with subtle gradient
-    fillGradient(
-      /^? if >=1.16.5 {^/poseStack,/^?}^/
-      x + 1, y + titleBarHeight + 1,
-      x + width - 1, y + height - 1,
-      CONTENT_AREA,
-      CONTENT_AREA_GRADIENT
-    )
-
-    // Separator line
-    fill(
-      /^? if >=1.16.5 {^/poseStack,/^?}^/
-      x + 1,
-      y + titleBarHeight,
-      x + width - 1,
-      y + titleBarHeight + 1,
-      SEPARATOR
-    )
-    *///?}
+    renderer
+      .fillGradient(x + 1, y + 1, x + width - 1, y + titleBarHeight, TITLE_BAR1, TITLE_BAR2)
+      .fillGradient(x + 1, y + titleBarHeight + 1, x + width - 1, y + height - 1, CONTENT_AREA, CONTENT_AREA_GRADIENT)
+      .fill(x + 1, y + titleBarHeight, x + width - 1, y + titleBarHeight + 1, SEPARATOR)
 
     // Add decorative diagonal elements in corners
-    drawCornerDecorations(
-      /*? if >=1.16.5 {*/poseStack,/*?}*/
-      x,
-      y,
-      width,
-      height
-    )
+    drawCornerDecorations(renderer, x, y, width, height)
   }
 
   private fun drawBorder(
-    /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
+    renderer: RenderInterface,
     x: Int,
     y: Int,
     width: Int,
     height: Int
   ) {
-    //? if >=1.20.1 {
-    poseStack.fill(x + 1, y, x + width - 1, y + 1, BORDER) // Top
-    poseStack.fill(x, y + 1, x + 1, y + height - 1, BORDER) // Left
-    poseStack.fill(x + width - 1, y + 1, x + width, y + height - 1, BORDER) // Right
-    poseStack.fill(x + 1, y + height - 1, x + width - 1, y + height, BORDER) // Bottom
-
-    poseStack.fill(x, y, x + 1, y + 1, TRANSPARENT)
-    poseStack.fill(x + width - 1, y, x + width, y + 1, TRANSPARENT)
-    poseStack.fill(x, y + height - 1, x + 1, y + height, TRANSPARENT)
-    poseStack.fill(x + width - 1, y + height - 1, x + width, y + height, TRANSPARENT)
-    //?} else {
-    /*fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x + 1, y, x + width - 1, y + 1, BORDER) // Top
-    fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x, y + 1, x + 1, y + height - 1, BORDER) // Left
-    fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x + width - 1, y + 1, x + width, y + height - 1, BORDER) // Right
-    fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x + 1, y + height - 1, x + width - 1, y + height, BORDER) // Bottom
-
-    fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x, y, x + 1, y + 1, TRANSPARENT)
-    fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x + width - 1, y, x + width, y + 1, TRANSPARENT)
-    fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x, y + height - 1, x + 1, y + height, TRANSPARENT)
-    fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ x + width - 1, y + height - 1, x + width, y + height, TRANSPARENT)
-    *///?}
+    renderer
+      .fill(x + 1, y, x + width - 1, y + 1, BORDER) // Top
+      .fill(x, y + 1, x + 1, y + height - 1, BORDER) // Left
+      .fill(x + width - 1, y + 1, x + width, y + height - 1, BORDER) // Right
+      .fill(x + 1, y + height - 1, x + width - 1, y + height, BORDER) // Bottom
+      .fill(x, y, x + 1, y + 1, TRANSPARENT)
+      .fill(x + width - 1, y, x + width, y + 1, TRANSPARENT)
+      .fill(x, y + height - 1, x + 1, y + height, TRANSPARENT)
+      .fill(x + width - 1, y + height - 1, x + width, y + height, TRANSPARENT)
   }
 
   private fun drawCornerDecorations(
-    /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
+    renderer: RenderInterface,
     x: Int,
     y: Int,
     width: Int,
     height: Int
   ) {
     for (i in 0..3) {
-      //? if >=1.20.1 {
       fun drawCornerDecoration(cornerX: Int, cornerY: Int) =
-        poseStack.fill(cornerX, cornerY, cornerX + 1, cornerY + 1, CORNER_DECORATION)
-      //?} else {
-      /*fun drawCornerDecoration(cornerX: Int, cornerY: Int) =
-        fill(/^? if >=1.16.5 {^/poseStack,/^?}^/ cornerX, cornerY, cornerX + 1, cornerY + 1, CORNER_DECORATION)
-      *///?}
+        renderer.fill(cornerX, cornerY, cornerX + 1, cornerY + 1, CORNER_DECORATION)
 
       drawCornerDecoration(x + 3 + i, y + 3 + i) // Top left
       drawCornerDecoration(x + width - 4 - i, y + 3 + i) // Top right
@@ -455,7 +304,7 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
    */
   @Suppress("SameParameterValue")
   private fun drawMultiLineText(
-    /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
+    renderer: RenderInterface,
     font: Font,
     text: String,
     x: Int,
@@ -473,23 +322,13 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
 
       if (width > maxWidth) {
         if (currentLine.isNotEmpty()) {
-          //? if >=1.20.1 {
-          poseStack.drawString(
+          renderer.drawString(
             font,
             currentLine.toString(),
             x,
             currentY,
             color
           )
-          //?} else {
-          /*font.draw(
-            /^? if >=1.16.5 {^/poseStack,/^?}^/
-            currentLine.toString(),
-            x.toFloat(),
-            currentY.toFloat(),
-            color
-          )
-          *///?}
           currentLine = StringBuilder(word)
           currentY += font.lineHeight + 2
         } else {
@@ -500,23 +339,13 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
           for (char in chars) {
             val testWidth = font.width(lineBuilder.toString() + char)
             if (testWidth > maxWidth) {
-              //? if >=1.20.1 {
-              poseStack.drawString(
+              renderer.drawString(
                 font,
                 lineBuilder.toString(),
                 x,
                 currentY,
                 color
               )
-              //?} else {
-              /*font.draw(
-                /^? if >=1.16.5 {^/poseStack,/^?}^/
-                lineBuilder.toString(),
-                x.toFloat(),
-                currentY.toFloat(),
-                color
-              )
-              *///?}
               lineBuilder = StringBuilder("$char")
               currentY += font.lineHeight + 2
             } else {
@@ -534,14 +363,8 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
       }
     }
 
-    // Draw the last line
-    //? if >=1.20.1 {
     if (currentLine.isNotEmpty())
-      poseStack.drawString(font, currentLine.toString(), x, currentY, color)
-    //?} else {
-    /*if (currentLine.isNotEmpty())
-      font.draw(/^? if >=1.16.5 {^/poseStack,/^?}^/ currentLine.toString(), x.toFloat(), currentY.toFloat(), color)
-    *///?}
+      renderer.drawString(font, currentLine.toString(), x, currentY, color)
   }
 
   override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
