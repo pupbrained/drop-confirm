@@ -15,7 +15,7 @@ class PoseStackRenderImpl(private val poseStack: PoseStack) : RenderInterface {
       x2: Int, y2: Int,
       colorFrom: Int, colorTo: Int
     ) {
-      this.fillGradient(poseStack, x1, y1, x2, y2, colorFrom, colorTo)
+      fillGradient(poseStack, x1, y1, x2, y2, colorFrom, colorTo)
     }
   }
 
