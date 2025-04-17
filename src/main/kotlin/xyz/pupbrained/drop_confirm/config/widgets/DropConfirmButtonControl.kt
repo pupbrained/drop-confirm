@@ -1,11 +1,9 @@
 //? if <1.20.1 || forge {
 /*package xyz.pupbrained.drop_confirm.config.widgets
 
-//? if >=1.16.5 && !forge {
+//? if >=1.16.5 {
 import com.mojang.blaze3d.vertex.PoseStack
-//?} elif forge {
-/^import net.minecraft.client.gui.GuiGraphics as PoseStack
-^///?}
+//?}
 import com.gitlab.cdagaming.unilib.ModUtils
 import com.gitlab.cdagaming.unilib.utils.gui.RenderUtils
 import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedButtonControl
@@ -31,7 +29,7 @@ class DropConfirmButtonControl(
   var textColor: Int = DEFAULT_TEXT_COLOR
 
   @Suppress("DuplicatedCode")
-  override fun /^? if forge {^//^m_87963_^//^?} else {^/render/^?}^/(
+  override fun render(
     /^? if >=1.16.5 {^/matrixStack: PoseStack,/^?}^/
     mouseX: Int,
     mouseY: Int,

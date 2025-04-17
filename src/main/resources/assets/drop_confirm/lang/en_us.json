@@ -21,5 +21,10 @@
   "option.drop_confirm.cancel": "Cancel",
   "option.drop_confirm.save_and_close": "Save & Close",
   "option.drop_confirm.add": "Add",
-  "option.drop_confirm.enter_item_id": "Item ID (e.g. \"stone\", \"mod_id:item\")"
+  "option.drop_confirm.enter_item_id": "Item ID (e.g. \"stone\", \"mod_id:item\")",
+  "option.drop_confirm.confirmation_mode": "Confirmation Mode",
+  "option.drop_confirm.confirmation_mode.description": "Choose how item drop confirmations are displayed",
+  "option.drop_confirm.confirmation_mode.dialog": "Dialog",
+  "option.drop_confirm.confirmation_mode.hotbar": "Hotbar",
+  "option.drop_confirm.confirmation_mode.chat": "Chat"
 }

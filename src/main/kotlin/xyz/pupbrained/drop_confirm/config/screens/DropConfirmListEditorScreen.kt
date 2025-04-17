@@ -10,6 +10,8 @@ import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
 //? if >=1.16.5
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.narration.NarratableEntry
+import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.core./^? if <=1.18.2 {^//^Registry as BuiltInRegistries^//^?} else {^/registries.BuiltInRegistries/^?}^/
 import net.minecraft.resources.ResourceLocation
@@ -80,6 +82,10 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
     const val HORIZONTAL_PADDING = 4
     const val BUTTON_RIGHT_MARGIN = 4
   }
+
+  override fun updateNarration(p0: NarrationElementOutput) {}
+
+  override fun narrationPriority(): NarratableEntry.NarrationPriority = NarratableEntry.NarrationPriority.NONE
 
   override fun initializeUi() {
     itemDisplayList = ItemList(
@@ -265,6 +271,10 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
   ) {
     private var currentItems: List<Item> = initialItems.toList()
     private val removeButtons = mutableMapOf<Int, ButtonControl>()
+
+    override fun updateNarration(p0: NarrationElementOutput) {}
+
+    override fun narrationPriority(): NarratableEntry.NarrationPriority = NarratableEntry.NarrationPriority.NONE
 
     fun setListAndUpdate(displayNames: List<String>, actualItems: List<Item>) {
       this.setList(displayNames)

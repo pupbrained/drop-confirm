@@ -1,3 +1,4 @@
+//? if <=1.21.6-alpha.25.15.a {
 package xyz.pupbrained.drop_confirm.screens
 
 //? if >=1.20.1 {
@@ -10,18 +11,16 @@ import xyz.pupbrained.drop_confirm.platform.impl.PoseStackRenderImpl
 /*import xyz.pupbrained.drop_confirm.platform.impl.LegacyRenderImpl
 *///?}
 
-//? if >=1.19.4 {
-import net.minecraft.client.gui.components.Renderable
-//?} else {
-/*import net.minecraft.client.gui.components.Widget as Renderable
-*///?}
-
 //? if >=1.16.5 {
 import net.minecraft.network.chat.Component as Text
 //?} else {
 /*import kotlin.String as Text
 import kotlin.String
 *///?}
+
+//? if fabric {
+import net.minecraft.client.gui.components./*? if <=1.18.2 {*//*Widget as*//*?}*/ Renderable
+//?}
 
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
@@ -60,7 +59,7 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
     const val CORNER_DECORATION = 0xAAC0C9FF.toInt()
 
     // Text
-    const val TEXT = 0xFFFFFF
+    const val TEXT = 0xFFFFFFFF.toInt()
 
     // Buttons
     const val BUTTON_CONFIRM = 0xFF2D7D4C.toInt()
@@ -82,6 +81,7 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
   private val popupHeight = 120
   private val titleBarHeight = 25
 
+  //? if fabric
   private val renderables: MutableList<Renderable> = mutableListOf()
 
   override fun shouldCloseOnEsc(): Boolean = true
@@ -232,3 +232,4 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
     return false
   }
 }
+//?}

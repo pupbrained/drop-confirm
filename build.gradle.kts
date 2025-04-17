@@ -104,7 +104,7 @@ dependencies {
       // TODO: Figure out how to just use the needed modules instead of including the entirety of fabric-api
       modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:${getDep("fabric-api")}")
 
-      if (minecraft != "25w15a")
+      if (!atLeast("25w15a"))
         modstitchModImplementation("maven.modrinth:modmenu:${getDep("modmenu")}")
     }
 

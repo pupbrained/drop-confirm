@@ -15,7 +15,7 @@ import net.neoforged.neoforge.common.NeoForge
 import xyz.pupbrained.drop_confirm.DropConfirm.TOGGLE_KEY
 import xyz.pupbrained.drop_confirm.DropConfirm.handleKeyPresses
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
-import xyz.pupbrained.drop_confirm.config.DropConfirmConfigScreen
+import xyz.pupbrained.drop_confirm.config.screens.DropConfirmConfigScreen
 
 @Mod("drop_confirm")
 @EventBusSubscriber(modid = "drop_confirm", bus = EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT])
@@ -31,7 +31,7 @@ class NeoforgeEntrypoint {
       ConfigScreenFactory { _, screen -> DropConfirmConfigScreen(screen) }
     }
 
-    DropConfirmConfig.GSON.load()
+    DropConfirmConfig.load()
 
     if (FMLEnvironment.dist == Dist.CLIENT)
       NeoForge.EVENT_BUS.register(object {

@@ -44,6 +44,7 @@ stonecutter {
 
     mcSnapshot("25w14craftmine", "1.21.6")
     mcSnapshot("25w15a", "1.21.6")
+    mcSnapshot("25w16a", "1.21.6")
 
     vcsVersion = "1.21.4-fabric"
   }
