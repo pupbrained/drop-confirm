@@ -308,7 +308,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
         val iconY = y + (slotHeight - ICON_SIZE) / 2
         RenderUtils.drawItemStack(
           gameInstance,
-          /^? if >=1.19.4 {^/matrices,/^?}^/
+          /^? if >=1.19.4 {^/poseStack,/^?}^/
           fontRenderer,
           currentX,
           iconY,
@@ -334,7 +334,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
         RenderUtils.isMouseOver(mouseX.toDouble(), mouseY.toDouble(), removeButton)
 
       removeButton.render(
-        /^? if >=1.16.5 {^/matrices,/^?}^/
+        /^? if >=1.16.5 {^/poseStack,/^?}^/
         mouseX,
         mouseY,
         partialTicks
@@ -342,7 +342,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
 
       val textWidth = buttonX - currentX - HORIZONTAL_PADDING
       super.renderSlotItem(
-        /^? if >=1.16.5 {^/matrices,/^?}^/
+        /^? if >=1.16.5 {^/poseStack,/^?}^/
         originalName,
         currentX,
         y,

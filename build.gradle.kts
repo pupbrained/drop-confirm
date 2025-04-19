@@ -99,6 +99,9 @@ dependencies {
     }
   )
 
+  if (!atLeast("1.20.1") || loader == "forge")
+    modstitchImplementation("org.quiltmc.parsers:json:0.3.1")
+
   modstitch {
     loom {
       // TODO: Figure out how to just use the needed modules instead of including the entirety of fabric-api

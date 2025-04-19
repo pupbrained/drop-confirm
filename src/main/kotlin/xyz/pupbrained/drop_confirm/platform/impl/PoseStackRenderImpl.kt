@@ -4,6 +4,8 @@
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.screens.Screen
+import net.minecraft.network.chat.Component
+import net.minecraft.util.FormattedCharSequence
 import xyz.pupbrained.drop_confirm.platform.RenderInterface
 import xyz.pupbrained.drop_confirm.util.ComponentUtils
 
@@ -27,6 +29,18 @@ class PoseStackRenderImpl(private val poseStack: PoseStack) : RenderInterface {
   }
 
   override fun drawCenteredString(font: Font, text: String, x: Int, y: Int, color: Int): RenderInterface {
+    Screen.drawCenteredString(poseStack, font, text, x, y, color)
+
+    return this
+  }
+
+  override fun drawCenteredString(
+    font: Font,
+    text: FormattedCharSequence,
+    x: Int,
+    y: Int,
+    color: Int
+  ): RenderInterface {
     Screen.drawCenteredString(poseStack, font, text, x, y, color)
 
     return this

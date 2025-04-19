@@ -1,14 +1,22 @@
-//? if >=1.20.1 && !forge {
 package xyz.pupbrained.drop_confirm.config
 
+//? if >=1.20.1 && !forge {
+import dev.isxander.yacl3.api.NameableEnum
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler
 import dev.isxander.yacl3.config.v2.api.SerialEntry
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder
-import net.minecraft.world.item.Item
-
 import dev.isxander.yacl3.platform.YACLPlatform
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
+import net.minecraft.world.item.Item
+import xyz.pupbrained.drop_confirm.util.ComponentUtils
+
+enum class ConfirmationMode : NameableEnum {
+  DIALOG, HOTBAR, CHAT;
+
+  override fun getDisplayName() =
+    ComponentUtils.translatable("option.drop_confirm.confirmation_mode.${name.lowercase()}")
+}
 
 object DropConfirmConfig {
   class DropConfirmConfigInternal {
@@ -25,20 +33,11 @@ object DropConfirmConfig {
     var confirmationResetDelay = 1.0
 
     @SerialEntry
+    var confirmationMode = ConfirmationMode.DIALOG
+
+    @SerialEntry
     var blacklistedItems: List<Item> = emptyList()
   }
-
-  val HANDLER: ConfigClassHandler<DropConfirmConfigInternal> =
-    ConfigClassHandler.createBuilder(DropConfirmConfigInternal::class.java)
-      .serializer {
-        GsonConfigSerializerBuilder.create(it)
-          .setPath(YACLPlatform.getConfigDir().resolve("drop_confirm.json"))
-          .build()
-      }
-      .build()
-
-  fun save() = HANDLER.save()
-  fun load() = HANDLER.load()
 
   @JvmStatic
   @get:JvmName("isEnabled")
@@ -57,34 +56,49 @@ object DropConfirmConfig {
   var confirmationResetDelay: Double by ConfigDelegate(DropConfirmConfigInternal::confirmationResetDelay)
 
   @JvmStatic
+  @get:JvmName("getConfirmationMode")
+  var confirmationMode: ConfirmationMode by ConfigDelegate(DropConfirmConfigInternal::confirmationMode)
+
+  @JvmStatic
   @get:JvmName("getBlacklistedItems")
   var blacklistedItems: List<Item> by ConfigDelegate(DropConfirmConfigInternal::blacklistedItems)
+
+  val HANDLER: ConfigClassHandler<DropConfirmConfigInternal> =
+    ConfigClassHandler.createBuilder(DropConfirmConfigInternal::class.java)
+      .serializer {
+        GsonConfigSerializerBuilder.create(it)
+          .setPath(YACLPlatform.getConfigDir().resolve("drop_confirm.json"))
+          .build()
+      }
+      .build()
+
+  fun save() = HANDLER.save()
+  fun load() = HANDLER.load()
 
   private class ConfigDelegate<T>(private val propertyRef: KMutableProperty1<DropConfirmConfigInternal, T>) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T = propertyRef.get(HANDLER.instance())
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) = propertyRef.set(HANDLER.instance(), value)
   }
 }
+
 //?} else {
-/*package xyz.pupbrained.drop_confirm.config
-
-import net./^? if fabric {^/fabricmc.loader.api.FabricLoader/^?} else {^//^minecraftforge.fml.loading.FMLPaths^//^?}^/
-
-//? if fabric {
+/*//? if fabric {
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.core./^? if <=1.18.2 {^//^Registry as BuiltInRegistries^//^?} else {^/registries.BuiltInRegistries/^?}^/
 //?} else {
-/^import net.minecraftforge.registries.ForgeRegistries as BuiltInRegistries
+/^import net.minecraftforge.fml.loading.FMLPaths
+import net.minecraftforge.registries.ForgeRegistries as BuiltInRegistries
 ^///?}
 
-import com.google.gson.GsonBuilder
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import xyz.pupbrained.drop_confirm.DropConfirm
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import kotlin.io.path.createDirectories
-import kotlin.io.path.exists
-import kotlin.io.path.absolutePathString
+
+import org.quiltmc.parsers.json.JsonReader
+import org.quiltmc.parsers.json.JsonWriter
 
 enum class ConfirmationMode {
   DIALOG, HOTBAR, CHAT;
@@ -103,7 +117,7 @@ object DropConfirmConfig {
 
   @JvmStatic
   @get:JvmName("shouldTreatAsWhitelist")
-  var treatAsWhitelist = false // Added
+  var treatAsWhitelist = false
 
   @JvmStatic
   @get:JvmName("getResetDelay")
@@ -117,11 +131,9 @@ object DropConfirmConfig {
   @get:JvmName("getBlacklistedItems")
   var blacklistedItems: MutableList<Item> = mutableListOf()
 
-  private val gson = GsonBuilder().setPrettyPrinting().create()
-
   private val configFile =
     /^? if fabric {^/FabricLoader.getInstance().configDir/^?} else {^//^FMLPaths.CONFIGDIR.get()^//^?}^/
-    .resolve("drop_confirm.json")
+    .resolve("drop_confirm.json5")
 
   private var isLoaded = false
 
@@ -130,30 +142,44 @@ object DropConfirmConfig {
 
     try {
       if (configFile.exists()) {
-        Files.newBufferedReader(configFile, StandardCharsets.UTF_8).use { reader ->
-          val loadedData = gson.fromJson(reader, Map::class.java) ?: emptyMap<Any, Any>()
+        // Use Quilt-parsers JsonReader instead of Gson
+        JsonReader.json5(configFile).use { reader ->
+          reader.beginObject()
 
-          enabled = loadedData["enabled"] as? Boolean ?: enabled
-          shouldPlaySounds = loadedData["playSounds"] as? Boolean ?: shouldPlaySounds
-          treatAsWhitelist = loadedData["treatAsWhitelist"] as? Boolean ?: treatAsWhitelist
-          confirmationResetDelay =
-            (loadedData["confirmationResetDelay"] as? Number)?.toFloat() ?: confirmationResetDelay
+          while (reader.hasNext()) {
+            val name = reader.nextName()
+            when (name) {
+              "enabled" -> enabled = reader.nextBoolean()
+              "playSounds" -> shouldPlaySounds = reader.nextBoolean()
+              "treatAsWhitelist" -> treatAsWhitelist = reader.nextBoolean()
+              "confirmationResetDelay" -> confirmationResetDelay = reader.nextDouble().toFloat()
 
-          (loadedData["confirmationMode"] as? String)?.let {
-            runCatching { ConfirmationMode.valueOf(it.uppercase()) }
-              .getOrNull()?.let { mode -> confirmationMode = mode }
+              "confirmationMode" -> {
+                val modeName = reader.nextString()
+                runCatching { ConfirmationMode.valueOf(modeName.uppercase()) }
+                  .getOrNull()?.let { mode -> confirmationMode = mode }
+              }
+
+              "blacklistedItems" -> {
+                val items = mutableListOf<Item>()
+                reader.beginArray()
+                while (reader.hasNext()) {
+                  val itemId = reader.nextString()
+                  val fullId = if (itemId.contains(":")) itemId else "minecraft:$itemId"
+                  val item = BuiltInRegistries./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(
+                    ResourceLocation.tryParse(fullId)
+                  )
+                  items.add(item)
+                }
+                reader.endArray()
+                blacklistedItems = items
+              }
+
+              else -> reader.skipValue() // Skip unknown properties
+            }
           }
 
-          (loadedData["blacklistedItems"] as? List<*>)?.mapNotNull { itemId ->
-            (itemId as? String)?.let { id ->
-              val fullId = if (id.contains(":")) id else "minecraft:$id"
-              BuiltInRegistries./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(
-                ResourceLocation.tryParse(
-                  fullId
-                )
-              )
-            }
-          }?.toMutableList()?.let { blacklistedItems = it }
+          reader.endObject()
         }
       }
     } catch (e: Exception) {
@@ -173,16 +199,36 @@ object DropConfirmConfig {
         BuiltInRegistries./^? if fabric {^/ITEM/^?} else {^//^ITEMS^//^?}^/.getKey(item).toString()
       }
 
-      val dataToSave = mapOf(
-        "enabled" to enabled,
-        "playSounds" to shouldPlaySounds,
-        "treatAsWhitelist" to treatAsWhitelist,
-        "confirmationResetDelay" to confirmationResetDelay,
-        "confirmationMode" to confirmationMode.name,
-        "blacklistedItems" to itemIdentifiers
-      )
+      // Use Quilt-parsers JsonWriter instead of Gson
+      JsonWriter.json5(configFile).use { writer ->
+        writer.setIndent("  ")
 
-      Files.newBufferedWriter(configFile, StandardCharsets.UTF_8).use { gson.toJson(dataToSave, it) }
+        writer.beginObject()
+
+        writer.comment("Whether DropConfirm is enabled")
+        writer.name("enabled").value(enabled)
+
+        writer.comment("Whether to play sounds when confirming/canceling drops")
+        writer.name("playSounds").value(shouldPlaySounds)
+
+        writer.comment("If true, blacklisted items will be treated as a whitelist instead")
+        writer.name("treatAsWhitelist").value(treatAsWhitelist)
+
+        writer.comment("How long (in seconds) until the confirmation is reset")
+        writer.name("confirmationResetDelay").value(confirmationResetDelay)
+
+        writer.comment("The confirmation mode (DIALOG, HOTBAR, CHAT)")
+        writer.name("confirmationMode").value(confirmationMode.name)
+
+        writer.comment("The list of items to blacklist (or whitelist if treatAsWhitelist is true)")
+        writer.name("blacklistedItems")
+
+        writer.beginArray()
+        itemIdentifiers.forEach { writer.value(it) }
+        writer.endArray()
+
+        writer.endObject()
+      }
     } catch (e: Exception) {
       DropConfirm.LOGGER.error("Failed to save DropConfirm config to ${configFile.absolutePathString()}", e)
     }

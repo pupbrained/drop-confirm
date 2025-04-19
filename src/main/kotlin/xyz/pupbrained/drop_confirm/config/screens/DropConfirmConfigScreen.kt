@@ -1,8 +1,9 @@
-//? if >=1.20.1 && !forge {
 package xyz.pupbrained.drop_confirm.config.screens
 
+//? if >=1.20.1 && !forge {
 import dev.isxander.yacl3.api.*
 import dev.isxander.yacl3.gui.controllers.BooleanController
+import dev.isxander.yacl3.gui.controllers.cycling.EnumController
 import dev.isxander.yacl3.gui.controllers.dropdown.ItemController
 import dev.isxander.yacl3.gui.controllers.slider.DoubleSliderController
 import net.minecraft.client.Minecraft
@@ -10,13 +11,14 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
+import xyz.pupbrained.drop_confirm.config.ConfirmationMode
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig.HANDLER
 
 object DropConfirmConfigScreen {
   @JvmStatic
   operator fun invoke(parent: Screen): Screen = YetAnotherConfigLib.create(HANDLER) { defaults, config, builder ->
     fun String.t() = Component.translatable(this)
-    fun String.desc() = OptionDescription.createBuilder().text(this.t()).build()
+    fun String.desc() = OptionDescription.createBuilder().text(t()).build()
 
     fun <T : Any> option(
       key: String,
@@ -57,6 +59,14 @@ object DropConfirmConfigScreen {
       ),
 
       option(
+        key = "confirmation_mode",
+        default = defaults.confirmationMode,
+        get = { config.confirmationMode },
+        set = { config.confirmationMode = it },
+        controller = { EnumController(it, ConfirmationMode::class.java) }
+      ),
+
+      option(
         key = "treat_as_whitelist",
         default = defaults.treatAsWhitelist,
         get = { config.treatAsWhitelist },
@@ -91,19 +101,17 @@ object DropConfirmConfigScreen {
   }.generateScreen(parent)
 }
 //?} else {
-/*package xyz.pupbrained.drop_confirm.config.screens
-
-import xyz.pupbrained.drop_confirm.config.widgets.SliderControl
-import xyz.pupbrained.drop_confirm.config.widgets.ButtonControl
-import xyz.pupbrained.drop_confirm.config.widgets.EnumControl
-import xyz.pupbrained.drop_confirm.config.ConfirmationMode
-import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
+/*import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
 import io.github.cdagaming.unicore.impl.Pair
 import io.github.cdagaming.unicore.utils.StringUtils
 import net.minecraft.client.gui.screens.Screen
 import xyz.pupbrained.drop_confirm.DropConfirm.TRANSLATOR
+import xyz.pupbrained.drop_confirm.config.ConfirmationMode
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
+import xyz.pupbrained.drop_confirm.config.widgets.ButtonControl
+import xyz.pupbrained.drop_confirm.config.widgets.EnumControl
+import xyz.pupbrained.drop_confirm.config.widgets.SliderControl
 
 /^*
  * UniLib Config Screen
@@ -148,13 +156,13 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
 
   // --- Computed Properties (Layout & State) ---
   private val leftColumnX: Int
-    get() = this.width / 2 - (COLUMN_SPACING / 2) - CONTROL_WIDTH
+    get() = width / 2 - (COLUMN_SPACING / 2) - CONTROL_WIDTH
 
   private val rightColumnX: Int
-    get() = this.width / 2 + (COLUMN_SPACING / 2)
+    get() = width / 2 + (COLUMN_SPACING / 2)
 
   private val buttonY: Int
-    get() = this.height - CONTROL_HEIGHT - COLUMN_SPACING
+    get() = height - CONTROL_HEIGHT - COLUMN_SPACING
 
   private val totalControlsStackHeight: Int
     get() {
@@ -227,7 +235,7 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
       1.0f, 5.0f, 0.1f,
       TRANSLATOR.translate(DELAY_KEY)
     ).apply {
-      setOnSlide { config.confirmationResetDelay = this.sliderValue }
+      setOnSlide { config.confirmationResetDelay = sliderValue }
       setOnHover { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$DELAY_KEY.description"))) }
       valueFormat += "s"
     }
@@ -280,7 +288,7 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
 
   private fun addActionButtons() {
     // Center the action buttons at the bottom
-    val buttonGroupStartX = this.width / 2 - ((CONTROL_WIDTH * 2) + COLUMN_SPACING) / 2
+    val buttonGroupStartX = width / 2 - ((CONTROL_WIDTH * 2) + COLUMN_SPACING) / 2
 
     // Cancel Button
     addControl(

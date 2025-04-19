@@ -12,7 +12,6 @@ import net.minecraft.network.chat.Component
 typealias TextComponent = MutableComponent
 typealias TranslatableComponent = MutableComponent
 //?}
-
 /**
  * Utility class for creating text components across different Minecraft versions.
  * This provides a version-agnostic API for working with Minecraft's text component system.

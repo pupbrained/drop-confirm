@@ -3,6 +3,7 @@ package xyz.pupbrained.drop_confirm.platform.impl
 
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.util.FormattedCharSequence
 import xyz.pupbrained.drop_confirm.platform.RenderInterface
 
 class GuiGraphicsRenderImpl(private val graphics: GuiGraphics) : RenderInterface {
@@ -13,6 +14,18 @@ class GuiGraphicsRenderImpl(private val graphics: GuiGraphics) : RenderInterface
   }
 
   override fun drawCenteredString(font: Font, text: String, x: Int, y: Int, color: Int): RenderInterface {
+    graphics.drawCenteredString(font, text, x, y, color)
+
+    return this
+  }
+
+  override fun drawCenteredString(
+    font: Font,
+    text: FormattedCharSequence,
+    x: Int,
+    y: Int,
+    color: Int
+  ): RenderInterface {
     graphics.drawCenteredString(font, text, x, y, color)
 
     return this

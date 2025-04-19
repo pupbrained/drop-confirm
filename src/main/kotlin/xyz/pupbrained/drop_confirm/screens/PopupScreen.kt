@@ -11,7 +11,6 @@ import net.minecraft.client.gui.GuiGraphics as PoseStack
 import net.minecraft.network.chat.Component as Text
 //?} else {
 /*import kotlin.String as Text
-import kotlin.String
 *///?}
 
 //? if fabric {
@@ -20,35 +19,12 @@ import net.minecraft.client.gui.components./*? if <=1.18.2 {*//*Widget as*//*?}*
 
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
+import net.minecraft.world.item.ItemStack
 import xyz.pupbrained.drop_confirm.util.Color.*
 import xyz.pupbrained.drop_confirm.platform.RenderInterface.Companion.getRenderImpl
 import xyz.pupbrained.drop_confirm.util.ComponentUtils
 
-class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.literal("Popup Screen")) {
-  companion object {
-    // Background
-    /*? if <=1.20.1 {*//*const val DIMMING = 0xC0101010.toInt()*//*?}*/
-
-    // Popup Structure
-    const val BORDER = 0xDD9BA8FF.toInt()
-    const val SEPARATOR = 0xDDC0C9FF.toInt()
-
-    // Popup Areas - Title bar and content gradients
-    const val TITLE_BAR1 = 0xDD4B61D1.toInt()
-    const val TITLE_BAR2 = 0xDD3B4DA7.toInt()
-    const val CONTENT_AREA1 = 0xDD242852.toInt()
-    const val CONTENT_AREA2 = 0xDD1A2040.toInt()
-
-    // Decorations
-    const val CORNER_DECORATION = 0xAAC0C9FF.toInt()
-
-    // Buttons
-    const val BUTTON_CONFIRM = 0xFF2D7D4C.toInt()
-    const val BUTTON_CONFIRM_HOVER = 0xFF3A8E5A.toInt()
-    const val BUTTON_CANCEL = 0xFF8D3F3F.toInt()
-    const val BUTTON_CANCEL_HOVER = 0xFF9E4F4F.toInt()
-  }
-
+class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable("gui.drop_confirm")) {
   // Positioning
   private val x1: Int get() = (width - popupWidth) / 2
   private val y1: Int get() = (height - popupHeight) / 2
@@ -65,8 +41,8 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
   //? if fabric
   private val renderables: MutableList<Renderable> = mutableListOf()
 
-  override fun shouldCloseOnEsc(): Boolean = true
-  override fun isPauseScreen(): Boolean = false
+  override fun shouldCloseOnEsc() = true
+  override fun isPauseScreen() = false
 
   inner class StyledButton(
     x: Int, y: Int, width: Int, height: Int,
@@ -81,12 +57,11 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
       mouseY: Int,
       partialTick: Float
     ) {
-      isHovered = mouseX >= x && mouseY >= y
-        && mouseX < x + width && mouseY < y + height
+      isHovered = mouseX in x until (x + width) && mouseY in y until (y + height)
 
       val color = if (isHovered) hoverColor else baseColor
 
-      with(getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/)) {
+      getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/).apply {
         fill(x, y + 1, x + width, y + height - 1, color)
         fill(x + 1, y, x + width - 1, y + height, color)
         drawCenteredString(
@@ -114,8 +89,8 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
           60, 20,
           ComponentUtils.translatable("gui.yes")/*? if <=1.15.2 {*//*.string*//*?}*/,
           closeAction,
-          BUTTON_CONFIRM,
-          BUTTON_CONFIRM_HOVER
+          BUTTON_CONFIRM(),
+          BUTTON_CONFIRM_HOVER()
         )
       )
       add(
@@ -126,17 +101,17 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
           20,
           ComponentUtils.translatable("gui.no")/*? if <=1.15.2 {*//*.string*//*?}*/,
           closeAction,
-          BUTTON_CANCEL,
-          BUTTON_CANCEL_HOVER
+          BUTTON_CANCEL(),
+          BUTTON_CANCEL_HOVER()
         )
       )
     }
   }
 
   override fun render(/*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/ mouseX: Int, mouseY: Int, partialTick: Float) {
-    with(getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/)) {
+    getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/).apply {
       //? if <=1.20.1 {
-      /*fillGradient(0, 0, width, height, DIMMING, DIMMING)
+      /*fillGradient(0, 0, width, height, DIMMING(), DIMMING())
       *///?} else if 1.20.4 {
       /*renderTransparentBackground(poseStack)
       *///?} else {
@@ -144,10 +119,10 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
       //?}
 
       // Border
-      fill(x1 + 1, y1, x2 - 1, y1 + 1, BORDER)
-      fill(x1, y1 + 1, x1 + 1, y2 - 1, BORDER)
-      fill(x2 - 1, y1 + 1, x2, y2 - 1, BORDER)
-      fill(x1 + 1, y2 - 1, x2 - 1, y2, BORDER)
+      fill(x1 + 1, y1, x2 - 1, y1 + 1, BORDER())
+      fill(x1, y1 + 1, x1 + 1, y2 - 1, BORDER())
+      fill(x2 - 1, y1 + 1, x2, y2 - 1, BORDER())
+      fill(x1 + 1, y2 - 1, x2 - 1, y2, BORDER())
 
       // Cutouts
       fill(x1, y1, x1 + 1, y1 + 1, TRANSPARENT())
@@ -156,13 +131,13 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
       fill(x2 - 1, y2 - 1, x2, y2, TRANSPARENT())
 
       // Content
-      fillGradient(x1 + 1, y1 + 1, x2 - 1, titleY, TITLE_BAR1, TITLE_BAR2)
-      fillGradient(x1 + 1, titleY + 1, x2 - 1, y2 - 1, CONTENT_AREA1, CONTENT_AREA2)
-      fill(x1 + 1, titleY, x2 - 1, titleY + 1, SEPARATOR)
+      fillGradient(x1 + 1, y1 + 1, x2 - 1, titleY, TITLE_BAR_PRIMARY(), TITLE_BAR_SECONDARY())
+      fillGradient(x1 + 1, titleY + 1, x2 - 1, y2 - 1, CONTENT_PRIMARY(), CONTENT_SECONDARY())
+      fill(x1 + 1, titleY, x2 - 1, titleY + 1, SEPARATOR())
 
       // Add decorative diagonal elements in corners
       fun drawCornerDecoration(cornerX: Int, cornerY: Int) =
-        fill(cornerX, cornerY, cornerX + 1, cornerY + 1, CORNER_DECORATION)
+        fill(cornerX, cornerY, cornerX + 1, cornerY + 1, CORNER_DECORATION())
 
       for (i in 0..3) {
         drawCornerDecoration(x1 + 3 + i, y1 + 3 + i) // Top left
@@ -180,35 +155,71 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
         true
       )
 
-      drawCenteredString(
-        font,
-        displayMessage,
-        centerX,
-        y1 + 40,
-        TEXT()
-      )
+      val itemName =
+        ComponentUtils
+          .literal(itemStack.item.getName(itemStack).string)
+          .withStyle(itemStack.rarity.color/*? if >=1.20.6 {*/()/*?}*/)
+
+      //? if <=1.15.2 {
+      /*val message = ComponentUtils.translatable("drop_confirm.confirmation.popup", itemName)
+      val formattedText = message.coloredString
+      *///?} else {
+      val formattedText = ComponentUtils.translatable("drop_confirm.confirmation.popup", itemName)
+      //?}
+
+      val wrappedText = font.split(formattedText, popupWidth - 40)
+
+      val lineSpacing = (font.lineHeight * 0.5).toInt()
+      val totalTextHeight = wrappedText.size * font.lineHeight + (wrappedText.size - 1) * lineSpacing
+
+      val topY = titleY + 10
+      val buttonY = y2 - 35
+      val bottomY = buttonY - 10
+      val availableHeight = bottomY - topY
+
+      val startY = topY + (availableHeight - totalTextHeight) / 2
+
+      wrappedText.forEachIndexed { i, text ->
+        //? if >=1.19.4 {
+        drawCenteredString(
+          font,
+          text,
+          centerX,
+          startY + i * (font.lineHeight + lineSpacing),
+          TEXT()
+        )
+        //?} else {
+        /*font.drawShadow(
+          /^? if >=1.16.5 {^/poseStack,/^?}^/
+          text,
+          (centerX - font.width(text) / 2).toFloat(),
+          (startY + i * (font.lineHeight + lineSpacing)).toFloat(),
+          TEXT()
+        )
+        *///?}
+      }
     }
 
     renderables.forEach { it.render(/*? if >=1.16.5 {*/poseStack,/*?}*/ mouseX, mouseY, partialTick) }
   }
 
-  override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-    // True if meets Screen's conditions
-    if (super.mouseClicked(mouseX, mouseY, button)) return true
+  override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int) =
+    when {
+      // Case 1: If meets Screen's conditions
+      super.mouseClicked(mouseX, mouseY, button) -> true
 
-    // True if any button is clicked
-    for (widget in renderables)
-      if (widget is Button && widget.mouseClicked(mouseX, mouseY, button))
-        return true
+      // Case 2: If any button is clicked
+      renderables.filterIsInstance<Button>()
+        .any { it.mouseClicked(mouseX, mouseY, button) } -> true
 
-    // True if mouse is outside the popup (closes the screen)
-    if ((mouseX < x1 || mouseX >= x2 || mouseY < y1 || mouseY >= y2) && shouldCloseOnEsc()) {
-      minecraft?.setScreen(null)
-      return true
+      // Case 3: If mouse is outside the popup area and should close on ESC
+      (mouseX < x1 || mouseX >= x2 || mouseY < y1 || mouseY >= y2) && shouldCloseOnEsc() -> {
+        minecraft?.setScreen(null)
+        true
+      }
+
+      // Case 4: Otherwise
+      else -> false
     }
-
-    // Otherwise false
-    return false
-  }
 }
 //?}
