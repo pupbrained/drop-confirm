@@ -1,28 +1,39 @@
 //? if <1.20.1 || forge {
 /*package xyz.pupbrained.drop_confirm.config.screens
 
-import xyz.pupbrained.drop_confirm.config.widgets.DropConfirmButtonControl as ButtonControl
+//? if >=1.20.1 {
+import net.minecraft.client.gui.GuiGraphics as PoseStack
+import xyz.pupbrained.drop_confirm.platform.impl.GuiGraphicsRenderImpl
+//?} elif >=1.16.5 {
+/^import com.mojang.blaze3d.vertex.PoseStack
+import xyz.pupbrained.drop_confirm.platform.impl.PoseStackRenderImpl
+^///?} else {
+//?}
+
+//? if fabric {
+import net.minecraft.core./^? if <=1.18.2 {^//^Registry^//^?} else {^/registries.BuiltInRegistries as Registry/^?}^/
+//?} else {
+/^import net.minecraftforge.registries.ForgeRegistries as Registry
+^///?}
+
+import xyz.pupbrained.drop_confirm.config.widgets.ButtonControl
 import com.gitlab.cdagaming.unilib.utils.ItemUtils
 import com.gitlab.cdagaming.unilib.utils.gui.RenderUtils
 import com.gitlab.cdagaming.unilib.utils.gui.controls.ExtendedTextControl
 import com.gitlab.cdagaming.unilib.utils.gui.controls.ScrollableListControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
-//? if >=1.16.5
-import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.narration.NarratableEntry
-import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.Screen
-import net.minecraft.core./^? if <=1.18.2 {^//^Registry as BuiltInRegistries^//^?} else {^/registries.BuiltInRegistries/^?}^/
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER
 import org.lwjgl.glfw.GLFW.GLFW_KEY_KP_ENTER
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
-import xyz.pupbrained.drop_confirm.config.widgets.DropConfirmButtonControl
+import xyz.pupbrained.drop_confirm.util.Color
+import xyz.pupbrained.drop_confirm.platform.RenderInterface.Companion.getRenderImpl
 import xyz.pupbrained.drop_confirm.util.ComponentUtils
-import java.util.*
 
 class DropConfirmListEditorScreen(private val parentScreen: Screen) :
   ExtendedScreen(ComponentUtils.translatable("option.drop_confirm.${if (DropConfirmConfig.treatAsWhitelist) "white" else "black"}listed_items").string) {
@@ -35,7 +46,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
   private lateinit var originalAddButtonText: String
 
   private val listBottom: Int
-    get() = this.height - LIST_BOTTOM_MARGIN
+    get() = height - LIST_BOTTOM_MARGIN
 
   private val listHeight: Int
     get() = listBottom - LIST_TOP_MARGIN
@@ -47,7 +58,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
     get() = SIDE_MARGIN
 
   private val addButtonX: Int
-    get() = this.width - ADD_BUTTON_WIDTH - SIDE_MARGIN
+    get() = width - ADD_BUTTON_WIDTH - SIDE_MARGIN
 
   private val textFieldX: Int
     get() = backButtonX + BACK_BUTTON_WIDTH + BUTTON_SPACING
@@ -70,11 +81,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
 
     private const val TEXT_FIELD_VERTICAL_ADJUST = 2
     private const val TEXT_FIELD_HEIGHT = CONTROL_HEIGHT - TEXT_FIELD_VERTICAL_ADJUST
-    private const val TEXT_FIELD_DEFAULT_COLOR: Int = 0xE0E0E0 // Standard text color
-    private const val TEXT_FIELD_VALID_COLOR: Int = 0x55FF55 // Bright Green
-    private const val TEXT_FIELD_INVALID_COLOR: Int = 0xFF5555 // Bright Red
 
-    // Constants for inner class ItemList
     const val ENTRY_HEIGHT = 24
     const val ICON_SIZE = 16
     const val ICON_TEXT_PADDING = 4
@@ -82,10 +89,6 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
     const val HORIZONTAL_PADDING = 4
     const val BUTTON_RIGHT_MARGIN = 4
   }
-
-  override fun updateNarration(p0: NarrationElementOutput) {}
-
-  override fun narrationPriority(): NarratableEntry.NarrationPriority = NarratableEntry.NarrationPriority.NONE
 
   override fun initializeUi() {
     itemDisplayList = ItemList(
@@ -116,7 +119,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       private val placeholderText = ComponentUtils.translatable("option.drop_confirm.enter_item_id").string
 
       override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        if (this.isFocused && (keyCode == GLFW_KEY_ENTER || keyCode == GLFW_KEY_KP_ENTER)) {
+        if (isFocused && (keyCode == GLFW_KEY_ENTER || keyCode == GLFW_KEY_KP_ENTER)) {
           this@DropConfirmListEditorScreen.addItemFromTextField()
           return true
         }
@@ -138,11 +141,11 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
         )
 
         if (value.isEmpty())
-          fontRenderer.draw(
-            /^? >=1.16.5 {^/poseStack,/^?}^/
+          getRenderImpl(/^? if >=1.16.5 {^/poseStack/^?}^/).drawString(
+            font,
             placeholderText,
-            (x + 4).toFloat(),
-            (y + (height - 8) / 2).toFloat(),
+            x + 4,
+            y + (height - 8) / 2,
             0x808080
           )
       }
@@ -174,38 +177,31 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
   }
 
   private fun addItemFromTextField() {
-    val itemIdText = newItemTextField.controlMessage.trim()
+    val itemIdText = newItemTextField.controlMessage.trim().takeIf { it.isNotEmpty() } ?: return
 
-    if (itemIdText.isEmpty()) return
-
-    val fullResourceName = itemIdText.takeIf { it.contains(':') } ?: "minecraft:$itemIdText"
-
-    val resourceLocation = ResourceLocation.tryParse(fullResourceName)
-    if (resourceLocation == null) {
-      addButton.controlMessage = "Invalid ID format!"
-      addButton.textColor = DropConfirmButtonControl.ERROR_TEXT_COLOR
+    val fullResourceName = if (':' in itemIdText) itemIdText else "minecraft:$itemIdText"
+    val resourceLocation = ResourceLocation.tryParse(fullResourceName) ?: run {
+      showError("Invalid ID format!")
       return
     }
 
-    val optionalItem: Optional<Item> = BuiltInRegistries.ITEM.getOptional(resourceLocation)
-    if (!optionalItem.isPresent) {
-      addButton.controlMessage = "Item not found!"
-      addButton.textColor = DropConfirmButtonControl.ERROR_TEXT_COLOR
-      return
+    val item = Registry./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(resourceLocation)
+
+    when (item) {
+      Items.AIR -> showError("Item not found!")
+      in itemsList -> showError("Already in list!")
+      else -> {
+        itemsList.add(item)
+        newItemTextField.controlMessage = ""
+        updateVisualList()
+        updateTextFieldAndButtonState("")
+      }
     }
+  }
 
-    val itemToAdd: Item = optionalItem.get()
-    if (itemsList.contains(itemToAdd)) {
-      addButton.controlMessage = "Already in list!"
-      addButton.textColor = DropConfirmButtonControl.ERROR_TEXT_COLOR
-      return
-    }
-
-    itemsList.add(itemToAdd)
-    newItemTextField.controlMessage = ""
-
-    updateVisualList()
-    updateTextFieldAndButtonState("")
+  private fun showError(message: String) {
+    addButton.controlMessage = message
+    addButton.textColor = Color.ERROR
   }
 
   private fun removeItemAt(index: Int) {
@@ -231,28 +227,24 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
 
     val resourceLocation = ResourceLocation.tryParse(fullResourceName) ?: return false
 
-    val optionalItem: Optional<Item> = BuiltInRegistries.ITEM.getOptional(resourceLocation)
+    val item = Registry./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(resourceLocation)
 
-    if (!optionalItem.isPresent) return false
-
-    if (itemsList.contains(optionalItem.get())) return false
-
-    return true
+    return item != Items.AIR && !itemsList.contains(item)
   }
 
   private fun updateTextFieldAndButtonState(currentText: String) {
     if (addButton.controlMessage != originalAddButtonText) {
       addButton.controlMessage = originalAddButtonText
-      addButton.textColor = DropConfirmButtonControl.DEFAULT_TEXT_COLOR
+      addButton.textColor = Color.TEXT
     }
 
-    val isValid = isInputValidAndAddable(currentText)
-    val color = when {
-      currentText.trim().isEmpty() -> TEXT_FIELD_DEFAULT_COLOR
-      isValid -> TEXT_FIELD_VALID_COLOR
-      else -> TEXT_FIELD_INVALID_COLOR
-    }
-    newItemTextField.setTextColor(color)
+    newItemTextField.setTextColor(
+      when {
+        currentText.trim().isEmpty() -> Color.TEXT
+        isInputValidAndAddable(currentText) -> Color.SUCCESS
+        else -> Color.ERROR
+      }()
+    )
   }
 
   inner class ItemList(
@@ -272,18 +264,14 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
     private var currentItems: List<Item> = initialItems.toList()
     private val removeButtons = mutableMapOf<Int, ButtonControl>()
 
-    override fun updateNarration(p0: NarrationElementOutput) {}
-
-    override fun narrationPriority(): NarratableEntry.NarrationPriority = NarratableEntry.NarrationPriority.NONE
-
     fun setListAndUpdate(displayNames: List<String>, actualItems: List<Item>) {
-      this.setList(displayNames)
-      this.currentItems = actualItems.toList()
-      this.removeButtons.keys.retainAll { it < actualItems.size }
+      setList(displayNames)
+      currentItems = actualItems.toList()
+      removeButtons.keys.retainAll { it < actualItems.size }
     }
 
     override fun renderSlotItem(
-      /^? if >=1.16.5 {^/matrices: PoseStack,/^?}^/
+      /^? if >=1.16.5 {^/poseStack: PoseStack,/^?}^/
       originalName: String?,
       x: Int,
       y: Int,
@@ -297,7 +285,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       val index = itemList.indexOf(originalName)
       if (index == -1 || index >= currentItems.size) {
         super.renderSlotItem(
-          /^? if >=1.16.5 {^/matrices,/^?}^/
+          /^? if >=1.16.5 {^/poseStack,/^?}^/
           "Error: Item not found",
           x,
           y,

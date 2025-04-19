@@ -93,21 +93,17 @@ object DropConfirmConfigScreen {
 //?} else {
 /*package xyz.pupbrained.drop_confirm.config.screens
 
-import xyz.pupbrained.drop_confirm.config.widgets.DropConfirmSliderControl as SliderControl
-import xyz.pupbrained.drop_confirm.config.widgets.DropConfirmButtonControl as ButtonControl
-import xyz.pupbrained.drop_confirm.config.widgets.DropConfirmDropdownControl as DropdownControl
+import xyz.pupbrained.drop_confirm.config.widgets.SliderControl
+import xyz.pupbrained.drop_confirm.config.widgets.ButtonControl
+import xyz.pupbrained.drop_confirm.config.widgets.EnumControl
+import xyz.pupbrained.drop_confirm.config.ConfirmationMode
 import com.gitlab.cdagaming.unilib.utils.gui.controls.CheckBoxControl
 import com.gitlab.cdagaming.unilib.utils.gui.integrations.ExtendedScreen
-import com.mojang.blaze3d.vertex.PoseStack
 import io.github.cdagaming.unicore.impl.Pair
 import io.github.cdagaming.unicore.utils.StringUtils
-import net.minecraft.client.gui.components.AbstractWidget
-import net.minecraft.client.gui.narration.NarratableEntry
-import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.Screen
 import xyz.pupbrained.drop_confirm.DropConfirm.TRANSLATOR
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
-import xyz.pupbrained.drop_confirm.util.ComponentUtils
 
 /^*
  * UniLib Config Screen
@@ -129,7 +125,7 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     private const val PLAY_SOUNDS_KEY = "option.drop_confirm.play_sounds"
     private const val TREAT_AS_WHITELIST_KEY = "option.drop_confirm.treat_as_whitelist"
     private const val DELAY_KEY = "option.drop_confirm.confirmation_reset_delay"
-    private const val CONFIRMATION_MODE_KEY = "option.drop_confirm.confirmation_mode" // Add this key
+    private const val CONFIRMATION_MODE_KEY = "option.drop_confirm.confirmation_mode"
   }
 
   // --- Instance State & Original Values ---
@@ -140,6 +136,7 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
   private val originalPlaySounds = config.shouldPlaySounds
   private val originalTreatAsWhitelist = config.treatAsWhitelist
   private val originalResetDelay = config.confirmationResetDelay
+  private val originalConfirmationMode = config.confirmationMode
 
   // --- GUI Widget Declarations ---
   private lateinit var enabledCheckbox: CheckBoxControl
@@ -147,7 +144,7 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
   private lateinit var treatAsWhitelistCheckbox: CheckBoxControl
   private lateinit var delaySlider: SliderControl
   private lateinit var listEditorButton: ButtonControl
-  private lateinit var confirmationModeDropdown: DropdownControl
+  private lateinit var confirmationModeButton: EnumControl<ConfirmationMode>
 
   // --- Computed Properties (Layout & State) ---
   private val leftColumnX: Int
@@ -161,7 +158,6 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
 
   private val totalControlsStackHeight: Int
     get() {
-      // Calculate max height of the two columns
       val checkboxStackHeight = 3 * CHECKBOX_HEIGHT + 2 * CONTROL_SPACING
       val rightColumnHeight = 3 * CONTROL_HEIGHT + 2 * CONTROL_SPACING
       return maxOf(checkboxStackHeight, rightColumnHeight)
@@ -173,16 +169,10 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
   private val listTypeKey: String
     get() = "option.drop_confirm.${if (config.treatAsWhitelist) "white" else "black"}listed_items"
 
-  override fun updateNarration(p0: NarrationElementOutput) {}
-
-  override fun narrationPriority(): NarratableEntry.NarrationPriority = NarratableEntry.NarrationPriority.NONE
-
   override fun initializeUi() {
-    // Start with a clean layout and work from left to right
     val startY = centeredStartY
 
-    // Calculate positions
-    val checkboxOffsetY = (CONTROL_HEIGHT - CHECKBOX_HEIGHT) / 2  // Center checkbox in control height
+    val checkboxOffsetY = (CONTROL_HEIGHT - CHECKBOX_HEIGHT) / 2
 
     // --- LEFT COLUMN ---
     val firstCheckboxY = startY + checkboxOffsetY
@@ -192,12 +182,8 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
       config.enabled,
       { config.enabled = !config.enabled },
       { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$ENABLED_KEY.description"))) }
-    ).apply {
-      // Constrain width to prevent overflow
-      this.width = CONTROL_WIDTH
-    }
+    )
 
-    // Second checkbox - Play Sounds
     val secondCheckboxY = startY + CONTROL_HEIGHT + CONTROL_SPACING + checkboxOffsetY
     playSoundsCheckbox = createCheckbox(
       Pair(leftColumnX, secondCheckboxY),
@@ -205,9 +191,7 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
       config.shouldPlaySounds,
       { config.shouldPlaySounds = !config.shouldPlaySounds },
       { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$PLAY_SOUNDS_KEY.description"))) }
-    ).apply {
-      this.width = CONTROL_WIDTH
-    }
+    )
 
     val thirdCheckboxY = startY + (2 * (CONTROL_HEIGHT + CONTROL_SPACING)) + checkboxOffsetY
     treatAsWhitelistCheckbox = createCheckbox(
@@ -217,38 +201,23 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
       {
         config.treatAsWhitelist = !config.treatAsWhitelist
         // Update button text when whitelist/blacklist setting changes
-        listEditorButton.message = ComponentUtils.translatable(listTypeKey)
+        listEditorButton.controlMessage = TRANSLATOR.translate(listTypeKey)
       },
       { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$TREAT_AS_WHITELIST_KEY.description"))) }
-    ).apply {
-      this.width = CONTROL_WIDTH
-    }
+    )
 
     // --- RIGHT COLUMN ---
-    confirmationModeDropdown = DropdownControl(
+    confirmationModeButton = EnumControl(
       rightColumnX,
       startY,
       CONTROL_WIDTH,
       CONTROL_HEIGHT,
-      ComponentUtils.translatable(CONFIRMATION_MODE_KEY),
-      listOf(
-        ComponentUtils.translatable("option.drop_confirm.confirmation_mode.dialog"),
-        ComponentUtils.translatable("option.drop_confirm.confirmation_mode.hotbar"),
-        ComponentUtils.translatable("option.drop_confirm.confirmation_mode.chat")
-      ),
-      -1,
-      onOptionSelected = { _, index, selectedOption ->
-        println("Selected option: ${selectedOption.string} at index $index")
-      }
+      TRANSLATOR.translate(CONFIRMATION_MODE_KEY),
+      config.confirmationMode,
+      { TRANSLATOR.translate(it.getTranslationKey()) },
+      { config.confirmationMode = it }
     ).apply {
-      // TODO: fix rendering for this so it shows above the dropdown component itself
-//      setOnHover {
-//        drawMultiLineString(
-//          StringUtils.splitTextByNewLine(
-//            TRANSLATOR.translate("$CONFIRMATION_MODE_KEY.description")
-//          )
-//        )
-//      }
+      setOnHover { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$CONFIRMATION_MODE_KEY.description"))) }
     }
 
     delaySlider = SliderControl(
@@ -272,44 +241,13 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     ) {
       minecraft?.setScreen(DropConfirmListEditorScreen(this))
     }.apply {
-      setOnHover {
-        drawMultiLineString(
-          StringUtils.splitTextByNewLine(
-            TRANSLATOR.translate("$listTypeKey.description")
-          )
-        )
-      }
+      setOnHover { drawMultiLineString(StringUtils.splitTextByNewLine(TRANSLATOR.translate("$listTypeKey.description"))) }
     }
 
     addControls()
     addActionButtons()
 
     super.initializeUi()
-  }
-
-  override fun setFocused(control: net.minecraft.client.gui.components.events.GuiEventListener?) {
-    if (focused != control && focused is AbstractWidget)
-      focused?.isFocused = false
-
-    super.setFocused(control)
-
-    if (::confirmationModeDropdown.isInitialized && control != confirmationModeDropdown)
-      confirmationModeDropdown.isExpanded = false
-  }
-
-  override fun render(poseStack: PoseStack, mouseX: Int, mouseY: Int, partialTick: Float) {
-    val isMouseOverDropdownList =
-      ::confirmationModeDropdown.isInitialized &&
-        confirmationModeDropdown.isExpanded &&
-        confirmationModeDropdown.isMouseOverDropdown(mouseX.toDouble(), mouseY.toDouble())
-
-    val (adjustedX, adjustedY) = if (isMouseOverDropdownList) -9999 to -9999 else mouseX to mouseY
-
-    super.render(poseStack, adjustedX, adjustedY, partialTick)
-
-    if (::confirmationModeDropdown.isInitialized && confirmationModeDropdown.isExpanded) {
-      confirmationModeDropdown.renderDropdownIfNeeded(poseStack, mouseX, mouseY)
-    }
   }
 
   // --- Helper Methods ---
@@ -335,7 +273,7 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     addControl(enabledCheckbox)
     addControl(playSoundsCheckbox)
     addControl(treatAsWhitelistCheckbox)
-    addControl(confirmationModeDropdown)
+    addControl(confirmationModeButton)
     addControl(delaySlider)
     addControl(listEditorButton)
   }
@@ -373,51 +311,12 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     )
   }
 
-  override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean =
-    if (
-      ::confirmationModeDropdown.isInitialized &&
-      confirmationModeDropdown.isExpanded &&
-      confirmationModeDropdown.isMouseOverDropdown(mouseX, mouseY)
-    )
-      confirmationModeDropdown.mouseClicked(mouseX, mouseY, button)
-    else
-      super.mouseClicked(mouseX, mouseY, button)
-
-  override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, dragX: Double, dragY: Double): Boolean =
-    if (
-      ::confirmationModeDropdown.isInitialized &&
-      confirmationModeDropdown.isExpanded &&
-      confirmationModeDropdown.isMouseOverDropdown(mouseX, mouseY)
-    )
-      true
-    else
-      super.mouseDragged(mouseX, mouseY, button, dragX, dragY)
-
-  override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean =
-    if (
-      ::confirmationModeDropdown.isInitialized &&
-      confirmationModeDropdown.isExpanded &&
-      confirmationModeDropdown.isMouseOverDropdown(mouseX, mouseY)
-    )
-      confirmationModeDropdown.mouseReleased(mouseX, mouseY, button)
-    else
-      super.mouseReleased(mouseX, mouseY, button)
-
-  override fun mouseMoved(mouseX: Double, mouseY: Double) {
-    if (
-      ::confirmationModeDropdown.isInitialized &&
-      confirmationModeDropdown.isExpanded &&
-      confirmationModeDropdown.isMouseOverDropdown(mouseX, mouseY)
-    ) return
-
-    super.mouseMoved(mouseX, mouseY)
-  }
-
   private fun resetConfigToOriginalValues() {
     config.enabled = originalEnabled
     config.shouldPlaySounds = originalPlaySounds
     config.treatAsWhitelist = originalTreatAsWhitelist
     config.confirmationResetDelay = originalResetDelay
+    config.confirmationMode = originalConfirmationMode
   }
 }
 *///?}

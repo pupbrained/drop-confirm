@@ -14,17 +14,14 @@ class PoseStackRenderImpl(private val poseStack: PoseStack) : RenderInterface {
       x1: Int, y1: Int,
       x2: Int, y2: Int,
       colorFrom: Int, colorTo: Int
-    ) {
-      fillGradient(poseStack, x1, y1, x2, y2, colorFrom, colorTo)
-    }
+    ) = fillGradient(poseStack, x1, y1, x2, y2, colorFrom, colorTo)
   }
 
   override fun drawString(font: Font, text: String, x: Int, y: Int, color: Int, shadow: Boolean): RenderInterface {
-    if (shadow) {
+    if (shadow)
       font.drawShadow(poseStack, text, x.toFloat(), y.toFloat(), color)
-    } else {
+    else
       font.draw(poseStack, text, x.toFloat(), y.toFloat(), color)
-    }
 
     return this
   }

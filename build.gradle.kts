@@ -43,7 +43,7 @@ modstitch {
   metadata {
     modId = "drop_confirm"
     modName = "DropConfirm"
-    modVersion = "4.1.0"
+    modVersion = "5.0.0"
     modGroup = "xyz.pupbrained.drop_confirm"
     modAuthor = "pupbrained"
 

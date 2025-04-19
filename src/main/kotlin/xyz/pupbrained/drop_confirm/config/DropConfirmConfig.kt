@@ -68,13 +68,15 @@ object DropConfirmConfig {
 //?} else {
 /*package xyz.pupbrained.drop_confirm.config
 
-import /^? if fabric {^/net.fabricmc.loader.api.FabricLoader/^?} else {^//^net.minecraftforge.fml.loading.FMLPaths^//^?}^/
+import net./^? if fabric {^/fabricmc.loader.api.FabricLoader/^?} else {^//^minecraftforge.fml.loading.FMLPaths^//^?}^/
+
+//? if fabric {
+import net.minecraft.core./^? if <=1.18.2 {^//^Registry as BuiltInRegistries^//^?} else {^/registries.BuiltInRegistries/^?}^/
+//?} else {
+/^import net.minecraftforge.registries.ForgeRegistries as BuiltInRegistries
+^///?}
+
 import com.google.gson.GsonBuilder
-//? if <=1.18.2 {
-/^import net.minecraft.core.Registry as BuiltInRegistries
-^///?} else {
-import net.minecraft.core.registries.BuiltInRegistries
-//?}
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import xyz.pupbrained.drop_confirm.DropConfirm
@@ -83,6 +85,12 @@ import java.nio.file.Files
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.absolutePathString
+
+enum class ConfirmationMode {
+  DIALOG, HOTBAR, CHAT;
+
+  fun getTranslationKey(): String = "option.drop_confirm.confirmation_mode.${name.lowercase()}"
+}
 
 object DropConfirmConfig {
   @JvmStatic
@@ -102,10 +110,14 @@ object DropConfirmConfig {
   var confirmationResetDelay = 1.0F
 
   @JvmStatic
+  @get:JvmName("getConfirmationMode")
+  var confirmationMode = ConfirmationMode.DIALOG
+
+  @JvmStatic
   @get:JvmName("getBlacklistedItems")
   var blacklistedItems: MutableList<Item> = mutableListOf()
 
-  private val GSON = GsonBuilder().setPrettyPrinting().create()
+  private val gson = GsonBuilder().setPrettyPrinting().create()
 
   private val configFile =
     /^? if fabric {^/FabricLoader.getInstance().configDir/^?} else {^//^FMLPaths.CONFIGDIR.get()^//^?}^/
@@ -116,32 +128,40 @@ object DropConfirmConfig {
   fun load() {
     if (isLoaded) return
 
-    if (configFile.exists()) {
-      try {
+    try {
+      if (configFile.exists()) {
         Files.newBufferedReader(configFile, StandardCharsets.UTF_8).use { reader ->
-          val loadedData = GSON.fromJson(reader, Map::class.java) ?: emptyMap<Any, Any>()
+          val loadedData = gson.fromJson(reader, Map::class.java) ?: emptyMap<Any, Any>()
 
           enabled = loadedData["enabled"] as? Boolean ?: enabled
           shouldPlaySounds = loadedData["playSounds"] as? Boolean ?: shouldPlaySounds
-          treatAsWhitelist = loadedData["treatAsWhitelist"] as? Boolean ?: treatAsWhitelist // Added loading
+          treatAsWhitelist = loadedData["treatAsWhitelist"] as? Boolean ?: treatAsWhitelist
           confirmationResetDelay =
             (loadedData["confirmationResetDelay"] as? Number)?.toFloat() ?: confirmationResetDelay
-          (loadedData["blacklistedItems"] as? List<*>)?.let { list ->
-            blacklistedItems = list.mapNotNull {
-              val itemString = it as? String ?: return@mapNotNull null
-              val itemId = if (itemString.contains(":")) itemString else "minecraft:$itemString"
-              BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(itemId))
-            }.toMutableList()
-          }
-        }
-      } catch (e: Exception) {
-        DropConfirm.LOGGER.error("Failed to load DropConfirmConfig from ${configFile.absolutePathString()}", e)
-      }
-    } else {
-      save()
-    }
 
-    isLoaded = true
+          (loadedData["confirmationMode"] as? String)?.let {
+            runCatching { ConfirmationMode.valueOf(it.uppercase()) }
+              .getOrNull()?.let { mode -> confirmationMode = mode }
+          }
+
+          (loadedData["blacklistedItems"] as? List<*>)?.mapNotNull { itemId ->
+            (itemId as? String)?.let { id ->
+              val fullId = if (id.contains(":")) id else "minecraft:$id"
+              BuiltInRegistries./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(
+                ResourceLocation.tryParse(
+                  fullId
+                )
+              )
+            }
+          }?.toMutableList()?.let { blacklistedItems = it }
+        }
+      }
+    } catch (e: Exception) {
+      DropConfirm.LOGGER.error("Failed to load configuration", e)
+    } finally {
+      if (!configFile.exists()) save()
+      isLoaded = true
+    }
   }
 
   fun save() {
@@ -150,7 +170,7 @@ object DropConfirmConfig {
 
       // Convert Item objects to their string identifiers before saving
       val itemIdentifiers = blacklistedItems.map { item ->
-        BuiltInRegistries.ITEM.getKey(item).toString()
+        BuiltInRegistries./^? if fabric {^/ITEM/^?} else {^//^ITEMS^//^?}^/.getKey(item).toString()
       }
 
       val dataToSave = mapOf(
@@ -158,14 +178,14 @@ object DropConfirmConfig {
         "playSounds" to shouldPlaySounds,
         "treatAsWhitelist" to treatAsWhitelist,
         "confirmationResetDelay" to confirmationResetDelay,
-        "blacklistedItems" to itemIdentifiers  // Save as string identifiers instead of Item objects
+        "confirmationMode" to confirmationMode.name,
+        "blacklistedItems" to itemIdentifiers
       )
 
-      Files.newBufferedWriter(configFile, StandardCharsets.UTF_8).use { GSON.toJson(dataToSave, it) }
+      Files.newBufferedWriter(configFile, StandardCharsets.UTF_8).use { gson.toJson(dataToSave, it) }
     } catch (e: Exception) {
       DropConfirm.LOGGER.error("Failed to save DropConfirm config to ${configFile.absolutePathString()}", e)
     }
   }
-
 }
 *///?}

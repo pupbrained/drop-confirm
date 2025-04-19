@@ -12,9 +12,7 @@ class LegacyRenderImpl : RenderInterface {
       x1: Int, y1: Int,
       x2: Int, y2: Int,
       colorFrom: Int, colorTo: Int
-    ) {
-      fillGradient(x1, y1, x2, y2, colorFrom, colorTo)
-    }
+    ) = fillGradient(x1, y1, x2, y2, colorFrom, colorTo)
 
     fun exposedDrawCenteredString(
       font: Font,
@@ -22,17 +20,14 @@ class LegacyRenderImpl : RenderInterface {
       x: Int,
       y: Int,
       color: Int
-    ) {
-      drawCenteredString(font, text, x, y, color)
-    }
+    ) = drawCenteredString(font, text, x, y, color)
   }
 
   override fun drawString(font: Font, text: String, x: Int, y: Int, color: Int, shadow: Boolean): RenderInterface {
-    if (shadow) {
+    if (shadow)
       font.drawShadow(text, x.toFloat(), y.toFloat(), color)
-    } else {
+    else
       font.draw(text, x.toFloat(), y.toFloat(), color)
-    }
 
     return this
   }

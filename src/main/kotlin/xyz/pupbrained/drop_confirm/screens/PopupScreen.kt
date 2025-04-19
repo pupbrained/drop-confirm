@@ -3,12 +3,8 @@ package xyz.pupbrained.drop_confirm.screens
 
 //? if >=1.20.1 {
 import net.minecraft.client.gui.GuiGraphics as PoseStack
-import xyz.pupbrained.drop_confirm.platform.impl.GuiGraphicsRenderImpl
 //?} elif >=1.16.5 {
 /*import com.mojang.blaze3d.vertex.PoseStack
-import xyz.pupbrained.drop_confirm.platform.impl.PoseStackRenderImpl
-*///?} else {
-/*import xyz.pupbrained.drop_confirm.platform.impl.LegacyRenderImpl
 *///?}
 
 //? if >=1.16.5 {
@@ -24,29 +20,17 @@ import net.minecraft.client.gui.components./*? if <=1.18.2 {*//*Widget as*//*?}*
 
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
-import xyz.pupbrained.drop_confirm.platform.RenderInterface
+import xyz.pupbrained.drop_confirm.util.Color.*
+import xyz.pupbrained.drop_confirm.platform.RenderInterface.Companion.getRenderImpl
 import xyz.pupbrained.drop_confirm.util.ComponentUtils
 
 class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.literal("Popup Screen")) {
-  //? if <=1.15.2
-  /*@Suppress("UNUSED_PARAMETER")*/
-  private fun getRenderImpl(context: Any? = null): RenderInterface {
-    //? if >=1.20.1 {
-    return GuiGraphicsRenderImpl(context as PoseStack)
-    //?} else if >=1.16.5 {
-    /*return PoseStackRenderImpl(context as PoseStack)
-    *///?} else {
-    /*return LegacyRenderImpl()
-    *///?}
-  }
-
   companion object {
     // Background
     /*? if <=1.20.1 {*//*const val DIMMING = 0xC0101010.toInt()*//*?}*/
 
     // Popup Structure
     const val BORDER = 0xDD9BA8FF.toInt()
-    const val TRANSPARENT = 0x00000000  // For corners
     const val SEPARATOR = 0xDDC0C9FF.toInt()
 
     // Popup Areas - Title bar and content gradients
@@ -57,9 +41,6 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
 
     // Decorations
     const val CORNER_DECORATION = 0xAAC0C9FF.toInt()
-
-    // Text
-    const val TEXT = 0xFFFFFFFF.toInt()
 
     // Buttons
     const val BUTTON_CONFIRM = 0xFF2D7D4C.toInt()
@@ -113,7 +94,7 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
           message/*? if >=1.16.5 {*/.string/*?}*/,
           x + width / 2,
           y + (height - 8) / 2,
-          TEXT
+          TEXT()
         )
       }
     }
@@ -153,9 +134,7 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
   }
 
   override fun render(/*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/ mouseX: Int, mouseY: Int, partialTick: Float) {
-    val renderer = getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/)
-
-    with(renderer) {
+    with(getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/)) {
       //? if <=1.20.1 {
       /*fillGradient(0, 0, width, height, DIMMING, DIMMING)
       *///?} else if 1.20.4 {
@@ -171,10 +150,10 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
       fill(x1 + 1, y2 - 1, x2 - 1, y2, BORDER)
 
       // Cutouts
-      fill(x1, y1, x1 + 1, y1 + 1, TRANSPARENT)
-      fill(x2 - 1, y1, x2, y1 + 1, TRANSPARENT)
-      fill(x1, y2 - 1, x1 + 1, y2, TRANSPARENT)
-      fill(x2 - 1, y2 - 1, x2, y2, TRANSPARENT)
+      fill(x1, y1, x1 + 1, y1 + 1, TRANSPARENT())
+      fill(x2 - 1, y1, x2, y1 + 1, TRANSPARENT())
+      fill(x1, y2 - 1, x1 + 1, y2, TRANSPARENT())
+      fill(x2 - 1, y2 - 1, x2, y2, TRANSPARENT())
 
       // Content
       fillGradient(x1 + 1, y1 + 1, x2 - 1, titleY, TITLE_BAR1, TITLE_BAR2)
@@ -197,7 +176,7 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
         title.string,
         centerX - font.width(title.string) / 2,
         y1 + 9,
-        TEXT,
+        TEXT(),
         true
       )
 
@@ -206,7 +185,7 @@ class PopupScreen(private val displayMessage: String) : Screen(ComponentUtils.li
         displayMessage,
         centerX,
         y1 + 40,
-        TEXT
+        TEXT()
       )
     }
 

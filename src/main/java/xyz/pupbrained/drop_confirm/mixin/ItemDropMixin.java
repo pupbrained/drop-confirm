@@ -21,7 +21,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.pupbrained.drop_confirm.DropConfirm;
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig;
-import xyz.pupbrained.drop_confirm.screens.PopupScreen;
 import xyz.pupbrained.drop_confirm.util.ComponentUtils;
 
 import java.util.concurrent.Executors;
@@ -72,7 +71,7 @@ public class ItemDropMixin {
         false
       );
 
-      minecraft.setScreen(new PopupScreen("hi!"));
+//      minecraft.setScreen(new PopupScreen("hi!"));
 
       DropConfirm.setConfirmed(true);
 
