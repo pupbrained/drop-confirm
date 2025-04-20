@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.pupbrained.drop_confirm.DropConfirm;
+import xyz.pupbrained.drop_confirm.config.ConfirmationMode;
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig;
 import xyz.pupbrained.drop_confirm.screens.PopupScreen;
 import xyz.pupbrained.drop_confirm.util.ComponentUtils;
@@ -64,30 +65,52 @@ public class ItemDropMixin {
       return;
 
     if (!DropConfirm.isConfirmed()) {
-      minecraft.gui.setOverlayMessage(
-        ComponentUtils.translatable(
-          "drop_confirm.confirmation",
-          minecraft.options.keyDrop.getTranslatedKeyMessage()/*? if >=1.16.5 {*/.getString()/*?}*//*? if <=1.19.4 {*//*.toUpperCase()*//*?}*/
-        ),
-        false
-      );
+      // Get translated key message
+      String keyMessage = minecraft.options.keyDrop.getTranslatedKeyMessage()/*? if >=1.16.5 {*/.getString()/*?}*//*? if <=1.19.4 {*//*.toUpperCase()*//*?}*/;
 
-      minecraft.setScreen(new PopupScreen(itemStack));
+      // Handle confirmation based on mode
+      ConfirmationMode mode = DropConfirmConfig.getConfirmationMode();
+
+      switch (mode) {
+        case POPUP:
+          // Use PopupScreen for POPUP mode
+          minecraft.setScreen(new PopupScreen(itemStack));
+          break;
+
+        case ACTIONBAR:
+          // Use existing hotbar implementation
+          player.displayClientMessage(
+            ComponentUtils.translatable("drop_confirm.confirmation", keyMessage),
+            true
+          );
+          break;
+
+        case CHAT:
+          // Send chat message
+          player.displayClientMessage(
+            ComponentUtils.translatable("drop_confirm.confirmation", keyMessage),
+            false
+          );
+          break;
+      }
 
       DropConfirm.setConfirmed(true);
 
-      drop_confirm$scheduler.schedule(() -> {
-        synchronized (DropConfirm.class) {
-          DropConfirm.setConfirmed(false);
-        }
-      }, (long) (DropConfirmConfig.getResetDelay() * 1000), TimeUnit.MILLISECONDS);
+      // Only apply reset delay for HOTBAR and CHAT modes
+      if (mode != ConfirmationMode.POPUP) {
+        drop_confirm$scheduler.schedule(() -> {
+          synchronized (DropConfirm.class) {
+            DropConfirm.setConfirmed(false);
+          }
+        }, (long) (DropConfirmConfig.getResetDelay() * 1000), TimeUnit.MILLISECONDS);
+      }
     } else {
       DropConfirm.setConfirmed(false);
 
       //? if >=1.15.2
       itemStack =
+      inventory.
         // @formatter:off
-        inventory.
           //? if >=1.19.4 {
           removeFromSelected(entireStack)
           //?} else {
@@ -106,4 +129,5 @@ public class ItemDropMixin {
 
     cir.setReturnValue(/*? if 1.14.4 {*//*null*//*?} else {*/!itemStack.isEmpty()/*?}*/);
   }
+
 }

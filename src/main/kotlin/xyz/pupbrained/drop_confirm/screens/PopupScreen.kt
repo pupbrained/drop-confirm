@@ -1,4 +1,3 @@
-//? if <=1.21.6-alpha.25.15.a {
 package xyz.pupbrained.drop_confirm.screens
 
 //? if >=1.20.1 {
@@ -20,8 +19,9 @@ import net.minecraft.client.gui.components./*? if <=1.18.2 {*//*Widget as*//*?}*
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.world.item.ItemStack
-import xyz.pupbrained.drop_confirm.util.Color.*
+import xyz.pupbrained.drop_confirm.DropConfirm
 import xyz.pupbrained.drop_confirm.platform.RenderInterface.Companion.getRenderImpl
+import xyz.pupbrained.drop_confirm.util.Color.*
 import xyz.pupbrained.drop_confirm.util.ComponentUtils
 
 class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable("gui.drop_confirm")) {
@@ -64,6 +64,10 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
       getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/).apply {
         fill(x, y + 1, x + width, y + height - 1, color)
         fill(x + 1, y, x + width - 1, y + height, color)
+
+        //? if >=1.21.6-alpha.25.16.a
+        /*poseStack.depthTreeUp()*/
+
         drawCenteredString(
           font,
           message/*? if >=1.16.5 {*/.string/*?}*/,
@@ -71,6 +75,9 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
           y + (height - 8) / 2,
           TEXT()
         )
+
+        //? if >=1.21.6-alpha.25.16.a
+        /*poseStack.depthTreeBack()*/
       }
     }
   }
@@ -82,13 +89,22 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
 
     // Use the pre-calculated positions
     with(renderables) {
-      val closeAction = Button.OnPress { minecraft?.setScreen(null) }
       add(
         StyledButton(
           centerX - 70, y2 - 35,
           60, 20,
           ComponentUtils.translatable("gui.yes")/*? if <=1.15.2 {*//*.string*//*?}*/,
-          closeAction,
+          {
+            minecraft?.setScreen(null)
+
+            val player = minecraft?.player ?: return@StyledButton
+
+            val entireStack = minecraft?.options?.keyDrop?.isDown == true
+
+            DropConfirm.isConfirmed = true
+            player.swing(player.usedItemHand/*? if >=1.16.5 {*/, true/*?}*/)
+            player.drop(entireStack)
+          },
           BUTTON_CONFIRM(),
           BUTTON_CONFIRM_HOVER()
         )
@@ -100,7 +116,10 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
           60,
           20,
           ComponentUtils.translatable("gui.no")/*? if <=1.15.2 {*//*.string*//*?}*/,
-          closeAction,
+          {
+            DropConfirm.isConfirmed = false
+            minecraft?.setScreen(null)
+          },
           BUTTON_CANCEL(),
           BUTTON_CANCEL_HOVER()
         )
@@ -145,6 +164,9 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
         drawCornerDecoration(x1 + 3 + i, y2 - 4 - i) // Bottom left
         drawCornerDecoration(x2 - 4 - i, y2 - 4 - i) // Bottom right
       }
+
+      //? if >=1.21.6-alpha.25.16.a
+      /*poseStack.depthTreeUp()*/
 
       drawString(
         font,
@@ -198,6 +220,9 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
         )
         *///?}
       }
+
+      //? if >=1.21.6-alpha.25.16.a
+      /*poseStack.depthTreeBack()*/
     }
 
     renderables.forEach { it.render(/*? if >=1.16.5 {*/poseStack,/*?}*/ mouseX, mouseY, partialTick) }
@@ -222,4 +247,3 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
       else -> false
     }
 }
-//?}

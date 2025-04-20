@@ -25,7 +25,7 @@
   "option.drop_confirm.enter_item_id": "Item ID (e.g. \"stone\", \"mod_id:item\")",
   "option.drop_confirm.confirmation_mode": "Confirmation Mode",
   "option.drop_confirm.confirmation_mode.description": "Choose how/where item drop confirmations are displayed.",
-  "option.drop_confirm.confirmation_mode.dialog": "Dialog",
-  "option.drop_confirm.confirmation_mode.hotbar": "Hotbar",
+  "option.drop_confirm.confirmation_mode.popup": "Popup",
+  "option.drop_confirm.confirmation_mode.actionbar": "Action Bar",
   "option.drop_confirm.confirmation_mode.chat": "Chat"
 }

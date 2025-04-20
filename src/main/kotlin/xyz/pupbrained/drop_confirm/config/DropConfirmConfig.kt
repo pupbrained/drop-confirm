@@ -12,7 +12,7 @@ import net.minecraft.world.item.Item
 import xyz.pupbrained.drop_confirm.util.ComponentUtils
 
 enum class ConfirmationMode : NameableEnum {
-  DIALOG, HOTBAR, CHAT;
+  POPUP, ACTIONBAR, CHAT;
 
   override fun getDisplayName() =
     ComponentUtils.translatable("option.drop_confirm.confirmation_mode.${name.lowercase()}")
@@ -20,23 +20,12 @@ enum class ConfirmationMode : NameableEnum {
 
 object DropConfirmConfig {
   class DropConfirmConfigInternal {
-    @SerialEntry
-    var enabled = true
-
-    @SerialEntry
-    var shouldPlaySounds = true
-
-    @SerialEntry
-    var treatAsWhitelist = false
-
-    @SerialEntry
-    var confirmationResetDelay = 1.0
-
-    @SerialEntry
-    var confirmationMode = ConfirmationMode.DIALOG
-
-    @SerialEntry
-    var blacklistedItems: List<Item> = emptyList()
+    @SerialEntry var enabled = true
+    @SerialEntry var shouldPlaySounds = true
+    @SerialEntry var treatAsWhitelist = false
+    @SerialEntry var confirmationResetDelay = 1.0
+    @SerialEntry var confirmationMode = ConfirmationMode.POPUP
+    @SerialEntry var blacklistedItems: List<Item> = emptyList()
   }
 
   @JvmStatic
@@ -67,7 +56,8 @@ object DropConfirmConfig {
     ConfigClassHandler.createBuilder(DropConfirmConfigInternal::class.java)
       .serializer {
         GsonConfigSerializerBuilder.create(it)
-          .setPath(YACLPlatform.getConfigDir().resolve("drop_confirm.json"))
+          .setPath(YACLPlatform.getConfigDir().resolve("drop_confirm.json5"))
+          .setJson5(true)
           .build()
       }
       .build()
@@ -80,7 +70,6 @@ object DropConfirmConfig {
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) = propertyRef.set(HANDLER.instance(), value)
   }
 }
-
 //?} else {
 /*//? if fabric {
 import net.fabricmc.loader.api.FabricLoader
@@ -101,7 +90,7 @@ import org.quiltmc.parsers.json.JsonReader
 import org.quiltmc.parsers.json.JsonWriter
 
 enum class ConfirmationMode {
-  DIALOG, HOTBAR, CHAT;
+  POPUP, ACTIONBAR, CHAT;
 
   fun getTranslationKey(): String = "option.drop_confirm.confirmation_mode.${name.lowercase()}"
 }
@@ -125,7 +114,7 @@ object DropConfirmConfig {
 
   @JvmStatic
   @get:JvmName("getConfirmationMode")
-  var confirmationMode = ConfirmationMode.DIALOG
+  var confirmationMode = ConfirmationMode.POPUP
 
   @JvmStatic
   @get:JvmName("getBlacklistedItems")

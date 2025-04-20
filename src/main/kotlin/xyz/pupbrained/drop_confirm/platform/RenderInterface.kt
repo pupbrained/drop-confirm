@@ -10,8 +10,10 @@ import xyz.pupbrained.drop_confirm.platform.impl.PoseStackRenderImpl
 /*import xyz.pupbrained.drop_confirm.platform.impl.LegacyRenderImpl
 *///?}
 
-import net.minecraft.client.gui.Font
+//? if >=1.16.5
 import net.minecraft.util.FormattedCharSequence
+
+import net.minecraft.client.gui.Font
 
 /**
  * Platform-independent rendering interface
@@ -19,7 +21,9 @@ import net.minecraft.util.FormattedCharSequence
 interface RenderInterface {
   fun drawString(font: Font, text: String, x: Int, y: Int, color: Int, shadow: Boolean = true): RenderInterface
   fun drawCenteredString(font: Font, text: String, x: Int, y: Int, color: Int): RenderInterface
+  //? if >=1.16.5
   fun drawCenteredString(font: Font, text: FormattedCharSequence, x: Int, y: Int, color: Int): RenderInterface
+
   fun fill(x1: Int, y1: Int, x2: Int, y2: Int, color: Int): RenderInterface
   fun fillGradient(x1: Int, y1: Int, x2: Int, y2: Int, colorStart: Int, colorEnd: Int): RenderInterface
 

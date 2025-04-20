@@ -38,16 +38,6 @@ class LegacyRenderImpl : RenderInterface {
     return this
   }
 
-  override fun drawCenteredString(
-    font: Font,
-    text: FormattedCharSequence,
-    x: Int,
-    y: Int,
-    color: Int
-  ): RenderInterface {
-    throw UnsupportedOperationException("drawCenteredString with FormattedCharSequence is not supported in LegacyRenderImpl")
-  }
-
   override fun fill(x1: Int, y1: Int, x2: Int, y2: Int, color: Int): RenderInterface {
     Screen.fill(x1, y1, x2, y2, color)
 
