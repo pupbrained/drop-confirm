@@ -9,7 +9,7 @@ pluginManagement {
   }
 }
 
-plugins { id("dev.kikugie.stonecutter") version "0.7-alpha.6" }
+plugins { id("dev.kikugie.stonecutter") version "0.7-alpha.10" }
 
 stonecutter {
   kotlinController = true
@@ -45,6 +45,7 @@ stonecutter {
     mcSnapshot("25w14craftmine", "1.21.6")
     mcSnapshot("25w15a", "1.21.6")
     mcSnapshot("25w16a", "1.21.6")
+    mcSnapshot("25w17a", "1.21.6")
 
     vcsVersion = "1.21.4-fabric"
   }

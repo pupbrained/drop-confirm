@@ -8,7 +8,6 @@ import java.util.*
 plugins {
   kotlin("jvm") version "2.1.20"
   id("dev.isxander.modstitch.base") version "0.5.15+"
-  id("dev.kikugie.stonecutter")
 }
 
 fun getDep(name: String): String =
@@ -88,7 +87,12 @@ tasks {
   processResources { duplicatesStrategy = INCLUDE }
 }
 
-stonecutter.consts(loader, "fabric", "forge", "neoforge")
+stonecutter {
+  constants {
+    val loader: String = current.project.substringAfter('-')
+    match(loader, "fabric", "forge", "neoforge")
+  }
+}
 
 dependencies {
   modstitchModImplementation(

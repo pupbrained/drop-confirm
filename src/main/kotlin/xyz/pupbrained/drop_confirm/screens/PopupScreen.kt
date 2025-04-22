@@ -44,6 +44,11 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
   override fun shouldCloseOnEsc() = true
   override fun isPauseScreen() = false
 
+  override fun onClose() {
+    DropConfirm.isConfirmed = false
+    super.onClose()
+  }
+
   inner class StyledButton(
     x: Int, y: Int, width: Int, height: Int,
     component: Text,
@@ -116,10 +121,7 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
           60,
           20,
           ComponentUtils.translatable("gui.no")/*? if <=1.15.2 {*//*.string*//*?}*/,
-          {
-            DropConfirm.isConfirmed = false
-            minecraft?.setScreen(null)
-          },
+          { onClose() },
           BUTTON_CANCEL(),
           BUTTON_CANCEL_HOVER()
         )
@@ -133,7 +135,7 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
       /*fillGradient(0, 0, width, height, DIMMING(), DIMMING())
       *///?} else if 1.20.4 {
       /*renderTransparentBackground(poseStack)
-      *///?} else {
+      *///?} else if <=1.21.6-alpha.25.16.a {
       renderBlurredBackground(/*? if <=1.21.1 {*//*partialTick*//*?}*/)
       //?}
 
