@@ -9,7 +9,7 @@ pluginManagement {
   }
 }
 
-plugins { id("dev.kikugie.stonecutter") version "0.7-alpha.10" }
+plugins { id("dev.kikugie.stonecutter") version "0.7-alpha.23" }
 
 stonecutter {
   kotlinController = true
@@ -17,13 +17,6 @@ stonecutter {
 
   create(rootProject) {
     fun mc(mcVersion: String, vararg loaders: String) = loaders.forEach { vers("$mcVersion-$it", mcVersion) }
-
-    fun mcSnapshot(name: String, mcVersion: String) {
-      val (year, week, suffix) = (Regex("(\\d+)w(\\d{2})(.*)").find(name)
-        ?: throw IllegalArgumentException("Invalid snapshot name")).destructured
-
-      vers("$name-fabric", "$mcVersion-alpha.$year.$week.$suffix")
-    }
 
     mc("1.14.4", "fabric")
     mc("1.15.2", "fabric")
@@ -42,10 +35,7 @@ stonecutter {
     mc("1.21.4", "fabric", "neoforge")
     mc("1.21.5", "fabric", "neoforge")
 
-    mcSnapshot("25w14craftmine", "1.21.6")
-    mcSnapshot("25w15a", "1.21.6")
-    mcSnapshot("25w16a", "1.21.6")
-    mcSnapshot("25w17a", "1.21.6")
+    mc("1.21.6", "fabric")
 
     vcsVersion = "1.21.4-fabric"
   }

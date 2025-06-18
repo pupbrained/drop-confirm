@@ -7,7 +7,7 @@ import java.util.*
 
 plugins {
   kotlin("jvm") version "2.1.20"
-  id("dev.isxander.modstitch.base") version "0.5.15+"
+  id("dev.isxander.modstitch.base") version "0.5.16+"
 }
 
 fun getDep(name: String): String =
@@ -50,7 +50,7 @@ modstitch {
     replacementProperties.put("pack_format", getDep("pack_format"))
   }
 
-  loom { fabricLoaderVersion = "0.16.13" }
+  loom { fabricLoaderVersion = "0.16.14" }
 
   moddevgradle {
     defaultRuns()
@@ -97,9 +97,9 @@ stonecutter {
 dependencies {
   modstitchModImplementation(
     when {
-      atLeast("25w14craftmine") -> "dev.isxander:yet-another-config-lib:3.6.6+1.21.5-$loader"
+      atLeast("1.21.1") && loader != "forge" -> "dev.isxander:yet-another-config-lib:3.7.1+$minecraft-$loader"
       atLeast("1.20.1") && loader != "forge" -> "dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader"
-      else -> "com.gitlab.cdagaming.unilib:UniLib-${loader.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}:1.0.6+$minecraft:$loader"
+      else -> "com.gitlab.cdagaming.unilib:UniLib-${loader.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}:1.1.0+$minecraft:$loader"
     }
   )
 
@@ -111,13 +111,12 @@ dependencies {
       // TODO: Figure out how to just use the needed modules instead of including the entirety of fabric-api
       modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:${getDep("fabric-api")}")
 
-      if (!atLeast("25w15a"))
-        modstitchModImplementation("maven.modrinth:modmenu:${getDep("modmenu")}")
+      modstitchModImplementation("maven.modrinth:modmenu:${getDep("modmenu")}")
     }
 
     moddevgradle {
       if (loader == "neoforge") {
-        modstitchImplementation("thedarkcolour:kotlinforforge-neoforge:${if (atLeast("1.20.5")) "5.6.0" else "4.10.0"}")
+        modstitchImplementation("thedarkcolour:kotlinforforge-neoforge:${if (atLeast("1.20.5")) "5.8.0" else "4.10.0"}")
       } else {
         modstitchModImplementation("thedarkcolour:kotlinforforge:${if (atLeast("1.19.4")) "4.10.0" else "3.12.0"}")
         modstitchImplementation("org.spongepowered:mixin:0.8.5")

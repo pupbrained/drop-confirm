@@ -158,7 +158,9 @@ object DropConfirmConfig {
                   val item = BuiltInRegistries./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(
                     ResourceLocation.tryParse(fullId)
                   )
-                  items.add(item)
+                  //? if >=1.18.2
+                  if (item != null)
+                    items.add(item)
                 }
                 reader.endArray()
                 blacklistedItems = items

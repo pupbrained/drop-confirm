@@ -13,11 +13,11 @@ package xyz.pupbrained.drop_confirm.util
 @Suppress("unused")
 enum class Color(val rgb: Number) {
   /**
-   * Standard text color (light gray: `0xE0E0E0`).
+   * Standard text color (light gray: `0xE0E0E0` or `0xFFE0E0E0` on 1.21.6+).
    *
    * Used for normal, interactive text elements throughout the interface.
    */
-  TEXT(0xE0E0E0),
+  TEXT(/*? if >=1.21.6 {*//*0xFFE0E0E0*//*?} else {*/0xE0E0E0/*?}*/),
 
   /**
    * Color for disabled components (gray: `0xA0A0A0`).

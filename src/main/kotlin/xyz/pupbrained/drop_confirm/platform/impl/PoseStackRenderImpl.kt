@@ -34,6 +34,7 @@ class PoseStackRenderImpl(private val poseStack: PoseStack) : RenderInterface {
     return this
   }
 
+  //? if >1.16.5 {
   override fun drawCenteredString(
     font: Font,
     text: FormattedCharSequence,
@@ -45,6 +46,7 @@ class PoseStackRenderImpl(private val poseStack: PoseStack) : RenderInterface {
 
     return this
   }
+  //?}
 
   override fun fill(x1: Int, y1: Int, x2: Int, y2: Int, color: Int): RenderInterface {
     Screen.fill(poseStack, x1, y1, x2, y2, color)

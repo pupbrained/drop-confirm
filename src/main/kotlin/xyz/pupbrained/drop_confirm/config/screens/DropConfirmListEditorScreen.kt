@@ -7,7 +7,11 @@ import xyz.pupbrained.drop_confirm.platform.impl.GuiGraphicsRenderImpl
 //?} elif >=1.16.5 {
 /^import com.mojang.blaze3d.vertex.PoseStack
 import xyz.pupbrained.drop_confirm.platform.impl.PoseStackRenderImpl
-^///?} else {
+^///?}
+
+//? if >=1.18.2 {
+import net.minecraft.client.gui.narration.NarratableEntry
+import net.minecraft.client.gui.narration.NarrationElementOutput
 //?}
 
 //? if fabric {
@@ -191,7 +195,9 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       Items.AIR -> showError("Item not found!")
       in itemsList -> showError("Already in list!")
       else -> {
-        itemsList.add(item)
+        //? if >=1.18.2
+        if (item != null)
+          itemsList.add(item)
         newItemTextField.controlMessage = ""
         updateVisualList()
         updateTextFieldAndButtonState("")
@@ -246,6 +252,11 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       }()
     )
   }
+
+  //? if >=1.18.2 {
+  override fun narrationPriority(): NarratableEntry.NarrationPriority = NarratableEntry.NarrationPriority.NONE
+  override fun updateNarration(p0: NarrationElementOutput) = Unit
+  //?}
 
   inner class ItemList(
     mc: Minecraft,
@@ -307,8 +318,8 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       if (!ItemUtils.isItemEmpty(stack)) {
         val iconY = y + (slotHeight - ICON_SIZE) / 2
         RenderUtils.drawItemStack(
-          gameInstance,
-          /^? if >=1.19.4 {^/poseStack,/^?}^/
+          /^? if 1.19.4 {^/gameInstance,/^?}^/
+          /^? if >=1.19.4 {^/poseStack/^?} else {^//^gameInstance^//^?}^/,
           fontRenderer,
           currentX,
           iconY,
@@ -363,6 +374,11 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
         }
       return super.mouseClicked(mouseX, mouseY, button)
     }
+
+    //? if >=1.18.2 {
+    override fun narrationPriority(): NarratableEntry.NarrationPriority = NarratableEntry.NarrationPriority.NONE
+    override fun updateNarration(p0: NarrationElementOutput) = Unit
+    //?}
   }
 }
 *///?}

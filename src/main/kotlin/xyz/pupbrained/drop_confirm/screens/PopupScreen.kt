@@ -70,9 +70,6 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
         fill(x, y + 1, x + width, y + height - 1, color)
         fill(x + 1, y, x + width - 1, y + height, color)
 
-        //? if >=1.21.6-alpha.25.16.a
-        /*poseStack.depthTreeUp()*/
-
         drawCenteredString(
           font,
           message/*? if >=1.16.5 {*/.string/*?}*/,
@@ -80,9 +77,6 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
           y + (height - 8) / 2,
           TEXT()
         )
-
-        //? if >=1.21.6-alpha.25.16.a
-        /*poseStack.depthTreeBack()*/
       }
     }
   }
@@ -135,7 +129,7 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
       /*fillGradient(0, 0, width, height, DIMMING(), DIMMING())
       *///?} else if 1.20.4 {
       /*renderTransparentBackground(poseStack)
-      *///?} else if <=1.21.6-alpha.25.16.a {
+      *///?} else if <1.21.6 {
       renderBlurredBackground(/*? if <=1.21.1 {*//*partialTick*//*?}*/)
       //?}
 
@@ -166,9 +160,6 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
         drawCornerDecoration(x1 + 3 + i, y2 - 4 - i) // Bottom left
         drawCornerDecoration(x2 - 4 - i, y2 - 4 - i) // Bottom right
       }
-
-      //? if >=1.21.6-alpha.25.16.a
-      /*poseStack.depthTreeUp()*/
 
       drawString(
         font,
@@ -222,9 +213,6 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
         )
         *///?}
       }
-
-      //? if >=1.21.6-alpha.25.16.a
-      /*poseStack.depthTreeBack()*/
     }
 
     renderables.forEach { it.render(/*? if >=1.16.5 {*/poseStack,/*?}*/ mouseX, mouseY, partialTick) }

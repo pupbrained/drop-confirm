@@ -4,12 +4,12 @@ stonecutter active "1.21.4-fabric"
 
 tasks.register("Build active project") {
   group = "stonecutter"
-  dependsOn(":${stonecutter.current.project}:build")
+  dependsOn(":${stonecutter.current?.project}:build")
 }
 
 tasks.register("Run active project") {
   group = "stonecutter"
-  dependsOn(":${stonecutter.current.project}:runClient")
+  dependsOn(":${stonecutter.current?.project}:runClient")
 }
 
 allprojects {

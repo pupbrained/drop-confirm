@@ -113,6 +113,11 @@ import xyz.pupbrained.drop_confirm.config.widgets.ButtonControl
 import xyz.pupbrained.drop_confirm.config.widgets.EnumControl
 import xyz.pupbrained.drop_confirm.config.widgets.SliderControl
 
+//? if >=1.18.2 {
+import net.minecraft.client.gui.narration.NarratableEntry
+import net.minecraft.client.gui.narration.NarrationElementOutput
+//?}
+
 /^*
  * UniLib Config Screen
  * @param parentScreen The screen to return to when closing
@@ -326,5 +331,10 @@ class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfir
     config.confirmationResetDelay = originalResetDelay
     config.confirmationMode = originalConfirmationMode
   }
+
+  //? if >=1.18.2 {
+  override fun narrationPriority(): NarratableEntry.NarrationPriority = NarratableEntry.NarrationPriority.NONE
+  override fun updateNarration(p0: NarrationElementOutput) = Unit
+  //?}
 }
 *///?}
