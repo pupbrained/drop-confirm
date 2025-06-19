@@ -15,10 +15,7 @@ this exact problem (and I assume others have too).
 
 ## Compatibility
 
-DropConfirm currently supports Minecraft 1.20-1.21 (with a less feature-rich backport for 1.19.4).
-
-Newer versions will likely be supported. Older versions may or may not work with some manual modifications to the source
-and will ***not*** be actively supported.
+DropConfirm actively supports **all major versions from 1.14.4-1.21.6**, with the help of Stonecutter and Modstitch.
 
 ## Roadmap
 
