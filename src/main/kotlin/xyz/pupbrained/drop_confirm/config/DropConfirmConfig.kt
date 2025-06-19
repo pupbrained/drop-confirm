@@ -24,7 +24,7 @@ object DropConfirmConfig {
     @SerialEntry var shouldPlaySounds = true
     @SerialEntry var treatAsWhitelist = false
     @SerialEntry var confirmationResetDelay = 1.0
-    @SerialEntry var confirmationMode = ConfirmationMode.POPUP
+    @SerialEntry var confirmationMode = ConfirmationMode.ACTIONBAR
     @SerialEntry var blacklistedItems: List<Item> = emptyList()
   }
 
@@ -114,7 +114,7 @@ object DropConfirmConfig {
 
   @JvmStatic
   @get:JvmName("getConfirmationMode")
-  var confirmationMode = ConfirmationMode.POPUP
+  var confirmationMode = ConfirmationMode.ACTIONBAR
 
   @JvmStatic
   @get:JvmName("getBlacklistedItems")
@@ -131,7 +131,6 @@ object DropConfirmConfig {
 
     try {
       if (configFile.exists()) {
-        // Use Quilt-parsers JsonReader instead of Gson
         JsonReader.json5(configFile).use { reader ->
           reader.beginObject()
 
@@ -158,9 +157,11 @@ object DropConfirmConfig {
                   val item = BuiltInRegistries./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(
                     ResourceLocation.tryParse(fullId)
                   )
-                  //? if >=1.18.2
+                  //? if >=1.18.2 {
+                  @Suppress("SENSELESS_COMPARISON")
                   if (item != null)
-                    items.add(item)
+                  //?}
+                  items.add(item)
                 }
                 reader.endArray()
                 blacklistedItems = items

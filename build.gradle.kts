@@ -1,3 +1,5 @@
+import io.github.klahap.dotenv.DotEnvBuilder
+import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import org.gradle.api.file.DuplicatesStrategy.INCLUDE
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
@@ -6,8 +8,10 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
 import java.util.*
 
 plugins {
-  kotlin("jvm") version "2.1.20"
+  kotlin("jvm") version "2.1.21"
+  id("me.modmuss50.mod-publish-plugin") version "0.8.4"
   id("dev.isxander.modstitch.base") version "0.5.16+"
+  id("io.github.klahap.dotenv") version "1.1.3"
 }
 
 fun getDep(name: String): String =
@@ -42,10 +46,28 @@ modstitch {
   metadata {
     modId = "drop_confirm"
     modName = "DropConfirm"
-    modVersion = "5.0.0"
+    modVersion = "5.0.0-beta.1"
     modGroup = "xyz.pupbrained.drop_confirm"
     modAuthor = "pupbrained"
 
+    replacementProperties.put("java", "${java.first}")
+    if (loader == "fabric")
+      replacementProperties.put("fabric_api", getDep("fabric-api"))
+    replacementProperties.put(
+      "config_lib",
+      when {
+        atLeast("1.20.1") && loader != "forge" -> "yet_another_config_lib_v3"
+        else -> "unilib"
+      }
+    )
+    replacementProperties.put(
+      "config_lib_version",
+      when {
+        atLeast("1.21.1") && loader != "forge" -> "3.7.1"
+        atLeast("1.21.1") && loader != "forge" -> "3.6.6"
+        else -> "1.1.0"
+      }
+    )
     replacementProperties.put("mod_issue_tracker", "https://github.com/pupbrained/drop-confirm/issues")
     replacementProperties.put("pack_format", getDep("pack_format"))
   }
@@ -103,13 +125,26 @@ dependencies {
     }
   )
 
-  if (!atLeast("1.20.1") || loader == "forge")
+  if (!atLeast("1.20.1") || loader == "forge") {
     modstitchImplementation("org.quiltmc.parsers:json:0.3.1")
+    modstitchJiJ("org.quiltmc.parsers:json:0.3.1")
+  }
 
   modstitch {
     loom {
-      // TODO: Figure out how to just use the needed modules instead of including the entirety of fabric-api
-      modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:${getDep("fabric-api")}")
+      listOf(
+        "fabric-api-base",
+        "fabric-lifecycle-events-v1",
+        "fabric-key-binding-api-v1",
+        "fabric-resource-loader-v0"
+      ).forEach {
+        modstitchModImplementation(
+          (project.extensions.findByName("fabricApi") as FabricApiExtension).module(
+            it,
+            getDep("fabric-api")
+          )
+        )
+      }
 
       modstitchModImplementation("maven.modrinth:modmenu:${getDep("modmenu")}")
     }
@@ -122,6 +157,126 @@ dependencies {
         modstitchImplementation("org.spongepowered:mixin:0.8.5")
         annotationProcessor("org.spongepowered:mixin:0.8.5")
       }
+    }
+  }
+}
+
+publishMods {
+  val envFilePath = rootDir.resolve(".env")
+
+  val envVars = DotEnvBuilder.dotEnv {
+    addSystemEnv()
+
+    if (envFilePath.exists() && envFilePath.isFile)
+      addFile(envFilePath.absolutePath)
+  }
+
+  val supportedVersions = getDepOrNull("mcRange") ?: getDep("minecraft")
+
+  val supportedVersionsList = supportedVersions.split(',')
+    .map { it.trim() }
+    .filter { it.isNotEmpty() }
+
+  val versionRangeString: String = when {
+    supportedVersionsList.isEmpty() -> ""
+    supportedVersionsList.size == 1 -> supportedVersionsList.first()
+    else -> "${supportedVersionsList.first()}-${supportedVersionsList.last()}"
+  }
+
+  val displayVersionSuffix = if (versionRangeString.isNotEmpty()) " ($versionRangeString)" else ""
+  val releaseDisplayName =
+    "${modstitch.metadata.modName.get()} ${modstitch.metadata.modVersion.get()}$displayVersionSuffix"
+
+  type = BETA
+  file = modstitch.finalJarTask.get().archiveFile
+  displayName = releaseDisplayName
+
+  changelog = """
+    # IMPORTANT!
+    ## This is a **beta version of DropConfirm** and may not work properly. Please report any bugs or issues you may find.
+
+    This is a significant update featuring a complete restructure and rewrite for broader Minecraft version support and easier maintainability.
+
+    ## Highlights
+    * **Complete Restructure & Rewrite**: DropConfirm has been rewritten and its structure improved to make future maintainability much easier.
+    * **Expanded Compatibility**: Using [Stonecutter](https://stonecutter.kikugie.dev) and [Modstitch](https://modunion.github.io/modstitch-docs) allows for DropConfirm to support all major versions 1.14.4+.
+    * **Confirmation Mode Option**: A new option has been added to change how the confirmation prompt is shown:
+      * Actionbar: The classic confirmation mode, showing the prompt above the hotbar.
+      * Chat: Uses the chatbox to display the confirmation prompt.
+      * Popup: A fancy, custom popup that uses yes/no buttons as the confirmation instead of double-pressing the drop button. Recommended for those who are prone to accidentally dropping even with DropConfirm enabled.
+
+    ## Dependencies
+
+    ### Required
+      * ${
+    when {
+      atLeast("1.21.1") && loader != "forge" -> "YetAnotherConfigLib `v3.7.1` or newer."
+      atLeast("1.20.1") && loader != "forge" -> "YetAnotherConfigLib `v3.6.6`."
+      else -> "UniLib `v1.1.0` or newer."
+    }
+  }
+      * ${
+    if (loader == "fabric") "Fabric Language Kotlin `v1.13.3` or newer." else when {
+      atLeast("1.20.5") -> "Kotlin for Forge (NeoForge) `v5.8.0` or newer."
+      atLeast("1.19.4") -> "Kotlin for Forge `v4.10.0`."
+      else -> "Kotlin for Forge `v3.12.0`."
+    }
+  }
+
+      ${
+    if (loader == "fabric") """
+    ### Recommended
+      * ModMenu `v${getDep("modmenu")}` or newer.
+    """ else ""
+  }
+  """.trimIndent()
+
+  modLoaders.add(loader)
+
+  github("github") {
+    accessToken.set(envVars["GITHUB_TOKEN"])
+    repository.set("pupbrained/dropconfirm-modstitch")
+    commitish.set("master")
+    tagName.set("v${modstitch.metadata.modVersion.get()}-$minecraft-$loader")
+  }
+
+  curseforge("curseforge") {
+    accessToken.set(envVars["CURSEFORGE_TOKEN"])
+    projectId.set("881314")
+    minecraftVersions.addAll(supportedVersionsList)
+
+    requires(
+      when {
+        atLeast("1.20.1") && loader != "forge" -> "yacl"
+        else -> "unilib"
+      }
+    )
+    if (loader == "fabric") {
+      requires("fabric-api")
+      requires("fabric-language-kotlin")
+      optional("modmenu")
+    } else {
+      requires("kotlin-for-forge")
+    }
+  }
+
+  modrinth("modrinth") {
+    accessToken.set(envVars["MODRINTH_TOKEN"])
+    projectId.set("I45rjF2F")
+    minecraftVersions.addAll(supportedVersionsList)
+
+    requires(
+      when {
+        atLeast("1.20.1") && loader != "forge" -> "yacl"
+        else -> "unilib"
+      }
+    )
+    if (loader == "fabric") {
+      requires("fabric-api")
+      requires("fabric-language-kotlin")
+      optional("modmenu")
+    } else {
+      requires("kotlin-for-forge")
     }
   }
 }

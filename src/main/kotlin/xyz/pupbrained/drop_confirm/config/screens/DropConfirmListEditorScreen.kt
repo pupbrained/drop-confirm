@@ -195,8 +195,10 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       Items.AIR -> showError("Item not found!")
       in itemsList -> showError("Already in list!")
       else -> {
-        //? if >=1.18.2
+        //? if >=1.18.2 {
+        @Suppress("SENSELESS_COMPARISON")
         if (item != null)
+        //?}
           itemsList.add(item)
         newItemTextField.controlMessage = ""
         updateVisualList()
@@ -318,7 +320,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       if (!ItemUtils.isItemEmpty(stack)) {
         val iconY = y + (slotHeight - ICON_SIZE) / 2
         RenderUtils.drawItemStack(
-          /^? if 1.19.4 {^/gameInstance,/^?}^/
+          /^? if 1.19.4 {^//^gameInstance,^//^?}^/
           /^? if >=1.19.4 {^/poseStack/^?} else {^//^gameInstance^//^?}^/,
           fontRenderer,
           currentX,
