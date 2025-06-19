@@ -37,3 +37,6 @@ DropConfirm actively supports **all major versions from 1.14.4-1.21.6**, with th
 - **Blacklist**
     - Allows for disabling the confirmation prompt on certain items.
     - Can also be used like a whitelist instead.
+- **Confirmation Mode**
+    - The mode to be used for displaying the confirmation prompt.
+    - Options: Actionbar (default), chat, popup.
