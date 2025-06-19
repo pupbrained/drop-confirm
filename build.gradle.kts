@@ -235,7 +235,7 @@ publishMods {
 
   github("github") {
     accessToken.set(envVars["GITHUB_TOKEN"])
-    repository.set("pupbrained/dropconfirm-modstitch")
+    repository.set("pupbrained/drop-confirm")
     commitish.set("master")
     tagName.set("v${modstitch.metadata.modVersion.get()}-$minecraft-$loader")
   }
