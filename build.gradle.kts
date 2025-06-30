@@ -46,7 +46,7 @@ modstitch {
   metadata {
     modId = "drop_confirm"
     modName = "DropConfirm"
-    modVersion = "5.0.0-beta.1"
+    modVersion = "5.0.0"
     modGroup = "xyz.pupbrained.drop_confirm"
     modAuthor = "pupbrained"
 
@@ -119,7 +119,8 @@ stonecutter {
 dependencies {
   modstitchModImplementation(
     when {
-      atLeast("1.21.1") && loader != "forge" -> "dev.isxander:yet-another-config-lib:3.7.1+$minecraft-$loader"
+      atLeast("1.21.7") -> "dev.isxander:yet-another-config-lib:3.7.1+1.21.6-$loader"
+      atLeast("1.21.1") -> "dev.isxander:yet-another-config-lib:3.7.1+$minecraft-$loader"
       atLeast("1.20.1") && loader != "forge" -> "dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader"
       else -> "com.gitlab.cdagaming.unilib:UniLib-${loader.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}:1.1.0+$minecraft:$loader"
     }
@@ -187,14 +188,11 @@ publishMods {
   val releaseDisplayName =
     "${modstitch.metadata.modName.get()} ${modstitch.metadata.modVersion.get()}$displayVersionSuffix"
 
-  type = BETA
+  type = STABLE
   file = modstitch.finalJarTask.get().archiveFile
   displayName = releaseDisplayName
 
   changelog = """
-    # IMPORTANT!
-    ## This is a **beta version of DropConfirm** and may not work properly. Please report any bugs or issues you may find.
-
     This is a significant update featuring a complete restructure and rewrite for broader Minecraft version support and easier maintainability.
 
     ## Highlights
@@ -204,6 +202,10 @@ publishMods {
       * Actionbar: The classic confirmation mode, showing the prompt above the hotbar.
       * Chat: Uses the chatbox to display the confirmation prompt.
       * Popup: A fancy, custom popup that uses yes/no buttons as the confirmation instead of double-pressing the drop button. Recommended for those who are prone to accidentally dropping even with DropConfirm enabled.
+
+    ## Since 5.0.0-beta.1
+    * **Updated** to support Minecraft 1.21.7.
+    * **Fixed** lack of string for the DropConfirm keybind group in the keybinds menu.
 
     ## Dependencies
 

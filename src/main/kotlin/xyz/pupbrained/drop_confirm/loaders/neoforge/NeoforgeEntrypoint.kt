@@ -5,8 +5,8 @@ import net.minecraft.client.Minecraft
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.ModLoadingContext
-import net.neoforged.fml.common./^? if <=1.20.4 {^/Mod./^?}^/EventBusSubscriber
-import net.neoforged.neoforge.client./^? if <=1.20.4 {^/ConfigScreenHandler.ConfigScreenFactory/^?} else {^//^gui.IConfigScreenFactory as ConfigScreenFactory^//^?}^/
+import net.neoforged.fml.common./^? if <=1.20.4 {^//^Mod.^//^?}^/EventBusSubscriber
+import net.neoforged.neoforge.client./^? if <=1.20.4 {^//^ConfigScreenHandler.ConfigScreenFactory^//^?} else {^/gui.IConfigScreenFactory as ConfigScreenFactory/^?}^/
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.loading.FMLEnvironment
 import net.neoforged.neoforge.client.event.InputEvent
@@ -18,7 +18,11 @@ import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
 import xyz.pupbrained.drop_confirm.config.screens.DropConfirmConfigScreen
 
 @Mod("drop_confirm")
-@EventBusSubscriber(modid = "drop_confirm", bus = EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT])
+@EventBusSubscriber(
+  modid = "drop_confirm",
+  /^? if <=1.21.6 {^/bus = EventBusSubscriber.Bus.MOD,/^?}^/
+  value = [Dist.CLIENT]
+)
 class NeoforgeEntrypoint {
   companion object {
     @SubscribeEvent
