@@ -46,7 +46,7 @@ modstitch {
   metadata {
     modId = "drop_confirm"
     modName = "DropConfirm"
-    modVersion = "5.0.0"
+    modVersion = "5.0.1"
     modGroup = "xyz.pupbrained.drop_confirm"
     modAuthor = "pupbrained"
 
@@ -64,7 +64,7 @@ modstitch {
       "config_lib_version",
       when {
         atLeast("1.21.1") && loader != "forge" -> "3.7.1"
-        atLeast("1.21.1") && loader != "forge" -> "3.6.6"
+        atLeast("1.20.1") && loader != "forge" -> "3.6.6"
         else -> "1.1.0"
       }
     )
@@ -193,19 +193,11 @@ publishMods {
   displayName = releaseDisplayName
 
   changelog = """
-    This is a significant update featuring a complete restructure and rewrite for broader Minecraft version support and easier maintainability.
+    This is a small update to fix some issues with the mod.
 
-    ## Highlights
-    * **Complete Restructure & Rewrite**: DropConfirm has been rewritten and its structure improved to make future maintainability much easier.
-    * **Expanded Compatibility**: Using [Stonecutter](https://stonecutter.kikugie.dev) and [Modstitch](https://modunion.github.io/modstitch-docs) allows for DropConfirm to support all major versions 1.14.4+.
-    * **Confirmation Mode Option**: A new option has been added to change how the confirmation prompt is shown:
-      * Actionbar: The classic confirmation mode, showing the prompt above the hotbar.
-      * Chat: Uses the chatbox to display the confirmation prompt.
-      * Popup: A fancy, custom popup that uses yes/no buttons as the confirmation instead of double-pressing the drop button. Recommended for those who are prone to accidentally dropping even with DropConfirm enabled.
-
-    ## Since 5.0.0-beta.1
-    * **Updated** to support Minecraft 1.21.7.
-    * **Fixed** lack of string for the DropConfirm keybind group in the keybinds menu.
+    ## Changes
+    * Fix an issue with the mod metadata being incorrect for fabric 1.20.1.
+    * Fix fabric.mod.json to properly advertise the mod as client-side only.
 
     ## Dependencies
 

@@ -7,7 +7,7 @@
   "authors": [
     "${mod_author}"
   ],
-  "environment": "*",
+  "environment": "client",
   "icon": "drop_confirm.png",
   "entrypoints": {
     "main": [
