@@ -15,7 +15,7 @@ this exact problem (and I assume others have too).
 
 ## Compatibility
 
-DropConfirm actively supports **all major versions from 1.14.4-1.21.6**, with the help of Stonecutter and Modstitch.
+DropConfirm actively supports **all major versions from 1.14.4 onward**, with the help of Stonecutter and Modstitch.
 
 ## Roadmap
 
