@@ -94,9 +94,7 @@ modstitch {
     enable {
       listOf(
         "forge" to ::forgeVersion,
-        "neoform" to ::neoFormVersion,
-        "neoforge" to ::neoForgeVersion,
-        "mcp" to ::mcpVersion
+        "neoforge" to ::neoForgeVersion
       ).forEach { (name, setter) -> (findProperty("deps.$name") as? String?)?.let { setter.set(it) } }
     }
   }
