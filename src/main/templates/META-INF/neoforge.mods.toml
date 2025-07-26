@@ -7,21 +7,25 @@ license = "${mod_license}"
 modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
-description = '''${mod_description}'''
+description = "${mod_description}"
 authors = "${mod_author}"
 logoFile = "drop_confirm.png"
 
 [[dependencies.${mod_id}]]
 modId = "neoforge"
 type = "required"
+versionRange = "[${loader_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 type = "required"
+versionRange = "[${minecraft_version},)"
+side = "CLIENT"
 
 [[dependencies.${mod_id}]]
 modId = "${config_lib}"
 versionRange = "[${config_lib_version},)"
 type = "required"
+side = "CLIENT"

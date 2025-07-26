@@ -46,13 +46,24 @@ modstitch {
   metadata {
     modId = "drop_confirm"
     modName = "DropConfirm"
-    modVersion = "5.0.1"
+    modVersion = "5.0.2"
     modGroup = "xyz.pupbrained.drop_confirm"
     modAuthor = "pupbrained"
+    modDescription = "Think twice before you drop. Adds a confirmation prompt when dropping items."
+    modLicense = "MIT"
 
     replacementProperties.put("java", "${java.first}")
+
     if (loader == "fabric")
       replacementProperties.put("fabric_api", getDep("fabric-api"))
+
+    replacementProperties.put(
+      "loader_version", when (loader) {
+        "fabric" -> "0.16.0"
+        else -> getDep(loader)
+      }
+    )
+
     replacementProperties.put(
       "config_lib",
       when {
@@ -60,14 +71,16 @@ modstitch {
         else -> "unilib"
       }
     )
+
     replacementProperties.put(
       "config_lib_version",
       when {
-        atLeast("1.21.1") && loader != "forge" -> "3.7.1"
+        atLeast("1.21.1") -> "3.7.1"
         atLeast("1.20.1") && loader != "forge" -> "3.6.6"
         else -> "1.1.0"
       }
     )
+
     replacementProperties.put("mod_issue_tracker", "https://github.com/pupbrained/drop-confirm/issues")
     replacementProperties.put("pack_format", getDep("pack_format"))
   }
@@ -193,11 +206,7 @@ publishMods {
   displayName = releaseDisplayName
 
   changelog = """
-    This is a small update to fix some issues with the mod.
-
-    ## Changes
-    * Fix an issue with the mod metadata being incorrect for fabric 1.20.1.
-    * Fix fabric.mod.json to properly advertise the mod as client-side only.
+    This update fixes various issues with the mod's metadata.
 
     ## Dependencies
 
