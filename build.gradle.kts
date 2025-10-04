@@ -130,6 +130,7 @@ stonecutter {
 dependencies {
   modstitchModImplementation(
     when {
+      atLeast("1.21.9") -> "dev.isxander:yet-another-config-lib:3.8.0+1.21.9-$loader"
       atLeast("1.21.7") -> "dev.isxander:yet-another-config-lib:3.7.1+1.21.6-$loader"
       atLeast("1.21.1") -> "dev.isxander:yet-another-config-lib:3.7.1+$minecraft-$loader"
       atLeast("1.20.1") && loader != "forge" -> "dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader"
