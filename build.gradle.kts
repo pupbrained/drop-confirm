@@ -202,7 +202,7 @@ publishMods {
   displayName = releaseDisplayName
 
   changelog = """
-    This update adds support for Minecraft 1.21.9-1.21.10 and updates various dependencies, including stonecutter and modstitch.
+    This update adds support for Minecraft 1.21.9-1.21.10 and updates various dependencies, namely Stonecutter and Modstitch.
 
     ## Dependencies
 
