@@ -5,9 +5,9 @@
 import net.minecraft.client.gui.GuiGraphics as PoseStack
 import xyz.pupbrained.drop_confirm.platform.impl.GuiGraphicsRenderImpl
 //?} elif >=1.16.5 {
-/^import com.mojang.blaze3d.vertex.PoseStack
+/*import com.mojang.blaze3d.vertex.PoseStack
 import xyz.pupbrained.drop_confirm.platform.impl.PoseStackRenderImpl
-^///?}
+*///?}
 
 //? if >=1.18.2 {
 import net.minecraft.client.gui.narration.NarratableEntry
@@ -15,10 +15,10 @@ import net.minecraft.client.gui.narration.NarrationElementOutput
 //?}
 
 //? if fabric {
-import net.minecraft.core./^? if <=1.18.2 {^//^Registry^//^?} else {^/registries.BuiltInRegistries as Registry/^?}^/
+import net.minecraft.core./*? if <=1.18.2 {*//*Registry*//*?} else {*/registries.BuiltInRegistries as Registry/*?}*/
 //?} else {
-/^import net.minecraftforge.registries.ForgeRegistries as Registry
-^///?}
+/*import net.minecraftforge.registries.ForgeRegistries as Registry
+*///?}
 
 import xyz.pupbrained.drop_confirm.config.widgets.ButtonControl
 import com.gitlab.cdagaming.unilib.utils.ItemUtils
@@ -132,20 +132,20 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       }
 
       override fun render(
-        /^? if >=1.16.5 {^/poseStack: PoseStack,/^?}^/
+        /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
         mouseX: Int,
         mouseY: Int,
         partialTicks: Float
       ) {
         super.render(
-          /^? if >=1.16.5 {^/poseStack,/^?}^/
+          /*? if >=1.16.5 {*/poseStack,/*?}*/
           mouseX,
           mouseY,
           partialTicks
         )
 
         if (value.isEmpty())
-          getRenderImpl(/^? if >=1.16.5 {^/poseStack/^?}^/).drawString(
+          getRenderImpl(/*? if >=1.16.5 {*/poseStack/*?}*/).drawString(
             font,
             placeholderText,
             x + 4,
@@ -189,7 +189,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       return
     }
 
-    val item = Registry./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(resourceLocation)
+    val item = Registry./*? if fabric {*/ITEM.get/*?} else {*//*ITEMS.getValue*//*?}*/(resourceLocation)
 
     when (item) {
       Items.AIR -> showError("Item not found!")
@@ -235,7 +235,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
 
     val resourceLocation = ResourceLocation.tryParse(fullResourceName) ?: return false
 
-    val item = Registry./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(resourceLocation)
+    val item = Registry./*? if fabric {*/ITEM.get/*?} else {*//*ITEMS.getValue*//*?}*/(resourceLocation)
 
     return item != Items.AIR && !itemsList.contains(item)
   }
@@ -284,7 +284,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
     }
 
     override fun renderSlotItem(
-      /^? if >=1.16.5 {^/poseStack: PoseStack,/^?}^/
+      /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
       originalName: String?,
       x: Int,
       y: Int,
@@ -298,7 +298,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       val index = itemList.indexOf(originalName)
       if (index == -1 || index >= currentItems.size) {
         super.renderSlotItem(
-          /^? if >=1.16.5 {^/poseStack,/^?}^/
+          /*? if >=1.16.5 {*/poseStack,/*?}*/
           "Error: Item not found",
           x,
           y,
@@ -320,8 +320,8 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
       if (!ItemUtils.isItemEmpty(stack)) {
         val iconY = y + (slotHeight - ICON_SIZE) / 2
         RenderUtils.drawItemStack(
-          /^? if 1.19.4 {^//^gameInstance,^//^?}^/
-          /^? if >=1.19.4 {^/poseStack/^?} else {^//^gameInstance^//^?}^/,
+          /*? if 1.19.4 {*//*gameInstance,*//*?}*/
+          /*? if >=1.19.4 {*/poseStack/*?} else {*//*gameInstance*//*?}*/,
           fontRenderer,
           currentX,
           iconY,
@@ -347,7 +347,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
         RenderUtils.isMouseOver(mouseX.toDouble(), mouseY.toDouble(), removeButton)
 
       removeButton.render(
-        /^? if >=1.16.5 {^/poseStack,/^?}^/
+        /*? if >=1.16.5 {*/poseStack,/*?}*/
         mouseX,
         mouseY,
         partialTicks
@@ -355,7 +355,7 @@ class DropConfirmListEditorScreen(private val parentScreen: Screen) :
 
       val textWidth = buttonX - currentX - HORIZONTAL_PADDING
       super.renderSlotItem(
-        /^? if >=1.16.5 {^/poseStack,/^?}^/
+        /*? if >=1.16.5 {*/poseStack,/*?}*/
         originalName,
         currentX,
         y,

@@ -4,8 +4,8 @@
 //? if >=1.20.1 {
 import net.minecraft.client.gui.GuiGraphics as PoseStack
 //?} elif >=1.16.5 {
-/^import com.mojang.blaze3d.vertex.PoseStack
-^///?}
+/*import com.mojang.blaze3d.vertex.PoseStack
+*///?}
 
 import com.gitlab.cdagaming.unilib.ModUtils
 import com.gitlab.cdagaming.unilib.utils.gui.RenderUtils
@@ -23,7 +23,7 @@ open class ButtonControl(
   var textColor = TEXT
 
   override fun render(
-    /^? if >=1.16.5 {^/poseStack: PoseStack,/^?}^/
+    /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
     mouseX: Int,
     mouseY: Int,
     partialTicks: Float
@@ -38,17 +38,18 @@ open class ButtonControl(
       this,
     )
 
-    renderBg(/^? if >=1.16.5 {^/poseStack,/^?}^/ mc, mouseX, mouseY)
+    renderBg(/*? if >=1.16.5 {*/poseStack,/*?}*/ mc, mouseX, mouseY)
 
     val colorToRender = when {
       !isControlEnabled -> DISABLED
-      //? if 1.14.4
-      /^isHoveringOrFocusingOver -> HOVERED^/
+      //? if 1.14.4 {
+      /*isHoveringOrFocusingOver -> HOVERED
+      *///?}
       else -> textColor
     }
 
     RenderUtils.renderScrollingString(
-      /^? if >=1.16.5 {^/poseStack,/^?}^/
+      /*? if >=1.16.5 {*/poseStack,/*?}*/
       mc,
       mc.font,
       controlMessage,

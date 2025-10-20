@@ -9,14 +9,14 @@ pluginManagement {
   }
 }
 
-plugins { id("dev.kikugie.stonecutter") version "0.7+" }
+plugins { id("dev.kikugie.stonecutter") version "0.8-alpha.7" }
 
-stonecutter {
+sc {
   kotlinController = true
   centralScript = "build.gradle.kts"
 
   create(rootProject) {
-    fun mc(mcVersion: String, vararg loaders: String) = loaders.forEach { vers("$mcVersion-$it", mcVersion) }
+    fun mc(mcVersion: String, vararg loaders: String) = loaders.forEach { version("$mcVersion-$it", mcVersion) }
 
     mc("1.14.4", "fabric")
     mc("1.15.2", "fabric")
@@ -35,6 +35,7 @@ stonecutter {
     mc("1.21.4", "fabric", "neoforge")
     mc("1.21.5", "fabric", "neoforge")
     mc("1.21.6", "fabric", "neoforge")
+    mc("1.21.9", "fabric", "neoforge")
 
     vcsVersion = "1.21.4-fabric"
   }

@@ -1,0 +1,17 @@
+[versions]
+kotlin = "2.1.21"
+mod-publish-plugin = "0.8.4"
+modstitch-base = "0.7+"
+dotenv = "1.1.3"
+mixin = "0.8.5"
+json = "0.3.1"
+
+[libraries]
+mixin = { group = "org.spongepowered", name = "mixin", version.ref = "mixin" }
+json = { group = "org.quiltmc.parsers", name = "json", version.ref = "json" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+mod-publish = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod-publish-plugin" }
+modstitch-base = { id = "dev.isxander.modstitch.base", version.ref = "modstitch-base" }
+dotenv = { id = "io.github.klahap.dotenv", version.ref = "dotenv" }

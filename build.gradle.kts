@@ -5,13 +5,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_16
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
-import java.util.*
 
 plugins {
-  kotlin("jvm") version "2.1.21"
-  id("me.modmuss50.mod-publish-plugin") version "0.8.4"
-  id("dev.isxander.modstitch.base") version "0.5.16+"
-  id("io.github.klahap.dotenv") version "1.1.3"
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.mod.publish)
+  alias(libs.plugins.modstitch.base)
+  alias(libs.plugins.dotenv)
 }
 
 fun getDep(name: String): String =
@@ -22,12 +21,10 @@ fun getDepOrNull(name: String): String? =
 
 val minecraft = getDep("minecraft")
 
-fun atLeast(version: String): Boolean = stonecutter.eval(minecraft, ">=$version")
-
 val java = when {
-  atLeast("1.20.5") -> 21 to JVM_21
-  atLeast("1.18") -> 17 to JVM_17
-  atLeast("1.17") -> 16 to JVM_16
+  sc.current.parsed >= "1.20.5" -> 21 to JVM_21
+  sc.current.parsed >= "1.18" -> 17 to JVM_17
+  sc.current.parsed >= "1.17" -> 16 to JVM_16
   else -> 8 to JVM_1_8
 }
 
@@ -40,13 +37,13 @@ val loader = when {
 
 modstitch {
   minecraftVersion = minecraft
-  javaTarget = java.first
+  javaVersion = java.first
   parchment.mappingsVersion = getDepOrNull("parchment")
 
   metadata {
     modId = "drop_confirm"
     modName = "DropConfirm"
-    modVersion = "5.0.2"
+    modVersion = "6.0.0"
     modGroup = "xyz.pupbrained.drop_confirm"
     modAuthor = "pupbrained"
     modDescription = "Think twice before you drop. Adds a confirmation prompt when dropping items."
@@ -59,44 +56,29 @@ modstitch {
 
     replacementProperties.put(
       "loader_version", when (loader) {
-        "fabric" -> "0.16.0"
+        "fabric" -> "0.17.2"
         else -> getDep(loader)
       }
     )
 
-    replacementProperties.put(
-      "config_lib",
-      when {
-        atLeast("1.20.1") && loader != "forge" -> "yet_another_config_lib_v3"
-        else -> "unilib"
-      }
-    )
+    replacementProperties.put("config_lib", getDep("configLibName"))
 
-    replacementProperties.put(
-      "config_lib_version",
-      when {
-        atLeast("1.21.1") -> "3.7.1"
-        atLeast("1.20.1") && loader != "forge" -> "3.6.6"
-        else -> "1.1.0"
-      }
-    )
+    replacementProperties.put("config_lib_version", getDep("configLibVersion"))
 
+    replacementProperties.put("mod_sources", "https://github.com/pupbrained/drop-confirm")
     replacementProperties.put("mod_issue_tracker", "https://github.com/pupbrained/drop-confirm/issues")
     replacementProperties.put("pack_format", getDep("pack_format"))
   }
 
-  loom { fabricLoaderVersion = "0.16.14" }
+  loom { fabricLoaderVersion = "0.17.2" }
 
   moddevgradle {
     defaultRuns()
-    configureNeoforge { runs.all { disableIdeRun() } }
 
-    enable {
-      listOf(
-        "forge" to ::forgeVersion,
-        "neoforge" to ::neoForgeVersion
-      ).forEach { (name, setter) -> (findProperty("deps.$name") as? String?)?.let { setter.set(it) } }
-    }
+    listOf(
+      "forge" to ::forgeVersion,
+      "neoforge" to ::neoForgeVersion
+    ).forEach { (name, setter) -> (findProperty("deps.$name") as? String?)?.let { setter().set(it) } }
   }
 
   mixin {
@@ -117,29 +99,45 @@ tasks {
   }
 
   named("compileKotlin") { dependsOn("stonecutterGenerate") }
-  processResources { duplicatesStrategy = INCLUDE }
+  processResources {
+    duplicatesStrategy = INCLUDE
+
+    if (loader != "forge")
+      exclude("META-INF/services/org.spongepowered.asm.mixin.connect.IMixinConnector")
+  }
 }
 
-stonecutter {
+sc {
   constants {
     val loader: String = current.project.substringAfter('-')
     match(loader, "fabric", "forge", "neoforge")
   }
+
+  swaps["bus_subscriber_import"] = when {
+    current.parsed <= "1.20.4" -> "Mod.EventBusSubscriber"
+    else -> "EventBusSubscriber"
+  }
+  swaps["config_screen_factory_import"] = when {
+    current.parsed <= "1.20.4" -> "ConfigScreenHandler.ConfigScreenFactory"
+    else -> "gui.IConfigScreenFactory as ConfigScreenFactory"
+  }
+  swaps["fml_env_dist"] = when {
+    current.parsed >= "1.21.9" -> "getDist()"
+    else -> "dist"
+  }
+  swaps["item_style"] = when {
+    current.parsed >= "1.20.6" && loader == "neoforge" -> "itemStack.rarity.styleModifier"
+    current.parsed >= "1.20.6" && loader == "fabric" -> "itemStack.rarity.color()"
+    else -> "itemStack.rarity.color"
+  }
 }
 
 dependencies {
-  modstitchModImplementation(
-    when {
-      atLeast("1.21.7") -> "dev.isxander:yet-another-config-lib:3.7.1+1.21.6-$loader"
-      atLeast("1.21.1") -> "dev.isxander:yet-another-config-lib:3.7.1+$minecraft-$loader"
-      atLeast("1.20.1") && loader != "forge" -> "dev.isxander:yet-another-config-lib:3.6.6+$minecraft-$loader"
-      else -> "com.gitlab.cdagaming.unilib:UniLib-${loader.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}:1.1.0+$minecraft:$loader"
-    }
-  )
+  modstitchModImplementation(getDep("configLib"))
 
-  if (!atLeast("1.20.1") || loader == "forge") {
-    modstitchImplementation("org.quiltmc.parsers:json:0.3.1")
-    modstitchJiJ("org.quiltmc.parsers:json:0.3.1")
+  if (sc.current.parsed < "1.20.1" || loader == "forge") {
+    modstitchImplementation(libs.json)
+    modstitchJiJ(libs.json)
   }
 
   modstitch {
@@ -151,10 +149,8 @@ dependencies {
         "fabric-resource-loader-v0"
       ).forEach {
         modstitchModImplementation(
-          (project.extensions.findByName("fabricApi") as FabricApiExtension).module(
-            it,
-            getDep("fabric-api")
-          )
+          (project.extensions.findByName("fabricApi") as FabricApiExtension)
+            .module(it, getDep("fabric-api"))
         )
       }
 
@@ -162,12 +158,14 @@ dependencies {
     }
 
     moddevgradle {
-      if (loader == "neoforge") {
-        modstitchImplementation("thedarkcolour:kotlinforforge-neoforge:${if (atLeast("1.20.5")) "5.8.0" else "4.10.0"}")
-      } else {
-        modstitchModImplementation("thedarkcolour:kotlinforforge:${if (atLeast("1.19.4")) "4.10.0" else "3.12.0"}")
-        modstitchImplementation("org.spongepowered:mixin:0.8.5")
-        annotationProcessor("org.spongepowered:mixin:0.8.5")
+      getDepOrNull("kotlinForForge")?.let {
+        if (loader == "neoforge") modstitchImplementation(it)
+        else modstitchModImplementation(it)
+      }
+
+      if (loader != "neoforge") {
+        modstitchImplementation(libs.mixin)
+        annotationProcessor(libs.mixin)
       }
     }
   }
@@ -200,29 +198,17 @@ publishMods {
     "${modstitch.metadata.modName.get()} ${modstitch.metadata.modVersion.get()}$displayVersionSuffix"
 
   type = STABLE
-  file = modstitch.finalJarTask.get().archiveFile
+  file.set((if (loader == "forge" && sc.current.parsed >= "1.18") tasks.named("jar") else modstitch.finalJarTask).flatMap { (it as AbstractArchiveTask).archiveFile })
   displayName = releaseDisplayName
 
   changelog = """
-    This update fixes various issues with the mod's metadata.
+    This update adds support for Minecraft 1.21.9-1.21.10 and updates various dependencies, including stonecutter and modstitch.
 
     ## Dependencies
 
     ### Required
-      * ${
-    when {
-      atLeast("1.21.1") && loader != "forge" -> "YetAnotherConfigLib `v3.7.1` or newer."
-      atLeast("1.20.1") && loader != "forge" -> "YetAnotherConfigLib `v3.6.6`."
-      else -> "UniLib `v1.1.0` or newer."
-    }
-  }
-      * ${
-    if (loader == "fabric") "Fabric Language Kotlin `v1.13.3` or newer." else when {
-      atLeast("1.20.5") -> "Kotlin for Forge (NeoForge) `v5.8.0` or newer."
-      atLeast("1.19.4") -> "Kotlin for Forge `v4.10.0`."
-      else -> "Kotlin for Forge `v3.12.0`."
-    }
-  }
+      * ${getDep("changelogConfigLib")}
+      * ${getDep("changelogKotlin")}
 
       ${
     if (loader == "fabric") """
@@ -248,7 +234,7 @@ publishMods {
 
     requires(
       when {
-        atLeast("1.20.1") && loader != "forge" -> "yacl"
+        sc.current.parsed >= "1.20.1" && loader != "forge" -> "yacl"
         else -> "unilib"
       }
     )
@@ -268,7 +254,7 @@ publishMods {
 
     requires(
       when {
-        atLeast("1.20.1") && loader != "forge" -> "yacl"
+        sc.current.parsed >= "1.20.1" && loader != "forge" -> "yacl"
         else -> "unilib"
       }
     )

@@ -73,11 +73,11 @@ object DropConfirmConfig {
 //?} else {
 /*//? if fabric {
 import net.fabricmc.loader.api.FabricLoader
-import net.minecraft.core./^? if <=1.18.2 {^//^Registry as BuiltInRegistries^//^?} else {^/registries.BuiltInRegistries/^?}^/
+import net.minecraft.core./*? if <=1.18.2 {*//*Registry as BuiltInRegistries*//*?} else {*/registries.BuiltInRegistries/*?}*/
 //?} else {
-/^import net.minecraftforge.fml.loading.FMLPaths
+/*import net.minecraftforge.fml.loading.FMLPaths
 import net.minecraftforge.registries.ForgeRegistries as BuiltInRegistries
-^///?}
+*///?}
 
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
@@ -121,7 +121,7 @@ object DropConfirmConfig {
   var blacklistedItems: MutableList<Item> = mutableListOf()
 
   private val configFile =
-    /^? if fabric {^/FabricLoader.getInstance().configDir/^?} else {^//^FMLPaths.CONFIGDIR.get()^//^?}^/
+    /*? if fabric {*/FabricLoader.getInstance().configDir/*?} else {*//*FMLPaths.CONFIGDIR.get()*//*?}*/
     .resolve("drop_confirm.json5")
 
   private var isLoaded = false
@@ -154,7 +154,7 @@ object DropConfirmConfig {
                 while (reader.hasNext()) {
                   val itemId = reader.nextString()
                   val fullId = if (itemId.contains(":")) itemId else "minecraft:$itemId"
-                  val item = BuiltInRegistries./^? if fabric {^/ITEM.get/^?} else {^//^ITEMS.getValue^//^?}^/(
+                  val item = BuiltInRegistries./*? if fabric {*/ITEM.get/*?} else {*//*ITEMS.getValue*//*?}*/(
                     ResourceLocation.tryParse(fullId)
                   )
                   //? if >=1.18.2 {
@@ -188,7 +188,7 @@ object DropConfirmConfig {
 
       // Convert Item objects to their string identifiers before saving
       val itemIdentifiers = blacklistedItems.map { item ->
-        BuiltInRegistries./^? if fabric {^/ITEM/^?} else {^//^ITEMS^//^?}^/.getKey(item).toString()
+        BuiltInRegistries./*? if fabric {*/ITEM/*?} else {*//*ITEMS*//*?}*/.getKey(item).toString()
       }
 
       // Use Quilt-parsers JsonWriter instead of Gson

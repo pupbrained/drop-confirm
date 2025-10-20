@@ -130,8 +130,8 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
       *///?} else if 1.20.4 {
       /*renderTransparentBackground(poseStack)
       *///?} else if <1.21.6 {
-      renderBlurredBackground(/*? if <=1.21.1 {*//*partialTick*//*?}*/)
-      //?}
+      /*renderBlurredBackground(/*? if <=1.21.1 {*/partialTick/*?}*/)
+      *///?}
 
       // Border
       fill(x1 + 1, y1, x2 - 1, y1 + 1, BORDER())
@@ -173,7 +173,7 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
       val itemName =
         ComponentUtils
           .literal(itemStack.item.getName(itemStack).string)
-          .withStyle(itemStack.rarity.color/*? if >=1.20.6 {*/()/*?}*/)
+          .withStyle(/*$ item_style {*/itemStack.rarity.color()/*$}*/)
 
       //? if <=1.15.2 {
       /*val message = ComponentUtils.translatable("drop_confirm.confirmation.popup", itemName)
@@ -218,6 +218,26 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
     renderables.forEach { it.render(/*? if >=1.16.5 {*/poseStack,/*?}*/ mouseX, mouseY, partialTick) }
   }
 
+  //? if >=1.21.9 {
+  /*override fun mouseClicked(event: net.minecraft.client.input.MouseButtonEvent, focus: Boolean): Boolean =
+    when {
+      // Case 1: If meets Screen's conditions
+      super.mouseClicked(event, focus) -> true
+
+      // Case 2: If any button is clicked
+      renderables.filterIsInstance<Button>()
+        .any { it.mouseClicked(event, focus) } -> true
+
+      // Case 3: If mouse is outside the popup area and should close on ESC
+      (event.x() < x1 || event.x() >= x2 || event.y() < y1 || event.y() >= y2) && shouldCloseOnEsc() -> {
+        minecraft?.setScreen(null)
+        true
+      }
+
+      // Case 4: Otherwise
+      else -> false
+    }
+  *///?} else {
   override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int) =
     when {
       // Case 1: If meets Screen's conditions
@@ -236,4 +256,5 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
       // Case 4: Otherwise
       else -> false
     }
+  //?}
 }

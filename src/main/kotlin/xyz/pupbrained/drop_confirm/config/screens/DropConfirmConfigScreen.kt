@@ -118,10 +118,10 @@ import net.minecraft.client.gui.narration.NarratableEntry
 import net.minecraft.client.gui.narration.NarrationElementOutput
 //?}
 
-/^*
+/**
  * UniLib Config Screen
  * @param parentScreen The screen to return to when closing
- ^/
+ */
 class DropConfirmConfigScreen(parentScreen: Screen) : ExtendedScreen("DropConfirm Settings") {
   // --- Companion Object for Constants ---
   companion object {
