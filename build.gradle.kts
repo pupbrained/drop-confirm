@@ -126,7 +126,7 @@ sc {
     else -> "dist"
   }
   swaps["item_style"] = when {
-    current.parsed >= "1.20.6" && loader == "neoforge" -> "itemStack.rarity.styleModifier"
+    (current.parsed >= "1.20.6" && loader == "neoforge") || loader == "forge" -> "itemStack.rarity.styleModifier"
     current.parsed >= "1.20.6" && loader == "fabric" -> "itemStack.rarity.color()"
     else -> "itemStack.rarity.color"
   }
