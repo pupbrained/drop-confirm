@@ -43,7 +43,7 @@ modstitch {
   metadata {
     modId = "drop_confirm"
     modName = "DropConfirm"
-    modVersion = "6.0.0"
+    modVersion = "6.0.1"
     modGroup = "xyz.pupbrained.drop_confirm"
     modAuthor = "pupbrained"
     modDescription = "Think twice before you drop. Adds a confirmation prompt when dropping items."
@@ -56,7 +56,7 @@ modstitch {
 
     replacementProperties.put(
       "loader_version", when (loader) {
-        "fabric" -> "0.17.2"
+        "fabric" -> "0.18.2"
         else -> getDep(loader)
       }
     )
@@ -70,7 +70,7 @@ modstitch {
     replacementProperties.put("pack_format", getDep("pack_format"))
   }
 
-  loom { fabricLoaderVersion = "0.17.2" }
+  loom { fabricLoaderVersion = "0.18.2" }
 
   moddevgradle {
     defaultRuns()
@@ -129,6 +129,29 @@ sc {
     (current.parsed >= "1.20.6" && loader == "neoforge") || loader == "forge" -> "itemStack.rarity.styleModifier"
     current.parsed >= "1.20.6" && loader == "fabric" -> "itemStack.rarity.color()"
     else -> "itemStack.rarity.color"
+  }
+  swaps["render_method"] = when {
+    current.parsed >= "1.21.11" -> "renderContents"
+    current.parsed >= "1.20.4" -> "renderWidget"
+    current.parsed >= "1.17.1" -> "render"
+    else -> "renderButton"
+  }
+  swaps["slot_change_method"] = when {
+    current.parsed >= "1.21.5" -> "\"setSelectedSlot\""
+    current.parsed eq "1.21.4" -> "\"setSelectedHotbarSlot\""
+    else -> "\"tick\""
+  }
+  swaps["get_selected_item"] = when {
+    current.parsed >= "1.21.5" -> "getSelectedItem"
+    else -> "getSelected"
+  }
+  swaps["drop_sound"] = when {
+    current.parsed >= "1.18.2" -> "BUNDLE_DROP_CONTENTS"
+    else -> "ITEM_PICKUP"
+  }
+  swaps["identifier_type"] = when {
+    current.parsed >= "1.21.11" -> "Identifier"
+    else -> "ResourceLocation"
   }
 }
 
@@ -202,7 +225,9 @@ publishMods {
   displayName = releaseDisplayName
 
   changelog = """
-    This update adds support for Minecraft 1.21.9-1.21.10 and updates various dependencies, namely Stonecutter and Modstitch.
+    This update adds support for Minecraft 1.21.11 and fixes some issues:
+      * Fixed an issue where DropConfirm used packet modifications to cancel drops, sometimes causing false bans on servers.
+      * Fixed a crash on 1.21.1 + NeoForge related to an incorrect annotation.
 
     ## Dependencies
 
@@ -238,6 +263,7 @@ publishMods {
         else -> "unilib"
       }
     )
+
     if (loader == "fabric") {
       requires("fabric-api")
       requires("fabric-language-kotlin")

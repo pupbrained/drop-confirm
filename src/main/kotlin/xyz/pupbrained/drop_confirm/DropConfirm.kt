@@ -10,8 +10,7 @@ import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
-//? if >=1.21.9
-/*import net.minecraft.resources.ResourceLocation*/
+import net.minecraft.resources./*$ identifier_type {*/ResourceLocation/*$}*/
 import net.minecraft.sounds.SoundEvents
 import org.lwjgl.glfw.GLFW
 import xyz.pupbrained.drop_confirm.config.DropConfirmConfig
@@ -34,9 +33,12 @@ object DropConfirm {
     InputConstants.Type.KEYSYM,
     GLFW.GLFW_KEY_J,
     //? if >=1.21.9 {
-    /*KeyMapping.Category(ResourceLocation.fromNamespaceAndPath("drop_confirm", "main"))
+    /*KeyMapping.Category(
+      /*$ identifier_type {*/ResourceLocation/*$}*/
+        .fromNamespaceAndPath("drop_confirm", "main")
+    )
     *///?} else {
-    "category.drop_confirm.keybinds"
+    "key.category.drop_confirm.main"
     //?}
   )
 

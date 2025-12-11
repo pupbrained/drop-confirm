@@ -56,7 +56,7 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
     private val baseColor: Int,
     private val hoverColor: Int
   ) : Button(x, y, width, height, component, onPress/*? if >=1.19.4 {*/, DEFAULT_NARRATION/*?}*/) {
-    override fun /*? if >=1.20.4 {*/renderWidget/*?} elif >=1.17.1 {*//*render*//*?} else {*//*renderButton*//*?}*/(
+    override fun /*$ render_method {*/renderWidget/*$}*/(
       /*? if >=1.16.5 {*/poseStack: PoseStack,/*?}*/
       mouseX: Int,
       mouseY: Int,
@@ -130,8 +130,8 @@ class PopupScreen(val itemStack: ItemStack) : Screen(ComponentUtils.translatable
       *///?} else if 1.20.4 {
       /*renderTransparentBackground(poseStack)
       *///?} else if <1.21.6 {
-      /*renderBlurredBackground(/*? if <=1.21.1 {*/partialTick/*?}*/)
-      *///?}
+      renderBlurredBackground(/*? if <=1.21.1 {*//*partialTick*//*?}*/)
+      //?}
 
       // Border
       fill(x1 + 1, y1, x2 - 1, y1 + 1, BORDER())

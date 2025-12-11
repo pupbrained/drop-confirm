@@ -9,7 +9,7 @@ pluginManagement {
   }
 }
 
-plugins { id("dev.kikugie.stonecutter") version "0.8-alpha.7" }
+plugins { id("dev.kikugie.stonecutter") version "0.8-beta.1" }
 
 sc {
   kotlinController = true
@@ -36,6 +36,7 @@ sc {
     mc("1.21.5", "fabric", "neoforge")
     mc("1.21.6", "fabric", "neoforge")
     mc("1.21.9", "fabric", "neoforge")
+    mc("1.21.11", "fabric"/*, "neoforge"*/) // temp disabled until YACL is updated
 
     vcsVersion = "1.21.4-fabric"
   }

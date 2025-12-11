@@ -1,6 +1,8 @@
 plugins {
   id("dev.kikugie.stonecutter")
   alias(libs.plugins.mod.publish)
+
+  id("fabric-loom") version "1.14-SNAPSHOT" apply false
 }
 
 stonecutter active "1.21.4-fabric"

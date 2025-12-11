@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
-import net.minecraft.world.InteractionHand;
 //? if 1.14.4
 /*import net.minecraft.world.entity.item.ItemEntity;*/
 import net.minecraft.world.entity.player.Inventory;
@@ -17,7 +16,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.pupbrained.drop_confirm.DropConfirm;
 import xyz.pupbrained.drop_confirm.config.ConfirmationMode;
@@ -43,16 +41,11 @@ public class ItemDropMixin {
   @Final
   protected Minecraft minecraft;
 
-  @Inject(method = "swing", at = @At("HEAD"), cancellable = true)
-  private void onHandSwing(InteractionHand hand, CallbackInfo ci) {
-    if (DropConfirm.isConfirmed()) ci.cancel();
-  }
-
   @Inject(method = "drop", at = @At("HEAD"), cancellable = true)
   private void onItemDrop(boolean entireStack, CallbackInfoReturnable</*? if 1.14.4 {*//*ItemEntity*//*?} else {*/Boolean/*?}*/> cir) {
     final LocalPlayer player = (LocalPlayer) (Object) this;
     final Inventory inventory = player./*? if >=1.17.1 {*/getInventory()/*?} else {*//*inventory*//*?}*/;
-    ItemStack itemStack = inventory./*? if >=1.21.5 {*//*getSelectedItem*//*?} else {*/getSelected/*?}*/();
+    ItemStack itemStack = inventory./*$ get_selected_item {*/getSelected/*$}*/();
 
     if (!DropConfirmConfig.isEnabled() || itemStack.isEmpty())
       return;
@@ -104,6 +97,9 @@ public class ItemDropMixin {
           }
         }, (long) (DropConfirmConfig.getResetDelay() * 1000), TimeUnit.MILLISECONDS);
       }
+
+      cir.setReturnValue(/*? if 1.14.4 {*//*null*//*?} else {*/false/*?}*/);
+      return;
     } else {
       DropConfirm.setConfirmed(false);
 
@@ -122,7 +118,7 @@ public class ItemDropMixin {
       minecraft.gui.setOverlayMessage(ComponentUtils.empty(), false);
 
       if (DropConfirmConfig.shouldPlaySounds())
-        player.playSound(SoundEvents./*? if >=1.18.2 {*/BUNDLE_DROP_CONTENTS/*?} else {*//*ITEM_PICKUP*//*?}*/, 1.0F, 1.0F);
+        player.playSound(SoundEvents./*$ drop_sound {*/BUNDLE_DROP_CONTENTS/*$}*/, 1.0F, 1.0F);
 
       player.connection.send(new ServerboundPlayerActionPacket(action, BlockPos.ZERO, Direction.DOWN));
     }

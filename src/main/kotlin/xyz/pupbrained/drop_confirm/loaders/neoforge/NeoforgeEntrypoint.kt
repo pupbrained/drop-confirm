@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client./*$ config_screen_factory_import {*/gui.ICo
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.loading.FMLEnvironment
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent
+import net.neoforged.neoforge.client.event.InputEvent
 import net.neoforged.neoforge.common.NeoForge
 import xyz.pupbrained.drop_confirm.DropConfirm.TOGGLE_KEY
 import xyz.pupbrained.drop_confirm.DropConfirm.handleKeyPresses
@@ -39,7 +40,7 @@ class NeoforgeEntrypoint {
     if (FMLEnvironment./*$ fml_env_dist {*/dist/*$}*/ == Dist.CLIENT)
       NeoForge.EVENT_BUS.register(object {
         @SubscribeEvent
-        fun onKeyInput() = handleKeyPresses(Minecraft.getInstance())
+        fun onKeyInput(event: InputEvent.Key) = handleKeyPresses(Minecraft.getInstance())
       })
   }
 }
