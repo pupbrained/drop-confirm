@@ -1,28 +1,19 @@
+### General ###
+.cache
+.env
 .gradle
+
+### Build Systems ###
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-.env
 
-### Minecraft ###
-run
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### Kotlin ###
-.kotlin
-
-### Eclipse ###
+### IDEs and Tools ###
+# Eclipse
 .apt_generated
 .classpath
+.eclipse
 .factorypath
 .project
 .settings
@@ -32,15 +23,32 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# IntelliJ IDEA
+.idea
+*.iml
+*.ipr
+*.iws
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
-### VS Code ###
+# NetBeans
+/.nb-gradle/
+/dist/
+/nbbuild/
+/nbdist/
+/nbproject/private/
+
+# VS Code
 .vscode/
 
-### Mac OS ###
+### Languages ###
+# Kotlin
+.kotlin
+
+### Minecraft ###
+run
+
+### OS ###
+# Mac OS
 .DS_Store
